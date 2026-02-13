@@ -1,0 +1,33 @@
+[project]
+name = "symbolic-music-latents"
+version = "0.1.0"
+description = "Experiment runner for symbolic music latent extraction."
+requires-python = "==3.11.*"
+dependencies = [
+  "numpy>=1.24",
+  "pyyaml>=6.0",
+  "torch>=2.2",
+  "safetensors>=0.4",
+  "huggingface-hub>=0.21",
+  "music21>=9.1",
+  "ariautils",
+  "transformers>=5.1.0",
+  "matplotlib>=3.10.8",
+]
+
+[project.optional-dependencies]
+models = [
+    "remi-z",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv.sources]
+ariautils = { git = "https://github.com/EleutherAI/aria-utils.git" }
+remi-z = { git = "https://github.com/Sonata165/REMI-z.git" }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

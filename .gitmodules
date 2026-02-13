@@ -1,0 +1,6 @@
+[submodule "PhraseLDM_code"]
+	path = PhraseLDM_code
+	url = https://github.com/Sonata165/PhraseLDM_code.git
+[submodule "aria"]
+	path = aria
+	url = https://github.com/EleutherAI/aria.git

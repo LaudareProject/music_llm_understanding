@@ -14,9 +14,21 @@ def main() -> int:
         description="Run a symbolic music latent experiment."
     )
     parser.add_argument("config", type=Path, help="Path to experiment YAML config.")
+    parser.add_argument(
+        "--reuse-results-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Reuse existing latent embeddings from this experiment directory and "
+            "write new axis outputs there."
+        ),
+    )
     args = parser.parse_args()
 
-    runner = ExperimentRunner(args.config)
+    runner = ExperimentRunner(
+        args.config,
+        reuse_results_dir=args.reuse_results_dir,
+    )
     output_dir = runner.run()
     print(f"Experiment completed: {output_dir}")
     return 0

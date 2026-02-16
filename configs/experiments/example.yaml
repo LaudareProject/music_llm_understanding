@@ -20,6 +20,7 @@ models:
 
 queries:
   - id: "twinkle_abc"
+    name: "Twinkle"
     abc: |
       X:1
       T:Twinkle Twinkle
@@ -29,6 +30,24 @@ queries:
       C C G G | A A G2 |
       F F E E | D D C2 |
   - id: "example_midi"
+    name: "Example MIDI"
     midi_path: "data/example.mid"
   - id: "custom_example"
+    name: "Custom C-E-G"
     custom: "C-E-G"
+
+axes:
+  - name: "abc_vs_custom"
+    query_a: "twinkle_abc"
+    query_b: "custom_example"
+    method: "explicit"
+
+plots:
+  demo:
+    axes:
+      - "abc_vs_custom"
+    options:
+      translate: true
+      orthonormalize: false
+      normalize_vectors: true
+      origin_strategy: "mean"

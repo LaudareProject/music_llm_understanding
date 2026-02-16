@@ -1,6 +1,6 @@
 experiment:
   name: "Test"
-  output_root: "../../outputs"
+  output_root: "../outputs"
   models:
     - "aria_embedding"
     - "phrase_vae"
@@ -16,44 +16,45 @@ models:
     type: "phrase_vae"
     repo_id: "LongshenOu/phrase-vae"
     device: "cpu"
+    trim: 16
 
 queries:
   - id: "c"
     name: "C"
-    custom: "C1-C2-C3-C4-C5"
+    custom: "C3"
   - id: "cs"
     name: "C#"
-    custom: "C#1-C#2-C#3-C#4-C#5"
+    custom: "C#3"
   - id: "d"
     name: "D"
-    custom: "D1-D2-D3-D4-D5"
+    custom: "D3"
   - id: "ds"
     name: "D#"
-    custom: "D#1-D#2-D#3-D#4-D#5"
+    custom: "D#3"
   - id: "e"
     name: "E"
-    custom: "E1-E2-E3-E4-E5"
+    custom: "E3"
   - id: "f"
     name: "F"
-    custom: "F1-F2-F3-F4-F5"
+    custom: "F3"
   - id: "fs"
     name: "F#"
-    custom: "F#1-F#2-F#3-F#4-F#5"
+    custom: "F#3"
   - id: "g"
     name: "G"
-    custom: "G1-G2-G3-G4-G5"
+    custom: "G3"
   - id: "gs"
     name: "G#"
-    custom: "G#1-G#2-G#3-G#4-G#5"
+    custom: "G#3"
   - id: "a"
     name: "A"
-    custom: "A1-A2-A3-A4-A5"
+    custom: "A3"
   - id: "as"
     name: "A#"
-    custom: "A#1-A#2-A#3-A#4-A#5"
+    custom: "A#3"
   - id: "b"
     name: "B"
-    custom: "B1-B2-B3-B4-B5"
+    custom: "B3"
 
 axes:
   - name: "C_vs_Gb"
@@ -72,6 +73,7 @@ plots:
       - "A_vs_Eb"
     options:
       orthonormalize: false
+      pca: false
   note_circle_orthonormal:
     axes:
       - "C_vs_Gb"
@@ -79,3 +81,11 @@ plots:
     options:
       orthonormalize: true
       origin_strategy: "mean"
+      pca: false
+  note_circle_pca:
+    axes:
+      - "C_vs_Gb"
+      - "A_vs_Eb"
+    options:
+      orthonormalize: false
+      pca: true

@@ -1,6 +1,6 @@
 experiment:
   name: "Test"
-  output_root: "../../outputs"
+  output_root: "../outputs"
   models:
     - "aria_embedding"
     - "phrase_vae"
@@ -16,6 +16,7 @@ models:
     type: "phrase_vae"
     repo_id: "LongshenOu/phrase-vae"
     device: "cpu"
+    trim: 16
 
 queries:
   - color: "red"
@@ -199,6 +200,7 @@ plots:
       - "Amaj_vs_Ebmaj"
     options:
       orthonormalize: false
+      pca: false
   tritone_grid_t0_o0_n1:
     axes:
       - "Cmaj_vs_Gbmaj"
@@ -207,3 +209,20 @@ plots:
       orthonormalize: true
       normalize_vectors: true
       origin_strategy: "mean"
+      pca: false
+  tritone_grid_t0_o0_n0_pca:
+    axes:
+      - "Cmaj_vs_Gbmaj"
+      - "Amaj_vs_Ebmaj"
+    options:
+      orthonormalize: false
+      pca: true
+  tritone_grid_t0_o0_n1_pca:
+    axes:
+      - "Cmaj_vs_Gbmaj"
+      - "Amaj_vs_Ebmaj"
+    options:
+      orthonormalize: true
+      normalize_vectors: true
+      origin_strategy: "mean"
+      pca: true

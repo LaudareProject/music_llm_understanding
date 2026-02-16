@@ -1,6 +1,6 @@
 experiment:
   name: "symbolic_latent_demo"
-  output_root: "outputs"
+  output_root: "../outputs"
   models:
     - "aria_embedding"
     - "phrase_vae"
@@ -17,6 +17,7 @@ models:
     # Use either repo_id (HF) or lightning_ckpt_path.
     repo_id: "LongshenOu/phrase-vae"
     device: "cpu"
+    trim: 16
 
 queries:
   - id: "twinkle_abc"
@@ -51,3 +52,13 @@ plots:
       orthonormalize: false
       normalize_vectors: true
       origin_strategy: "mean"
+      pca: false
+  demo_pca:
+    axes:
+      - "abc_vs_custom"
+    options:
+      translate: true
+      orthonormalize: false
+      normalize_vectors: true
+      origin_strategy: "mean"
+      pca: true

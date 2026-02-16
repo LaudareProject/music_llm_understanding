@@ -4,7 +4,7 @@ This repo provides a lightweight experiment runner to extract latent representat
 
 ## Quickstart
 
-1. Create a YAML config (see `configs/experiments/example.yaml`).
+1. Create a YAML config (see `configs/example.yaml`).
 2. Install deps with uv:
 
 ```bash
@@ -14,8 +14,10 @@ uv sync
 3. Run the experiment:
 
 ```bash
-uv run python scripts/run_experiment.py configs/experiments/example.yaml
+uv run python scripts/run_experiment.py configs/example.yaml
 ```
+
+If no config is provided, the runner executes all `configs/*.ya?ml` files except `example.yaml`.
 
 Outputs are stored under `outputs/<experiment_name>/<timestamp>/` with per-query/model latent files and metadata.
 

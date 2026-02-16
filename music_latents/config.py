@@ -38,6 +38,7 @@ class AxesOptions:
     orthonormalize: bool
     normalize_vectors: bool
     origin_strategy: str
+    pca: bool
 
 
 @dataclass(frozen=True)
@@ -47,10 +48,19 @@ class PlotSpec:
 
 
 @dataclass(frozen=True)
+class AverageGroupSpec:
+    group_id: str
+    query_ids: List[str]
+    name: str
+    color: Optional[str]
+
+
+@dataclass(frozen=True)
 class ExperimentConfig:
     settings: ExperimentSettings
     models: Dict[str, Dict]
     queries: List[QuerySpec]
+    averages: List[AverageGroupSpec]
     axes: List[AxisSpec]
     plots: Dict[str, PlotSpec]
     base_dir: Path
@@ -101,13 +111,16 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
     if len(query_ids) != len(queries):
         raise ConfigError("Query ids must be unique.")
 
+    averages = normalize_averages(raw.get("average"), queries)
+    average_ids = {group.group_id for group in averages}
+
     axes_raw = raw.get("axes", [])
     if axes_raw is None:
         axes_raw = []
     if not isinstance(axes_raw, list):
         raise ConfigError("'axes' must be a list if provided.")
 
-    axes = [normalize_axis(item, query_ids) for item in axes_raw]
+    axes = [normalize_axis(item, query_ids | average_ids) for item in axes_raw]
     axis_names = [axis.name for axis in axes]
     if len(axis_names) != len(set(axis_names)):
         raise ConfigError("Axis names must be unique.")
@@ -125,6 +138,7 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         settings=settings,
         models=models,
         queries=queries,
+        averages=averages,
         axes=axes,
         plots=plots,
         base_dir=path.parent,
@@ -240,6 +254,80 @@ def normalize_axis(raw: Dict, query_ids: set[str]) -> AxisSpec:
     )
 
 
+def normalize_averages(raw: Any, queries: List[QuerySpec]) -> List[AverageGroupSpec]:
+    if raw is None:
+        return []
+    if not isinstance(raw, dict):
+        raise ConfigError("'average' must be a mapping if provided.")
+
+    query_map = {query.query_id: query for query in queries}
+    groups: List[AverageGroupSpec] = []
+
+    for group_id, group_raw in raw.items():
+        if not isinstance(group_id, str) or not group_id:
+            raise ConfigError("Average group ids must be non-empty strings.")
+        if group_id in query_map:
+            raise ConfigError(
+                f"Average group id '{group_id}' conflicts with an existing query id."
+            )
+
+        if isinstance(group_raw, list):
+            query_ids = group_raw
+            name = group_id
+            color = None
+        elif isinstance(group_raw, dict):
+            query_ids = group_raw.get("queries")
+            name = group_raw.get("name", group_id)
+            color = group_raw.get("color")
+        else:
+            raise ConfigError(
+                f"Average group '{group_id}' must be a list or a mapping."
+            )
+
+        if not isinstance(query_ids, list) or not query_ids:
+            raise ConfigError(
+                f"Average group '{group_id}' must define a non-empty 'queries' list."
+            )
+
+        normalized_query_ids: List[str] = []
+        for query_id in query_ids:
+            if not isinstance(query_id, str) or not query_id:
+                raise ConfigError(
+                    f"Average group '{group_id}' contains an invalid query id."
+                )
+            if query_id not in query_map:
+                raise ConfigError(
+                    f"Average group '{group_id}' references unknown query '{query_id}'."
+                )
+            normalized_query_ids.append(query_id)
+
+        if len(normalized_query_ids) != len(set(normalized_query_ids)):
+            raise ConfigError(
+                f"Average group '{group_id}' has duplicate query references."
+            )
+
+        if not isinstance(name, str) or not name:
+            raise ConfigError(f"Average group '{group_id}' name must be a string.")
+        if color is not None and (not isinstance(color, str) or not color):
+            raise ConfigError(f"Average group '{group_id}' color must be a string.")
+
+        if color is None:
+            colors = {query_map[qid].color for qid in normalized_query_ids}
+            if len(colors) == 1:
+                color = next(iter(colors))
+
+        groups.append(
+            AverageGroupSpec(
+                group_id=group_id,
+                query_ids=normalized_query_ids,
+                name=name,
+                color=color,
+            )
+        )
+
+    return groups
+
+
 def normalize_axes_options(raw: Any) -> AxesOptions:
     if raw is None:
         raw = {}
@@ -250,6 +338,7 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
     orthonormalize = raw.get("orthonormalize", False)
     normalize_vectors = raw.get("normalize_vectors", True)
     origin_strategy = raw.get("origin_strategy", "mean")
+    pca = raw.get("pca", False)
 
     if not isinstance(translate, bool):
         raise ConfigError("axes_options.translate must be a boolean.")
@@ -259,12 +348,15 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         raise ConfigError("axes_options.normalize_vectors must be a boolean.")
     if origin_strategy not in {"mean", "first"}:
         raise ConfigError("axes_options.origin_strategy must be 'mean' or 'first'.")
+    if not isinstance(pca, bool):
+        raise ConfigError("axes_options.pca must be a boolean.")
 
     return AxesOptions(
         translate=translate,
         orthonormalize=orthonormalize,
         normalize_vectors=normalize_vectors,
         origin_strategy=origin_strategy,
+        pca=pca,
     )
 
 

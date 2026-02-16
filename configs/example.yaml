@@ -62,3 +62,12 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
+  demo_orthonormal_pca:
+    axes:
+      - "abc_vs_custom"
+    options:
+      translate: true
+      orthonormalize: true
+      normalize_vectors: true
+      origin_strategy: "mean"
+      pca: true

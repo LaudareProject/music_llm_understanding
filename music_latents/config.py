@@ -39,6 +39,7 @@ class AxesOptions:
     normalize_vectors: bool
     origin_strategy: str
     pca: bool
+    averaged_only: bool
 
 
 @dataclass(frozen=True)
@@ -339,6 +340,7 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
     normalize_vectors = raw.get("normalize_vectors", True)
     origin_strategy = raw.get("origin_strategy", "mean")
     pca = raw.get("pca", False)
+    averaged_only = raw.get("averaged_only", False)
 
     if not isinstance(translate, bool):
         raise ConfigError("axes_options.translate must be a boolean.")
@@ -350,6 +352,8 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         raise ConfigError("axes_options.origin_strategy must be 'mean' or 'first'.")
     if not isinstance(pca, bool):
         raise ConfigError("axes_options.pca must be a boolean.")
+    if not isinstance(averaged_only, bool):
+        raise ConfigError("axes_options.averaged_only must be a boolean.")
 
     return AxesOptions(
         translate=translate,
@@ -357,6 +361,7 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         normalize_vectors=normalize_vectors,
         origin_strategy=origin_strategy,
         pca=pca,
+        averaged_only=averaged_only,
     )
 
 

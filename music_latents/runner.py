@@ -21,10 +21,14 @@ class ExperimentRunner:
         self,
         config_path: Path,
         reuse_results_dir: Path | None = None,
+        output_root_override: Path | None = None,
+        experiment_name_override: str | None = None,
     ) -> None:
         self.config_path = config_path
         self.config = load_experiment_config(config_path)
         self.reuse_results_dir = reuse_results_dir
+        self.output_root_override = output_root_override
+        self.experiment_name_override = experiment_name_override
 
     def run(self) -> Path:
         model_trims = self._resolve_model_trims()
@@ -187,10 +191,12 @@ class ExperimentRunner:
 
     def _create_output_dir(self) -> Path:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_root = self.config.settings.output_root
+        output_root = self.output_root_override or self.config.settings.output_root
         if not output_root.is_absolute():
             output_root = (self.config.base_dir / output_root).resolve()
-        output_dir = output_root / self.config.settings.name / timestamp
+
+        experiment_name = self.experiment_name_override or self.config.settings.name
+        output_dir = output_root / experiment_name / timestamp
         output_dir.mkdir(parents=True, exist_ok=True)
         return output_dir
 
@@ -352,6 +358,7 @@ class ExperimentRunner:
                         "normalize_vectors": plot_spec.options.normalize_vectors,
                         "origin_strategy": plot_spec.options.origin_strategy,
                         "pca": plot_spec.options.pca,
+                        "averaged_only": plot_spec.options.averaged_only,
                     },
                     "pca": pca_info,
                     "axes": [
@@ -379,7 +386,10 @@ class ExperimentRunner:
                             "color": query_colors.get(query_id),
                             "scores": scores.get(query_id, {}),
                         }
-                        for query_id in embeddings.keys()
+                        for query_id in self._select_plot_query_ids(
+                            embeddings=embeddings,
+                            averaged_only=plot_spec.options.averaged_only,
+                        )
                     ],
                 }
                 self._save_json(axes_dir / f"scores_{plot_slug}.json", scores_payload)
@@ -390,6 +400,10 @@ class ExperimentRunner:
                         plot_slug,
                         axes,
                         scores,
+                        self._select_plot_query_ids(
+                            embeddings=embeddings,
+                            averaged_only=plot_spec.options.averaged_only,
+                        ),
                         query_names,
                         query_colors,
                     )
@@ -513,6 +527,7 @@ class ExperimentRunner:
         plot_slug: str,
         axes,
         scores: Dict[str, Dict[str, float]],
+        query_ids: list[str],
         query_names: Dict[str, str],
         query_colors: Dict[str, Any],
     ) -> None:
@@ -529,7 +544,7 @@ class ExperimentRunner:
         axis_names = [axis.name for axis in axes]
         points = [
             (query_id, [scores[query_id][name] for name in axis_names])
-            for query_id in scores.keys()
+            for query_id in query_ids
         ]
 
         fig = None
@@ -589,3 +604,19 @@ class ExperimentRunner:
             fig.tight_layout()
             fig.savefig(plot_path, dpi=150)
             plt.close(fig)
+
+    def _select_plot_query_ids(
+        self,
+        embeddings: Dict[str, np.ndarray],
+        averaged_only: bool,
+    ) -> list[str]:
+        if not averaged_only:
+            return list(embeddings.keys())
+        average_ids = [
+            group.group_id
+            for group in self.config.averages
+            if group.group_id in embeddings
+        ]
+        if average_ids:
+            return average_ids
+        return list(embeddings.keys())

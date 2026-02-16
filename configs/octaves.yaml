@@ -89,3 +89,11 @@ plots:
     options:
       orthonormalize: false
       pca: true
+  note_circle_orthonormal_pca:
+    axes:
+      - "C_vs_Gb"
+      - "A_vs_Eb"
+    options:
+      orthonormalize: true
+      origin_strategy: "mean"
+      pca: true

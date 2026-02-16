@@ -217,6 +217,14 @@ plots:
     options:
       orthonormalize: false
       pca: true
+  tritone_grid_t0_o0_n0_orthonormal_pca:
+    axes:
+      - "Cmaj_vs_Gbmaj"
+      - "Amaj_vs_Ebmaj"
+    options:
+      orthonormalize: true
+      origin_strategy: "mean"
+      pca: true
   tritone_grid_t0_o0_n1_pca:
     axes:
       - "Cmaj_vs_Gbmaj"

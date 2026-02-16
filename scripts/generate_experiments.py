@@ -123,6 +123,14 @@ def render_yaml(
             "    options:",
             "      orthonormalize: false",
             "      pca: true",
+            "  note_circle_orthonormal_pca:",
+            "    axes:",
+            '      - "C_vs_Gb"',
+            '      - "A_vs_Eb"',
+            "    options:",
+            "      orthonormalize: true",
+            '      origin_strategy: "mean"',
+            "      pca: true",
             "",
         ]
     )
@@ -188,6 +196,13 @@ def render_note_grid_yaml(*, experiment_name: str, output_root: str) -> str:
             '      - "C1_vs_B6"',
             "    options:",
             "      orthonormalize: false",
+            "      pca: true",
+            "  c1_b6_orthonormal_pca:",
+            "    axes:",
+            '      - "C1_vs_B6"',
+            "    options:",
+            "      orthonormalize: true",
+            '      origin_strategy: "mean"',
             "      pca: true",
             "",
         ]

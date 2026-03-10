@@ -1,5 +1,8 @@
 music_latents/__pycache__
 music_latents/models/__pycache__
 tests/__pycache__
-outputs/Test
+outputs/
 scripts/__pycache__
+EWLD
+EWLD.zip
+bin

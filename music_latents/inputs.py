@@ -6,6 +6,10 @@ import shutil
 from typing import Optional
 
 from music_latents.config import QuerySpec
+from music_latents.humdrum import (
+    HumdrumError,
+    convert_musicxml_to_centered_midi,
+)
 
 
 @dataclass(frozen=True)
@@ -64,8 +68,22 @@ def prepare_midi_input(query: QuerySpec, base_dir: Path, query_dir: Path) -> Inp
         stored_path = input_dir / source_path.name
         shutil.copy2(source_path, stored_path)
         midi_path = input_dir / "input.mid"
-        score = _parse_music21_from_file(stored_path)
-        _write_music21_midi(score, midi_path)
+        try:
+            semitone_shift = convert_musicxml_to_centered_midi(
+                musicxml_path=stored_path,
+                midi_path=midi_path,
+                bin_dir=Path.cwd() / "bin",
+            )
+        except (FileNotFoundError, PermissionError, HumdrumError):
+            score = _parse_music21_from_file(stored_path)
+            _write_music21_midi(score, midi_path)
+            semitone_shift = 0
+
+        transpose_meta = input_dir / "transpose.txt"
+        transpose_meta.write_text(
+            f"target_average_pitch=60\nsemitone_shift={semitone_shift}\n",
+            encoding="utf-8",
+        )
         return InputInfo(
             input_kind=query.input_kind,
             source=str(source_path),

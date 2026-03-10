@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
@@ -39,7 +40,10 @@ class AxesOptions:
     normalize_vectors: bool
     origin_strategy: str
     pca: bool
+    lda_groups: bool
     averaged_only: bool
+    group_filter: str
+    cosine_references: Optional[List[str]]
 
 
 @dataclass(frozen=True)
@@ -54,6 +58,7 @@ class AverageGroupSpec:
     query_ids: List[str]
     name: str
     color: Optional[str]
+    method: str
 
 
 @dataclass(frozen=True)
@@ -62,6 +67,7 @@ class ExperimentConfig:
     models: Dict[str, Dict]
     queries: List[QuerySpec]
     averages: List[AverageGroupSpec]
+    medians: List[AverageGroupSpec]
     axes: List[AxisSpec]
     plots: Dict[str, PlotSpec]
     base_dir: Path
@@ -69,6 +75,9 @@ class ExperimentConfig:
 
 class ConfigError(ValueError):
     pass
+
+
+PCA_COMPONENT_AXIS_RE = re.compile(r"^pca(\d{2,})$")
 
 
 def load_experiment_config(path: Path) -> ExperimentConfig:
@@ -113,7 +122,8 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         raise ConfigError("Query ids must be unique.")
 
     averages = normalize_averages(raw.get("average"), queries)
-    average_ids = {group.group_id for group in averages}
+    medians = normalize_averages(raw.get("median"), queries, method="median")
+    aggregate_ids = {group.group_id for group in averages + medians}
 
     axes_raw = raw.get("axes", [])
     if axes_raw is None:
@@ -121,7 +131,7 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
     if not isinstance(axes_raw, list):
         raise ConfigError("'axes' must be a list if provided.")
 
-    axes = [normalize_axis(item, query_ids | average_ids) for item in axes_raw]
+    axes = [normalize_axis(item, query_ids | aggregate_ids) for item in axes_raw]
     axis_names = [axis.name for axis in axes]
     if len(axis_names) != len(set(axis_names)):
         raise ConfigError("Axis names must be unique.")
@@ -140,6 +150,7 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         models=models,
         queries=queries,
         averages=averages,
+        medians=medians,
         axes=axes,
         plots=plots,
         base_dir=path.parent,
@@ -255,11 +266,15 @@ def normalize_axis(raw: Dict, query_ids: set[str]) -> AxisSpec:
     )
 
 
-def normalize_averages(raw: Any, queries: List[QuerySpec]) -> List[AverageGroupSpec]:
+def normalize_averages(
+    raw: Any,
+    queries: List[QuerySpec],
+    method: str = "average",
+) -> List[AverageGroupSpec]:
     if raw is None:
         return []
     if not isinstance(raw, dict):
-        raise ConfigError("'average' must be a mapping if provided.")
+        raise ConfigError(f"'{method}' must be a mapping if provided.")
 
     query_map = {query.query_id: query for query in queries}
     groups: List[AverageGroupSpec] = []
@@ -323,6 +338,7 @@ def normalize_averages(raw: Any, queries: List[QuerySpec]) -> List[AverageGroupS
                 query_ids=normalized_query_ids,
                 name=name,
                 color=color,
+                method=method,
             )
         )
 
@@ -340,7 +356,10 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
     normalize_vectors = raw.get("normalize_vectors", True)
     origin_strategy = raw.get("origin_strategy", "mean")
     pca = raw.get("pca", False)
+    lda_groups = raw.get("lda_groups", False)
     averaged_only = raw.get("averaged_only", False)
+    group_filter = raw.get("group_filter", "all")
+    cosine_references = raw.get("cosine_references")
 
     if not isinstance(translate, bool):
         raise ConfigError("axes_options.translate must be a boolean.")
@@ -352,8 +371,26 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         raise ConfigError("axes_options.origin_strategy must be 'mean' or 'first'.")
     if not isinstance(pca, bool):
         raise ConfigError("axes_options.pca must be a boolean.")
+    if not isinstance(lda_groups, bool):
+        raise ConfigError("axes_options.lda_groups must be a boolean.")
     if not isinstance(averaged_only, bool):
         raise ConfigError("axes_options.averaged_only must be a boolean.")
+    if group_filter not in {"all", "average", "median"}:
+        raise ConfigError(
+            "axes_options.group_filter must be one of: all, average, median."
+        )
+    if cosine_references is not None:
+        if (
+            not isinstance(cosine_references, list)
+            or len(cosine_references) != 2
+            or any(
+                not isinstance(reference, str) or not reference
+                for reference in cosine_references
+            )
+        ):
+            raise ConfigError(
+                "axes_options.cosine_references must be a list with exactly two non-empty strings."
+            )
 
     return AxesOptions(
         translate=translate,
@@ -361,7 +398,10 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         normalize_vectors=normalize_vectors,
         origin_strategy=origin_strategy,
         pca=pca,
+        lda_groups=lda_groups,
         averaged_only=averaged_only,
+        group_filter=group_filter,
+        cosine_references=cosine_references,
     )
 
 
@@ -370,10 +410,9 @@ def normalize_plots(
     axis_names: List[str],
     default_options: AxesOptions,
 ) -> Dict[str, PlotSpec]:
-    if not axis_names:
-        return {}
-
     if raw is None:
+        if not axis_names:
+            return {}
         return {"default": PlotSpec(axes=list(axis_names), options=default_options)}
 
     if isinstance(raw, list):
@@ -411,7 +450,9 @@ def normalize_plots(
         for axis_name in plot_axes:
             if not isinstance(axis_name, str) or not axis_name:
                 raise ConfigError(f"Plot '{plot_name}' axis names must be strings.")
-            if axis_name not in known_axes:
+            if axis_name not in known_axes and not is_pca_component_axis_name(
+                axis_name
+            ):
                 raise ConfigError(
                     f"Plot '{plot_name}' references unknown axis '{axis_name}'."
                 )
@@ -422,3 +463,7 @@ def normalize_plots(
         plots[plot_name] = PlotSpec(axes=normalized_axes, options=plot_options)
 
     return plots
+
+
+def is_pca_component_axis_name(axis_name: str) -> bool:
+    return PCA_COMPONENT_AXIS_RE.match(axis_name) is not None

@@ -53,6 +53,7 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: false
+      cosine_references: ["twinkle_abc", "custom_example"]
   demo_pca:
     axes:
       - "abc_vs_custom"
@@ -62,6 +63,7 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["twinkle_abc", "custom_example"]
   demo_orthonormal_pca:
     axes:
       - "abc_vs_custom"
@@ -71,3 +73,4 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["twinkle_abc", "custom_example"]

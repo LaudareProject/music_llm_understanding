@@ -57,6 +57,7 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -145,6 +146,7 @@ plots:
       orthonormalize: false
       normalize_vectors: true
       origin_strategy: "mean"
+      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -219,6 +221,7 @@ plots:
       orthonormalize: false
       normalize_vectors: true
       origin_strategy: "mean"
+      cosine_references: ["q12_avg", "q3"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -270,3 +273,271 @@ queries:
     assert latent.shape == (1, 8)
     assert metadata["latent_shape"] == [1, 8]
     assert metadata["trim"] == 8
+
+
+def test_experiment_runner_supports_median_groups(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+    midi_c = tmp_path / "c.mid"
+    midi_c.write_bytes(b"c")
+
+    config_path = tmp_path / "config_median.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_median"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+  - id: "q3"
+    name: "Q3"
+    midi_path: "c.mid"
+
+average:
+  avg_all:
+    name: "Average"
+    queries: ["q1", "q2", "q3"]
+
+median:
+  med_all:
+    name: "Median"
+    queries: ["q1", "q2", "q3"]
+
+axes:
+  - name: "med_vs_avg"
+    query_a: "med_all"
+    query_b: "avg_all"
+    method: "explicit"
+
+plots:
+  average_plot:
+    axes:
+      - "med_vs_avg"
+    options:
+      averaged_only: true
+      group_filter: "average"
+      cosine_references: ["avg_all", "med_all"]
+  median_plot:
+    axes:
+      - "med_vs_avg"
+    options:
+      averaged_only: true
+      group_filter: "median"
+      cosine_references: ["avg_all", "med_all"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    runner = ExperimentRunner(config_path)
+    output_dir = runner.run()
+
+    avg_scores = json.loads(
+        (output_dir / "axes" / "dummy_model" / "scores_average_plot.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    med_scores = json.loads(
+        (output_dir / "axes" / "dummy_model" / "scores_median_plot.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert [entry["id"] for entry in avg_scores["queries"]] == ["avg_all"]
+    assert [entry["id"] for entry in med_scores["queries"]] == ["med_all"]
+
+    synthetic = {
+        "dummy_model": {
+            "q1": np.array([1.0, 10.0]),
+            "q2": np.array([5.0, 2.0]),
+            "q3": np.array([9.0, 4.0]),
+        }
+    }
+    merged = runner._apply_aggregate_groups(synthetic)
+    assert np.allclose(merged["dummy_model"]["med_all"], np.array([5.0, 4.0]))
+
+
+def test_experiment_runner_supports_pca_component_axes(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+    midi_c = tmp_path / "c.mid"
+    midi_c.write_bytes(b"c")
+
+    config_path = tmp_path / "config_pca_axes.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_pca_axes"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+  - id: "q3"
+    name: "Q3"
+    midi_path: "c.mid"
+
+plots:
+  pca_plot:
+    axes: ["pca01", "pca02"]
+    options:
+      pca: true
+      translate: true
+      normalize_vectors: true
+      cosine_references: ["q1", "q2"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    axes_path = output_dir / "axes" / "dummy_model" / "axes_pca_plot.json"
+    scores_path = output_dir / "axes" / "dummy_model" / "scores_pca_plot.json"
+
+    assert axes_path.exists()
+    assert scores_path.exists()
+
+    axes_payload = json.loads(axes_path.read_text(encoding="utf-8"))
+    assert [item["name"] for item in axes_payload["axes"]] == ["pca01", "pca02"]
+    assert [item["method"] for item in axes_payload["axes"]] == [
+        "pca_component",
+        "pca_component",
+    ]
+
+    scores_payload = json.loads(scores_path.read_text(encoding="utf-8"))
+    assert scores_payload["axes"] == ["pca01", "pca02"]
+    assert len(scores_payload["queries"]) == 3
+
+
+def test_experiment_runner_supports_pca_component_without_pca(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+
+    config_path = tmp_path / "config_pca_no_pca.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_pca_no_pca"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+
+plots:
+  bad_plot:
+    axes: ["pca01"]
+    options:
+      pca: false
+      cosine_references: ["q1", "q2"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    scores_path = output_dir / "axes" / "dummy_model" / "scores_bad_plot.json"
+    assert scores_path.exists()
+
+
+def test_experiment_runner_supports_group_lda_plot_option(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+    midi_c = tmp_path / "c.mid"
+    midi_c.write_bytes(b"c")
+    midi_d = tmp_path / "d.mid"
+    midi_d.write_bytes(b"d")
+
+    config_path = tmp_path / "config_lda_groups.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_lda_groups"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+  - id: "q3"
+    name: "Q3"
+    midi_path: "c.mid"
+  - id: "q4"
+    name: "Q4"
+    midi_path: "d.mid"
+
+average:
+  g1:
+    name: "G1"
+    queries: ["q1", "q2"]
+  g2:
+    name: "G2"
+    queries: ["q3", "q4"]
+
+axes:
+  - name: "g1_vs_g2"
+    query_a: "g1"
+    query_b: "g2"
+    method: "explicit"
+
+plots:
+  lda_plot:
+    axes: ["g1_vs_g2"]
+    options:
+      averaged_only: true
+      group_filter: "average"
+      lda_groups: true
+      cosine_references: ["g1", "g2"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    axes_path = output_dir / "axes" / "dummy_model" / "axes_lda_plot.json"
+    assert axes_path.exists()
+
+    payload = json.loads(axes_path.read_text(encoding="utf-8"))
+    assert payload["options"]["lda_groups"] is True
+    assert payload["lda"]["enabled"] is True

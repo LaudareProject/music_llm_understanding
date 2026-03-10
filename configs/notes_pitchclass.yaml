@@ -303,7 +303,9 @@ plots:
     options:
       orthonormalize: false
       pca: false
+      lda_groups: true
       averaged_only: true
+      cosine_references: ["c", "a"]
   note_circle_orthonormal:
     axes:
       - "C_vs_Gb"
@@ -312,7 +314,9 @@ plots:
       orthonormalize: true
       origin_strategy: "mean"
       pca: false
+      lda_groups: true
       averaged_only: true
+      cosine_references: ["c", "a"]
   note_circle_pca:
     axes:
       - "C_vs_Gb"
@@ -320,7 +324,9 @@ plots:
     options:
       orthonormalize: false
       pca: true
+      lda_groups: true
       averaged_only: true
+      cosine_references: ["c", "a"]
   note_circle_orthonormal_pca:
     axes:
       - "C_vs_Gb"
@@ -329,4 +335,6 @@ plots:
       orthonormalize: true
       origin_strategy: "mean"
       pca: true
+      lda_groups: true
       averaged_only: true
+      cosine_references: ["c", "a"]

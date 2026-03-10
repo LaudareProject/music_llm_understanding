@@ -1,0 +1,3862 @@
+experiment:
+  name: EWLDTonality
+  output_root: ../outputs
+  models:
+  - aria_embedding
+  - phrase_vae
+models:
+  aria_embedding:
+    type: aria_embedding
+    repo_id: loubb/aria-medium-embedding
+    checkpoint_filename: model.safetensors
+    model_config_name: medium-emb
+    device: cpu
+  phrase_vae:
+    type: phrase_vae
+    repo_id: LongshenOu/phrase-vae
+    device: cpu
+    trim: 16
+queries:
+- id: a_major_001
+  name: 'A major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Miles_Davis/Tune_Up/Tune_Up.mxl
+- id: a_major_002
+  name: 'A major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Alicia_Scott/Annie_Laurie/Annie_Laurie.mxl
+- id: a_major_003
+  name: 'A major #3'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Tied_a_dics\u0151s\xE9g/Tied_a_dics\u0151\
+    s\xE9g.mxl"
+- id: a_major_004
+  name: 'A major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jack_Bulterman/Patsy/Patsy.mxl
+- id: a_major_005
+  name: 'A major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/BOXERS/BOXERS.mxl
+- id: a_major_006
+  name: 'A major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/De_Nacht_is_Nog_Zo_Lang/De_Nacht_is_Nog_Zo_Lang.mxl
+- id: a_major_007
+  name: 'A major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/My_Ramblin'_Boy/My_Ramblin'_Boy.mxl
+- id: a_major_008
+  name: 'A major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Mars_Bonfire/Born_to_Be_Wild/Born_to_Be_Wild.mxl
+- id: a_major_009
+  name: 'A major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Fred_Spielman-Janice_Torre/Paper_Roses/Paper_Roses.mxl
+- id: a_major_010
+  name: 'A major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Brian_Wilson-Tony_Asher/God_Only_Knows/God_Only_Knows.mxl
+- id: a_major_011
+  name: 'A major #11'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/If_I_Had_A_Hammer/If_I_Had_A_Hammer.mxl
+- id: a_major_012
+  name: 'A major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Hawk's_Hornpipe/Hawk's_Hornpipe.mxl
+- id: a_major_013
+  name: 'A major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Harry_Parr-Davies/Sing_as_We_Go/Sing_as_We_Go.mxl
+- id: a_major_014
+  name: 'A major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/R._Kelly/I_Look_to_You/I_Look_to_You.mxl
+- id: a_major_015
+  name: 'A major #15'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Billy_Tubb/Waltz_Across_Texas/Waltz_Across_Texas.mxl
+- id: a_major_016
+  name: 'A major #16'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Magne_Furuholmen-Morten_Harket-P\xE5l_Waaktaar/Take_on_Me/Take_on_Me.mxl"
+- id: a_major_017
+  name: 'A major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Puff,_The_Magic_Dragon/Puff,_The_Magic_Dragon.mxl
+- id: a_major_018
+  name: 'A major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/O_Worship_the_King/O_Worship_the_King.mxl
+- id: a_major_019
+  name: 'A major #19'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jerry_Livingston-Ralph_Freed/Adios_Amigo/Adios_Amigo.mxl
+- id: a_major_020
+  name: 'A major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Carole_King-Gerry_Goffin/Pleasant_Valley_Sunday/Pleasant_Valley_Sunday.mxl
+- id: a_major_021
+  name: 'A major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Pee_Wee_King-Redd_Stewart/Tennessee_Waltz/Tennessee_Waltz.mxl
+- id: a_major_022
+  name: 'A major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Claude_Kelly-Dr._Luke-Max_Martin/My_Life_Would_Suck_Without_You/My_Life_Would_Suck_Without_You.mxl
+- id: a_major_023
+  name: 'A major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Al_Jackson_Jr.-Booker_T._Jones-Lewie_Steinberg-Steve_Cropper/Green_Onions/Green_Onions.mxl
+- id: a_major_024
+  name: 'A major #24'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Phil_Hanseroth/The_Story/The_Story.mxl
+- id: a_major_025
+  name: 'A major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Waltz_of_Love/Waltz_of_Love.mxl
+- id: a_major_026
+  name: 'A major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bob_Marley/Three_Little_Birds/Three_Little_Birds.mxl
+- id: a_major_027
+  name: 'A major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/James_Myers-Max_Freedman/Rock_Around_the_Clock/Rock_Around_the_Clock.mxl
+- id: a_major_028
+  name: 'A major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Annie_Lennox-Dave_Stewart/Sweet_Dreams_(Are_Made_of_This)/Sweet_Dreams_(Are_Made_of_This).mxl
+- id: a_major_029
+  name: 'A major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Achy_Breaky_Heart/Achy_Breaky_Heart.mxl
+- id: a_major_030
+  name: 'A major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Best_That_You_Can_Do_(Arthur's_Theme)/Best_That_You_Can_Do_(Arthur's_Theme).mxl
+- id: a_major_031
+  name: 'A major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/"SEASIDE,_YET_DOCKED"/"SEASIDE,_YET_DOCKED".mxl
+- id: a_major_032
+  name: 'A major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Samuel_Barber/Agnus_dei/Agnus_dei.mxl
+- id: a_major_033
+  name: 'A major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Amy_Lee-Ben_Moody/My_Immortal/My_Immortal.mxl
+- id: a_major_034
+  name: 'A major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bill_Danoff-John_Denver-Taffy_Nivert/Take_Me_Home,_Country_Roads/Take_Me_Home,_Country_Roads.mxl
+- id: a_major_035
+  name: 'A major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Boy_from_Ipanema/The_Boy_from_Ipanema.mxl
+- id: a_major_036
+  name: 'A major #36'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Come_Back_To_Sorrento_(Torna_a_Surriento)/Come_Back_To_Sorrento_(Torna_a_Surriento).mxl
+- id: a_major_037
+  name: 'A major #37'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Danny_Webb/One_Summer_Night/One_Summer_Night.mxl
+- id: a_major_038
+  name: 'A major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Carole_King-Gerry_Goffin-Jerry_Wexler/(You_Make_Me_Feel_Like)_A_Natural_Woman/(You_Make_Me_Feel_Like)_A_Natural_Woman.mxl
+- id: a_major_039
+  name: 'A major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Sting/Message_in_a_Bottle/Message_in_a_Bottle.mxl
+- id: a_major_040
+  name: 'A major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I'M_OUT_OF_CANDY,_DARLING/I'M_OUT_OF_CANDY,_DARLING.mxl
+- id: a_major_041
+  name: 'A major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Barry_Mason-John_Fiddy/We_Got_the_Whole_World_in_Our_Hands/We_Got_the_Whole_World_in_Our_Hands.mxl
+- id: a_major_042
+  name: 'A major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Maybe_an_angel/Maybe_an_angel.mxl
+- id: a_major_043
+  name: 'A major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Todd_Rundgren/We_Got_to_Get_You_a_Woman/We_Got_to_Get_You_a_Woman.mxl
+- id: a_major_044
+  name: 'A major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/WE_GOTTA_GET_YOU_A_WOMAN/WE_GOTTA_GET_YOU_A_WOMAN.mxl
+- id: a_major_045
+  name: 'A major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Am_I_Losing_You_(Transcribed)/Am_I_Losing_You_(Transcribed).mxl
+- id: a_major_046
+  name: 'A major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Billy_Joel/Uptown_Girl/Uptown_Girl.mxl
+- id: a_major_047
+  name: 'A major #47'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Benny_Andersson-Bj\xF6rn_Ulvaeus-Stig_Anderson/Dancing_Queen/Dancing_Queen.mxl"
+- id: a_major_048
+  name: 'A major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Eric_Olson-Jason_Halbert-Kelly_Clarkson/Catch_My_Breath/Catch_My_Breath.mxl
+- id: a_major_049
+  name: 'A major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/KARNAVALS_POTPOURRI_125/KARNAVALS_POTPOURRI_125.mxl
+- id: a_major_050
+  name: 'A major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jeff_Lynne-Roy_Orbison-Tom_Petty/You_Got_It/You_Got_It.mxl
+- id: a_minor_001
+  name: 'A minor #1'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/DOWNTON_ABBEY/DOWNTON_ABBEY.mxl
+- id: a_minor_002
+  name: 'A minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Betlehem,_Betlehem/Betlehem,_Betlehem.mxl
+- id: a_minor_003
+  name: 'A minor #3'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Pingvin/Pingvin.mxl
+- id: a_minor_004
+  name: 'A minor #4'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Az_bajom_van_v\xE9led/Az_bajom_van_v\xE9\
+    led.mxl"
+- id: a_minor_005
+  name: 'A minor #5'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Miles_Davis/So_What/So_What.mxl
+- id: a_minor_006
+  name: 'A minor #6'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Hidegen_f\xFAjnak_a_szelek/Hidegen_f\xFA\
+    jnak_a_szelek.mxl"
+- id: a_minor_007
+  name: 'A minor #7'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Fels\xFCt\xF6tt_a_nap_sug\xE1ra/Fels\xFC\
+    t\xF6tt_a_nap_sug\xE1ra.mxl"
+- id: a_minor_008
+  name: 'A minor #8'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/T\xFCzed,_Uram,_J\xE9zus/T\xFCzed,_Uram,_J\xE9\
+    zus.mxl"
+- id: a_minor_009
+  name: 'A minor #9'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ochi_Chornya/Ochi_Chornya.mxl
+- id: a_minor_010
+  name: 'A minor #10'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_bar\xE1tok,_a_bar\xE1tok/A_bar\xE1tok,_a_bar\xE1\
+    tok.mxl"
+- id: a_minor_011
+  name: 'A minor #11'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Gerald_Marks-Seymour_Simons/All_of_Me/All_of_Me.mxl
+- id: a_minor_012
+  name: 'A minor #12'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Akkor_sz\xE9p_az_erd\u0151/Akkor_sz\xE9\
+    p_az_erd\u0151.mxl"
+- id: a_minor_013
+  name: 'A minor #13'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kis_kece_l\xE1nyom/Kis_kece_l\xE1nyom.mxl"
+- id: a_minor_014
+  name: 'A minor #14'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Bonchidai_menyecsk\xE9k/Bonchidai_menyecsk\xE9\
+    k.mxl"
+- id: a_minor_015
+  name: 'A minor #15'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Feh\xE9r_kapc\xE1t_igaz\xE1n/Feh\xE9r_kapc\xE1\
+    t_igaz\xE1n.mxl"
+- id: a_minor_016
+  name: 'A minor #16'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\xE1z_forintnak_\xF6tven_a_fele/Sz\xE1\
+    z_forintnak_\xF6tven_a_fele.mxl"
+- id: a_minor_017
+  name: 'A minor #17'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/T\xFAl_a_vizen/T\xFAl_a_vizen.mxl"
+- id: a_minor_018
+  name: 'A minor #18'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Esik_az_es\u0151,_\xE1zik_a_heveder/Esik_az_es\u0151\
+    ,_\xE1zik_a_heveder.mxl"
+- id: a_minor_019
+  name: 'A minor #19'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Piros_alma,_ha_leeseik_a_s\xE1rba/Piros_alma,_ha_leeseik_a_s\xE1\
+    rba.mxl"
+- id: a_minor_020
+  name: 'A minor #20'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/M\xE9g_azt_mondj\xE1k,_nem_merek/M\xE9\
+    g_azt_mondj\xE1k,_nem_merek.mxl"
+- id: a_minor_021
+  name: 'A minor #21'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Elment_a_Lidi_n\xE9ni_a_v\xE1s\xE1rba/Elment_a_Lidi_n\xE9\
+    ni_a_v\xE1s\xE1rba.mxl"
+- id: a_minor_022
+  name: 'A minor #22'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_csit\xE1ri_hegyek_alatt/A_csit\xE1ri_hegyek_alatt.mxl"
+- id: a_minor_023
+  name: 'A minor #23'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ott_ahol_m\xE1r_nem_sz\xF3l/Ott_ahol_m\xE1\
+    r_nem_sz\xF3l.mxl"
+- id: a_minor_024
+  name: 'A minor #24'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ha_\xE9nn\xE9kem/Ha_\xE9nn\xE9kem.mxl"
+- id: a_minor_025
+  name: 'A minor #25'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tristan_Begins/Tristan_Begins.mxl
+- id: a_minor_026
+  name: 'A minor #26'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kossuth_Lajos_azt_\xFCzente/Kossuth_Lajos_azt_\xFC\
+    zente.mxl"
+- id: a_minor_027
+  name: 'A minor #27'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Hogyha_n\xE9kem_sok_p\xE9nzem_lesz/Hogyha_n\xE9\
+    kem_sok_p\xE9nzem_lesz.mxl"
+- id: a_minor_028
+  name: 'A minor #28'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Meghalt_a_b\xE1r\xF3/Meghalt_a_b\xE1r\xF3\
+    .mxl"
+- id: a_minor_029
+  name: 'A minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Samba_de_Janeiro_(Celebration_Suite)/Samba_de_Janeiro_(Celebration_Suite).mxl
+- id: a_minor_030
+  name: 'A minor #30'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Benny_Carter-Spencer_Williams/When_Lights_Are_Low/When_Lights_Are_Low.mxl
+- id: a_minor_031
+  name: 'A minor #31'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Cs\xEDnom_Palk\xF3,_cs\xEDnom_Jank\xF3\
+    /Cs\xEDnom_Palk\xF3,_cs\xEDnom_Jank\xF3.mxl"
+- id: a_minor_032
+  name: 'A minor #32'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nyolc_\xF3ra_munka/Nyolc_\xF3ra_munka.mxl"
+- id: a_minor_033
+  name: 'A minor #33'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Utc\xE1ra_ny\xEDlik_a_kocsmaajt\xF3/Utc\xE1\
+    ra_ny\xEDlik_a_kocsmaajt\xF3.mxl"
+- id: a_minor_034
+  name: 'A minor #34'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/F\xF6l\xE9m_hajl\xF3_j\xF3s\xE1godra/F\xF6\
+    l\xE9m_hajl\xF3_j\xF3s\xE1godra.mxl"
+- id: a_minor_035
+  name: 'A minor #35'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Billy_Strayhorn/Passion_Flower/Passion_Flower.mxl
+- id: a_minor_036
+  name: 'A minor #36'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Just_A-wearying_For_You/Just_A-wearying_For_You.mxl
+- id: a_minor_037
+  name: 'A minor #37'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Anne_Segalen-Jacques_Dutronc-Jacques_Lanzmann/Il_est_cinq_heures,_Paris_s'\xE9\
+    veille/Il_est_cinq_heures,_Paris_s'\xE9veille.mxl"
+- id: a_minor_038
+  name: 'A minor #38'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Ben_Weisman-Fred_Wise/Don't_Ask_Me_Why/Don't_Ask_Me_Why.mxl
+- id: a_minor_039
+  name: 'A minor #39'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bobby_Hebb/Sunny/Sunny.mxl
+- id: a_minor_040
+  name: 'A minor #40'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Luiz_Bonf\xE1/The_Gentle_Rain/The_Gentle_Rain.mxl"
+- id: a_minor_041
+  name: 'A minor #41'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Concerto_In_A_Minor/Concerto_In_A_Minor.mxl
+- id: a_minor_042
+  name: 'A minor #42'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ha_\xE9n_r\xF3zsa_voln\xE9k/Ha_\xE9n_r\xF3\
+    zsa_voln\xE9k.mxl"
+- id: a_minor_043
+  name: 'A minor #43'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Hal_Swain-Jimmy_Campbell-Reg_Connelly/Show_Me_the_Way_to_Go_Home/Show_Me_the_Way_to_Go_Home.mxl
+- id: a_minor_044
+  name: 'A minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Tommy_Johnson/Bye_Bye_Blues/Bye_Bye_Blues.mxl
+- id: a_minor_045
+  name: 'A minor #45'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_"Cleanhead"_Vinson-Louis_Zito/Alimony_Blues/Alimony_Blues.mxl
+- id: a_minor_046
+  name: 'A minor #46'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jacques_Plante-Louis_Ferrari/Domino/Domino.mxl
+- id: a_minor_047
+  name: 'A minor #47'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Isten_b\xE1r\xE1nya_(Mise_IV)/Isten_b\xE1\
+    r\xE1nya_(Mise_IV).mxl"
+- id: a_minor_048
+  name: 'A minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Billy_Strayhorn/Take_the_"A"_Train/Take_the_"A"_Train.mxl
+- id: a_minor_049
+  name: 'A minor #49'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Teri_Mo\xEFse/Les_po\xE8mes_de_Michelle/Les_po\xE8\
+    mes_de_Michelle.mxl"
+- id: a_minor_050
+  name: 'A minor #50'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/David_Seville/The_Chipmunk_Song/The_Chipmunk_Song.mxl
+- id: ab_major_001
+  name: 'Ab major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Blue_Train/Blue_Train.mxl
+- id: ab_major_002
+  name: 'Ab major #2'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Honv\xE9d_banda/Honv\xE9d_banda.mxl"
+- id: ab_major_003
+  name: 'Ab major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Billy_Duffy-Ian_Astbury/Edie_(Ciao_Baby)/Edie_(Ciao_Baby).mxl
+- id: ab_major_004
+  name: 'Ab major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charles_Mingus/Jelly_Roll/Jelly_Roll.mxl
+- id: ab_major_005
+  name: 'Ab major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Misterioso/Misterioso.mxl
+- id: ab_major_006
+  name: 'Ab major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Valse_Hot/Valse_Hot.mxl
+- id: ab_major_007
+  name: 'Ab major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Naima/Naima.mxl
+- id: ab_major_008
+  name: 'Ab major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bill_Withers-Ralph_MacDonald-William_Salter/Just_the_Two_of_Us/Just_the_Two_of_Us.mxl
+- id: ab_major_009
+  name: 'Ab major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Dizzy_Gillespie/Woody'n_You/Woody'n_You.mxl
+- id: ab_major_010
+  name: 'Ab major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Lotus_Blossom/Lotus_Blossom.mxl
+- id: ab_major_011
+  name: 'Ab major #11'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Gene_Autry/You're_the_Only_Star_(In_My_Blue_Heaven)/You're_the_Only_Star_(In_My_Blue_Heaven).mxl
+- id: ab_major_012
+  name: 'Ab major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Tadd_Dameron/Our_Delight/Our_Delight.mxl
+- id: ab_major_013
+  name: 'Ab major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/If_I_Loved_You_(Alternative_Changes)/If_I_Loved_You_(Alternative_Changes).mxl
+- id: ab_major_014
+  name: 'Ab major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Horace_Silver/Song_for_My_Father/Song_for_My_Father.mxl
+- id: ab_major_015
+  name: 'Ab major #15'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sweetheart_Of_All_My_Dreams/Sweetheart_Of_All_My_Dreams.mxl
+- id: ab_major_016
+  name: 'Ab major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Shine_through_my_dreams_(from_"Glamorous_Night")/Shine_through_my_dreams_(from_"Glamorous_Night").mxl
+- id: ab_major_017
+  name: 'Ab major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Leonard_Bernstein-Stephen_Sondheim/One_Hand,_One_Heart/One_Hand,_One_Heart.mxl
+- id: ab_major_018
+  name: 'Ab major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Veni,_Creator_Spiritus/Veni,_Creator_Spiritus.mxl
+- id: ab_major_019
+  name: 'Ab major #19'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Waltz_in_Ab_Op.39,No.15/Waltz_in_Ab_Op.39,No.15.mxl
+- id: ab_major_020
+  name: 'Ab major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charles_Mingus/Jump_Monk/Jump_Monk.mxl
+- id: ab_major_021
+  name: 'Ab major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Giacomo_Puccini-Giovacchino_Forzano/O_mio_babbino_caro/O_mio_babbino_caro.mxl
+- id: ab_major_022
+  name: 'Ab major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/He_Looked_Beyond_My_Fault/He_Looked_Beyond_My_Fault.mxl
+- id: ab_major_023
+  name: 'Ab major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Joe_Garland/In_the_Mood/In_the_Mood.mxl
+- id: ab_major_024
+  name: 'Ab major #24'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Lorenz_Hart-Richard_Rodgers/Spring_Is_Here/Spring_Is_Here.mxl
+- id: ab_major_025
+  name: 'Ab major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Golden-Raymond_Hubbell/Poor_Butterfly/Poor_Butterfly.mxl
+- id: ab_major_026
+  name: 'Ab major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Frank_Loesser/I_Wish_I_Didn't_Love_You_So/I_Wish_I_Didn't_Love_You_So.mxl
+- id: ab_major_027
+  name: 'Ab major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Lord,_I'm_Coming_Home/Lord,_I'm_Coming_Home.mxl
+- id: ab_major_028
+  name: 'Ab major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Anthony_Newley-Leslie_Bricusse/Once_in_a_Lifetime/Once_in_a_Lifetime.mxl
+- id: ab_major_029
+  name: 'Ab major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Barney_Bigard-Duke_Ellington-Irving_Mills/Mood_Indigo/Mood_Indigo.mxl
+- id: ab_major_030
+  name: 'Ab major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Rox/It's_a_Big,_Wide,_Wonderful_World/It's_a_Big,_Wide,_Wonderful_World.mxl
+- id: ab_major_031
+  name: 'Ab major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jimmy_Van_Heusen-Johnny_Burke/It's_Always_You/It's_Always_You.mxl
+- id: ab_major_032
+  name: 'Ab major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Blood_Will_Never_Lose_It's_Power/The_Blood_Will_Never_Lose_It's_Power.mxl
+- id: ab_major_033
+  name: 'Ab major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Murray_Berlin-Roy_Alfred/The_Late_Late_Show/The_Late_Late_Show.mxl
+- id: ab_major_034
+  name: 'Ab major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Leonard_Bernstein-Stephen_Sondheim/Somewhere/Somewhere.mxl
+- id: ab_major_035
+  name: 'Ab major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Andrew_Lloyd_Webber-[Traditional]/Pie_Jesu/Pie_Jesu.mxl
+- id: ab_major_036
+  name: 'Ab major #36'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Donna_Lee/Donna_Lee.mxl
+- id: ab_major_037
+  name: 'Ab major #37'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Grant_Hart/Back_from_Somewhere/Back_from_Somewhere.mxl
+- id: ab_major_038
+  name: 'Ab major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Ray_Noble/The_Very_Thought_of_You/The_Very_Thought_of_You.mxl
+- id: ab_major_039
+  name: 'Ab major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Longer_I_Serve_Him/The_Longer_I_Serve_Him.mxl
+- id: ab_major_040
+  name: 'Ab major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Carl_Belew-Shelby_Singleton-W.S._Stevenson/Am_I_That_Easy_to_Forget/Am_I_That_Easy_to_Forget.mxl
+- id: ab_major_041
+  name: 'Ab major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Claude_Boone/Wedding_Bells/Wedding_Bells.mxl
+- id: ab_major_042
+  name: 'Ab major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Dana_Suesse-Edward_Heyman/My_Silent_Love/My_Silent_Love.mxl
+- id: ab_major_043
+  name: 'Ab major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Matthew_Koma-Porter_Robinson-Skylar_Grey-Zedd/Clarity/Clarity.mxl
+- id: ab_major_044
+  name: 'Ab major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Carlo_Karges-Uwe_Fahrenkrog-Petersen/Irgendwie,_irgendwo,_irgendwann/Irgendwie,_irgendwo,_irgendwann.mxl
+- id: ab_major_045
+  name: 'Ab major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Duke_Ellington-Henry_Nemo-Irving_Mills-John_Redmond/I_Let_a_Song_Go_Out_of_My_Heart/I_Let_a_Song_Go_Out_of_My_Heart.mxl
+- id: ab_major_046
+  name: 'Ab major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Al_Trace-Elsa_Doran-Sid_Flick/Blond_Hair,_Blue_Eyes_and_Ruby_Lips/Blond_Hair,_Blue_Eyes_and_Ruby_Lips.mxl
+- id: ab_major_047
+  name: 'Ab major #47'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Buck_Ram-Peter_Tinturin/Ring,_Telephone,_Ring/Ring,_Telephone,_Ring.mxl
+- id: ab_major_048
+  name: 'Ab major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Cole_Porter/So_in_Love/So_in_Love.mxl
+- id: ab_major_049
+  name: 'Ab major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Harold_Arlen-Truman_Capote/A_Sleepin'_Bee/A_Sleepin'_Bee.mxl
+- id: ab_major_050
+  name: 'Ab major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Rube_Bloom-Ted_Koehler/Don't_Worry_'Bout_Me/Don't_Worry_'Bout_Me.mxl
+- id: bb_major_001
+  name: 'Bb major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Herbie_Hancock/Watermelon_Man/Watermelon_Man.mxl
+- id: bb_major_002
+  name: 'Bb major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Blue_Monk/Blue_Monk.mxl
+- id: bb_major_003
+  name: 'Bb major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/A-Hunting_we_will_go/A-Hunting_we_will_go.mxl
+- id: bb_major_004
+  name: 'Bb major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Some_Other_Blues/Some_Other_Blues.mxl
+- id: bb_major_005
+  name: 'Bb major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Hasse_Huss-Mikael_Rickfors/Blue_Night/Blue_Night.mxl
+- id: bb_major_006
+  name: 'Bb major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Andy_Razaf-Fats_Waller/Honeysuckle_Rose/Honeysuckle_Rose.mxl
+- id: bb_major_007
+  name: 'Bb major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Mercer_Ellington-Ted_Persons/Things_Ain't_What_They_Used_to_Be/Things_Ain't_What_They_Used_to_Be.mxl
+- id: bb_major_008
+  name: 'Bb major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Blues_for_Paynter/Blues_for_Paynter.mxl
+- id: bb_major_009
+  name: 'Bb major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Someday_My_Prince_Will_Come/Someday_My_Prince_Will_Come.mxl
+- id: bb_major_010
+  name: 'Bb major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Alain_Souchon-Laurent_Voulzy/Allo_maman_bobo/Allo_maman_bobo.mxl
+- id: bb_major_011
+  name: 'Bb major #11'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Bridal_Chorus_(from_"Lohengrin")/Bridal_Chorus_(from_"Lohengrin").mxl
+- id: bb_major_012
+  name: 'Bb major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Sy_Oliver/Yes_Indeed/Yes_Indeed.mxl
+- id: bb_major_013
+  name: 'Bb major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/An_Ocean_of_Feeling/An_Ocean_of_Feeling.mxl
+- id: bb_major_014
+  name: 'Bb major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Alton_Delmore-Arthur_Smith_[1]/Beautiful_Brown_Eyes/Beautiful_Brown_Eyes.mxl
+- id: bb_major_015
+  name: 'Bb major #15'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Serge_Gainsbourg/La_javanaise/La_javanaise.mxl
+- id: bb_major_016
+  name: 'Bb major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Aubrey_Hopwood-Lionel_Monckton/Soldiers_in_the_Park/Soldiers_in_the_Park.mxl
+- id: bb_major_017
+  name: 'Bb major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jimi_Hendrix/Star_Spangled_Banner/Star_Spangled_Banner.mxl
+- id: bb_major_018
+  name: 'Bb major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Thou_Art_Worthy/Thou_Art_Worthy.mxl
+- id: bb_major_019
+  name: 'Bb major #19'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Billie's_Bounce/Billie's_Bounce.mxl
+- id: bb_major_020
+  name: 'Bb major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Joe_Goodwin-Larry_Shay-Mark_Fisher/When_You're_Smiling/When_You're_Smiling.mxl
+- id: bb_major_021
+  name: 'Bb major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Oscar_Hammerstein_II-Richard_Rodgers/Edelweiss/Edelweiss.mxl
+- id: bb_major_022
+  name: 'Bb major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Nat_Adderley/The_Jive_Samba/The_Jive_Samba.mxl
+- id: bb_major_023
+  name: 'Bb major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Fogerty/Bad_Moon_Rising/Bad_Moon_Rising.mxl
+- id: bb_major_024
+  name: 'Bb major #24'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Kiss_Me_(capo_3)/Kiss_Me_(capo_3).mxl
+- id: bb_major_025
+  name: 'Bb major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Could_It_Be_You/Could_It_Be_You.mxl
+- id: bb_major_026
+  name: 'Bb major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Nellie_Kelly__I_love_you/Nellie_Kelly__I_love_you.mxl
+- id: bb_major_027
+  name: 'Bb major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Mack_Rice/Betcha_Can't_Kiss_Me_(Just_One_Time_Baby)/Betcha_Can't_Kiss_Me_(Just_One_Time_Baby).mxl
+- id: bb_major_028
+  name: 'Bb major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/B.G._DeSylva-Lew_Brown-Ray_Henderson/Together/Together.mxl
+- id: bb_major_029
+  name: 'Bb major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Moose_the_Mooche/Moose_the_Mooche.mxl
+- id: bb_major_030
+  name: 'Bb major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Dream_(When_You're_Feeling_Blue)/Dream_(When_You're_Feeling_Blue).mxl
+- id: bb_major_031
+  name: 'Bb major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Juan_Tizol/Perdido/Perdido.mxl
+- id: bb_major_032
+  name: 'Bb major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Das_Plublikum_war_heute_wieder_wundervoll/Das_Plublikum_war_heute_wieder_wundervoll.mxl
+- id: bb_major_033
+  name: 'Bb major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ev'rywhere/Ev'rywhere.mxl
+- id: bb_major_034
+  name: 'Bb major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Judy's_Turn_To_Cry_/Judy's_Turn_To_Cry_.mxl
+- id: bb_major_035
+  name: 'Bb major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Curtis_Mayfield/Little_Child_Runnin'_Wild/Little_Child_Runnin'_Wild.mxl
+- id: bb_major_036
+  name: 'Bb major #36'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Burton_Lane-Frank_Loesser/Moments_Like_This/Moments_Like_This.mxl
+- id: bb_major_037
+  name: 'Bb major #37'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Oh,_Lord_I_Am_Not_Worthy/Oh,_Lord_I_Am_Not_Worthy.mxl
+- id: bb_major_038
+  name: 'Bb major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Paul_Dresser/My_Gal_Sal/My_Gal_Sal.mxl
+- id: bb_major_039
+  name: 'Bb major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Frank_Loesser/I've_Never_Been_in_Love_Before/I've_Never_Been_in_Love_Before.mxl
+- id: bb_major_040
+  name: 'Bb major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Alec_Wilder-Thad_Jones/A_Child_Is_Born/A_Child_Is_Born.mxl
+- id: bb_major_041
+  name: 'Bb major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Lisa_Hannigan/Silent_Night/Silent_Night.mxl
+- id: bb_major_042
+  name: 'Bb major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Harold_Adamson-Jan_Savitt-Johnny_Watson_[1]/It's_a_Wonderful_World/It's_a_Wonderful_World.mxl
+- id: bb_major_043
+  name: 'Bb major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Johnny_Mercer/Dream/Dream.mxl
+- id: bb_major_044
+  name: 'Bb major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sultry_Serenade/Sultry_Serenade.mxl
+- id: bb_major_045
+  name: 'Bb major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Frank_Lake-Fred_Godfrey-James_Lally/Bless_'Em_All/Bless_'Em_All.mxl
+- id: bb_major_046
+  name: 'Bb major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/You_Were_Only_Fooling/You_Were_Only_Fooling.mxl
+- id: bb_major_047
+  name: 'Bb major #47'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bob_Wills-Cindy_Walker/Sugar_Moon/Sugar_Moon.mxl
+- id: bb_major_048
+  name: 'Bb major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/C._Mordaunt_Spencer-Charles_William_Glover/The_Rose_of_Tralee/The_Rose_of_Tralee.mxl
+- id: bb_major_049
+  name: 'Bb major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Neal_Hefti-Stanley_Styne/Cute/Cute.mxl
+- id: bb_major_050
+  name: 'Bb major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/If_Ever_I_Cease_To_Love/If_Ever_I_Cease_To_Love.mxl
+- id: c_major_001
+  name: 'C major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Hoedje_van_papier/Hoedje_van_papier.mxl
+- id: c_major_002
+  name: 'C major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Altijd_is_Kortjakje_ziek/Altijd_is_Kortjakje_ziek.mxl
+- id: c_major_003
+  name: 'C major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Dag_Sinterklaasje/Dag_Sinterklaasje.mxl
+- id: c_major_004
+  name: 'C major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Pom-pom,_pom-pom-pom/Pom-pom,_pom-pom-pom.mxl
+- id: c_major_005
+  name: 'C major #5'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Egyszer_egy_kir\xE1lyfi/Egyszer_egy_kir\xE1\
+    lyfi.mxl"
+- id: c_major_006
+  name: 'C major #6'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Cseh_n\xF3ta/Cseh_n\xF3ta.mxl"
+- id: c_major_007
+  name: 'C major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Klein,_klein_kleutertje/Klein,_klein_kleutertje.mxl
+- id: c_major_008
+  name: 'C major #8'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/K\u0151r\xF6si_l\xE1ny/K\u0151r\xF6si_l\xE1\
+    ny.mxl"
+- id: c_major_009
+  name: 'C major #9'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/L\xE1tt\xE1l-e_m\xE1r_valaha/L\xE1tt\xE1\
+    l-e_m\xE1r_valaha.mxl"
+- id: c_major_010
+  name: 'C major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jane_Taylor/Twinkle,_Twinkle,_Little_Star/Twinkle,_Twinkle,_Little_Star.mxl
+- id: c_major_011
+  name: 'C major #11'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Z\xF6ld_az_erd\u0151,_z\xF6ld_a_petrezselyem/Z\xF6\
+    ld_az_erd\u0151,_z\xF6ld_a_petrezselyem.mxl"
+- id: c_major_012
+  name: 'C major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/You_look_Good_to_Me/You_look_Good_to_Me.mxl
+- id: c_major_013
+  name: 'C major #13'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_bund\xE1nak_nincs_gall\xE9rja/A_bund\xE1\
+    nak_nincs_gall\xE9rja.mxl"
+- id: c_major_014
+  name: 'C major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Am_Weihnachtsbaum_die_Lichter_brennen/Am_Weihnachtsbaum_die_Lichter_brennen.mxl
+- id: c_major_015
+  name: 'C major #15'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Megy_a_g\u0151z\xF6s/Megy_a_g\u0151z\xF6\
+    s.mxl"
+- id: c_major_016
+  name: 'C major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Parking_Lot_Blues/Parking_Lot_Blues.mxl
+- id: c_major_017
+  name: 'C major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Herbert_Wasserman-Ray_Passman/Down_St._Thomas_Way/Down_St._Thomas_Way.mxl
+- id: c_major_018
+  name: 'C major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Megindult_a_vonat/Megindult_a_vonat.mxl
+- id: c_major_019
+  name: 'C major #19'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Erd\u0151,_erd\u0151,_kerek_erd\u0151\
+    /Erd\u0151,_erd\u0151,_kerek_erd\u0151.mxl"
+- id: c_major_020
+  name: 'C major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sinterklaas_is_jarig/Sinterklaas_is_jarig.mxl
+- id: c_major_021
+  name: 'C major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Indiansummer_Thuesday/Indiansummer_Thuesday.mxl
+- id: c_major_022
+  name: 'C major #22'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Z\xF6r\xF6g_az_ak\xE1cfalev\xE9l/Z\xF6\
+    r\xF6g_az_ak\xE1cfalev\xE9l.mxl"
+- id: c_major_023
+  name: 'C major #23'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nem_loptam_\xE9n_\xE9letembe/Nem_loptam_\xE9\
+    n_\xE9letembe.mxl"
+- id: c_major_024
+  name: 'C major #24'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_szeretet_mindenki\xE9/A_szeretet_mindenki\xE9\
+    .mxl"
+- id: c_major_025
+  name: 'C major #25'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Mennyb\u0151l_az_angyal/Mennyb\u0151l_az_angyal.mxl"
+- id: c_major_026
+  name: 'C major #26'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_faluban_nincs_t\xF6bb_kisl\xE1ny/A_faluban_nincs_t\xF6\
+    bb_kisl\xE1ny.mxl"
+- id: c_major_027
+  name: 'C major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Lang-Richard_Page-Steve_George/Kyrie/Kyrie.mxl
+- id: c_major_028
+  name: 'C major #28'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_juh\xE1sznak_j\xF3l_van_dolga/A_juh\xE1\
+    sznak_j\xF3l_van_dolga.mxl"
+- id: c_major_029
+  name: 'C major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/De_zak_van_Sinterklaas/De_zak_van_Sinterklaas.mxl
+- id: c_major_030
+  name: 'C major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Benny_Golson/Killer_Joe/Killer_Joe.mxl
+- id: c_major_031
+  name: 'C major #31'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC1ltal_menn\xE9k_\xE9n_a_Tisz\xE1n/\xC1\
+    ltal_menn\xE9k_\xE9n_a_Tisz\xE1n.mxl"
+- id: c_major_032
+  name: 'C major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Esztike/Esztike.mxl
+- id: c_major_033
+  name: 'C major #33'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/J\xF3_est\xE9t_k\xEDv\xE1nok/J\xF3_est\xE9\
+    t_k\xEDv\xE1nok.mxl"
+- id: c_major_034
+  name: 'C major #34'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Az_a_sz\xE9p/Az_a_sz\xE9p.mxl"
+- id: c_major_035
+  name: 'C major #35'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kilenc_kis_g\xF3lya/Kilenc_kis_g\xF3lya.mxl"
+- id: c_major_036
+  name: 'C major #36'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/P\xE1sztorok,_p\xE1sztorok/P\xE1sztorok,_p\xE1\
+    sztorok.mxl"
+- id: c_major_037
+  name: 'C major #37'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Elm\xFAltak_a_m\xE9zeshetek/Elm\xFAltak_a_m\xE9\
+    zeshetek.mxl"
+- id: c_major_038
+  name: 'C major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Roosevelt_Sykes/The_Way_I_Feel_Blues/The_Way_I_Feel_Blues.mxl
+- id: c_major_039
+  name: 'C major #39'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\xE1zados_\xFAr,_sejehaj/Sz\xE1zados_\xFA\
+    r,_sejehaj.mxl"
+- id: c_major_040
+  name: 'C major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Navy_Hymn/Navy_Hymn.mxl
+- id: c_major_041
+  name: 'C major #41'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Megj\xF6tt_m\xE1r_a_fecsekemad\xE1r/Megj\xF6\
+    tt_m\xE1r_a_fecsekemad\xE1r.mxl"
+- id: c_major_042
+  name: 'C major #42'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/R\xE9szeg_vagyok,_r\xF3zs\xE1m/R\xE9szeg_vagyok,_r\xF3\
+    zs\xE1m.mxl"
+- id: c_major_043
+  name: 'C major #43'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Erd\u0151,_erd\u0151,_erd\u0151,_marossz\xE9\
+    ki_kerek_erd\u0151/Erd\u0151,_erd\u0151,_erd\u0151,_marossz\xE9ki_kerek_erd\u0151\
+    .mxl"
+- id: c_major_044
+  name: 'C major #44'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/L\xE1tod-e_bab\xE1m/L\xE1tod-e_bab\xE1\
+    m.mxl"
+- id: c_major_045
+  name: 'C major #45'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\xE1lljatok_le/Sz\xE1lljatok_le.mxl"
+- id: c_major_046
+  name: 'C major #46'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Esik_es\u0151_csendesen/Esik_es\u0151\
+    _csendesen.mxl"
+- id: c_major_047
+  name: 'C major #47'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC1roni_\xE1ld\xE1s/\xC1roni_\xE1ld\xE1\
+    s.mxl"
+- id: c_major_048
+  name: 'C major #48'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\xE1nt_a_bab\xE1m,_csireg-cs\xF6r\xF6\
+    g/Sz\xE1nt_a_bab\xE1m,_csireg-cs\xF6r\xF6g.mxl"
+- id: c_major_049
+  name: 'C major #49'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Mikor_mentem,_mikor_mentem_Gyergy\xF3\
+    _fel\xE9/Mikor_mentem,_mikor_mentem_Gyergy\xF3_fel\xE9.mxl"
+- id: c_major_050
+  name: 'C major #50'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Z\xF6ldre_van_a_r\xE1csos_kapu_festve/Z\xF6\
+    ldre_van_a_r\xE1csos_kapu_festve.mxl"
+- id: c_minor_001
+  name: 'C minor #1'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Equinox/Equinox.mxl
+- id: c_minor_002
+  name: 'C minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Herbie_Hancock/Cantaloupe_Island/Cantaloupe_Island.mxl
+- id: c_minor_003
+  name: 'C minor #3'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ha_majd_a_nyarunknak_v\xE9ge/Ha_majd_a_nyarunknak_v\xE9\
+    ge.mxl"
+- id: c_minor_004
+  name: 'C minor #4'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Erd\u0151_sz\xE9l\xE9n_s\xE1toroznak/Erd\u0151\
+    _sz\xE9l\xE9n_s\xE1toroznak.mxl"
+- id: c_minor_005
+  name: 'C minor #5'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Erd\xE9lyi_indul\xF3/Erd\xE9lyi_indul\xF3\
+    .mxl"
+- id: c_minor_006
+  name: 'C minor #6'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Tadd_Dameron/Lady_Bird/Lady_Bird.mxl
+- id: c_minor_007
+  name: 'C minor #7'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/J\xE1szkuns\xE1gi_gyerek_vagyok/J\xE1\
+    szkuns\xE1gi_gyerek_vagyok.mxl"
+- id: c_minor_008
+  name: 'C minor #8'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Az_\xF6rd\xF6g_\xFAtja_(Drumul_dracului)/Az_\xF6\
+    rd\xF6g_\xFAtja_(Drumul_dracului).mxl"
+- id: c_minor_009
+  name: 'C minor #9'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Buen_Compleanos/Buen_Compleanos.mxl
+- id: c_minor_010
+  name: 'C minor #10'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Eger_v\xE1rosa/Eger_v\xE1rosa.mxl"
+- id: c_minor_011
+  name: 'C minor #11'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl
+- id: c_minor_012
+  name: 'C minor #12'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Haragszik_az_\xE9desany\xE1m/Haragszik_az_\xE9\
+    desany\xE1m.mxl"
+- id: c_minor_013
+  name: 'C minor #13'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_Boyd/Five_Long_Years/Five_Long_Years.mxl
+- id: c_minor_014
+  name: 'C minor #14'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Julcsika,_Tercsike/Julcsika,_Tercsike.mxl
+- id: c_minor_015
+  name: 'C minor #15'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/R\xE1m\xE1s_csizm\xE1t_visel_a_bab\xE1\
+    m/R\xE1m\xE1s_csizm\xE1t_visel_a_bab\xE1m.mxl"
+- id: c_minor_016
+  name: 'C minor #16'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Lakodalom_van_a_mi_utc\xE1nkba/Lakodalom_van_a_mi_utc\xE1\
+    nkba.mxl"
+- id: c_minor_017
+  name: 'C minor #17'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Julcsa_hogyha_kimegy_a_piacra/Julcsa_hogyha_kimegy_a_piacra.mxl
+- id: c_minor_018
+  name: 'C minor #18'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Avocet/Avocet.mxl
+- id: c_minor_019
+  name: 'C minor #19'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kombin\xE9/Kombin\xE9.mxl"
+- id: c_minor_020
+  name: 'C minor #20'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Azt_gondoltad,_azt_gondoltad/Azt_gondoltad,_azt_gondoltad.mxl
+- id: c_minor_021
+  name: 'C minor #21'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ugye_gondolsz_n\xE9ha_r\xE1m/Ugye_gondolsz_n\xE9\
+    ha_r\xE1m.mxl"
+- id: c_minor_022
+  name: 'C minor #22'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Buster_Rides_Again/Buster_Rides_Again.mxl
+- id: c_minor_023
+  name: 'C minor #23'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Azt_hallottam,_picike_bab\xE1m/Azt_hallottam,_picike_bab\xE1\
+    m.mxl"
+- id: c_minor_024
+  name: 'C minor #24'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Hadnagyuram/Hadnagyuram.mxl
+- id: c_minor_025
+  name: 'C minor #25'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\u0151r_a_szit\xE1ba/Sz\u0151r_a_szit\xE1\
+    ba.mxl"
+- id: c_minor_026
+  name: 'C minor #26'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Add_ide_a_didit/Add_ide_a_didit.mxl
+- id: c_minor_027
+  name: 'C minor #27'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC9n_vagyok_a_falu_rossza_egyed\xFCl/\xC9\
+    n_vagyok_a_falu_rossza_egyed\xFCl.mxl"
+- id: c_minor_028
+  name: 'C minor #28'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Blues_for_Vanessa/Blues_for_Vanessa.mxl
+- id: c_minor_029
+  name: 'C minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Morton_Stevens/Hawaii_Five-O/Hawaii_Five-O.mxl
+- id: c_minor_030
+  name: 'C minor #30'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC1rad_a_Duna_vize/\xC1rad_a_Duna_vize.mxl"
+- id: c_minor_031
+  name: 'C minor #31'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_f\xFCredi_Annab\xE1lon/A_f\xFCredi_Annab\xE1\
+    lon.mxl"
+- id: c_minor_032
+  name: 'C minor #32'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ott_fogsz_majd_s\xEDrni/Ott_fogsz_majd_s\xED\
+    rni.mxl"
+- id: c_minor_033
+  name: 'C minor #33'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Jaj,_de_nagyon_r\xE9gen_volt,_de_sok\xE1\
+    _lesz/Jaj,_de_nagyon_r\xE9gen_volt,_de_sok\xE1_lesz.mxl"
+- id: c_minor_034
+  name: 'C minor #34'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Lesz_maga_jusztis_az_eny\xE9m/Lesz_maga_jusztis_az_eny\xE9\
+    m.mxl"
+- id: c_minor_035
+  name: 'C minor #35'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ladybird/Ladybird.mxl
+- id: c_minor_036
+  name: 'C minor #36'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Hallj\xE1tok,_cig\xE1nyok/Hallj\xE1tok,_cig\xE1\
+    nyok.mxl"
+- id: c_minor_037
+  name: 'C minor #37'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Adam_Levine-James_Valentine-Jesse_Carmichael-Mickey_Madden-Ryan_Dusick/This_Love/This_Love.mxl
+- id: c_minor_038
+  name: 'C minor #38'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_szegedi_csik\xF3s/A_szegedi_csik\xF3\
+    s.mxl"
+- id: c_minor_039
+  name: 'C minor #39'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Egy_asszonynak_kilenc_a_le\xE1nya/Egy_asszonynak_kilenc_a_le\xE1\
+    nya.mxl"
+- id: c_minor_040
+  name: 'C minor #40'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Zsebkend\u0151m_n\xE9gy_sarka/Zsebkend\u0151\
+    m_n\xE9gy_sarka.mxl"
+- id: c_minor_041
+  name: 'C minor #41'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/J\xE1nos,_legyen/J\xE1nos,_legyen.mxl"
+- id: c_minor_042
+  name: 'C minor #42'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Dalt\xF3l_hangos/Dalt\xF3l_hangos.mxl"
+- id: c_minor_043
+  name: 'C minor #43'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Que_Reste-t-il_des_nos_Amours_?/Que_Reste-t-il_des_nos_Amours_?.mxl
+- id: c_minor_044
+  name: 'C minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Az_a_rendes_iparos/Az_a_rendes_iparos.mxl
+- id: c_minor_045
+  name: 'C minor #45'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Irving_Kahal-Sammy_Fain/I'll_Be_Seeing_You/I'll_Be_Seeing_You.mxl
+- id: c_minor_046
+  name: 'C minor #46'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Orsz\xE1g\xFAton_hossz\xFA_a_jegenyesor/Orsz\xE1\
+    g\xFAton_hossz\xFA_a_jegenyesor.mxl"
+- id: c_minor_047
+  name: 'C minor #47'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Sz\xE9p_asszonynak_kuriz\xE1lok/Sz\xE9\
+    p_asszonynak_kuriz\xE1lok.mxl"
+- id: c_minor_048
+  name: 'C minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Londonban,_hej/Londonban,_hej.mxl
+- id: c_minor_049
+  name: 'C minor #49'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nem_l\xE1tlak_t\xE9ged_soha/Nem_l\xE1\
+    tlak_t\xE9ged_soha.mxl"
+- id: c_minor_050
+  name: 'C minor #50'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/L\xE1szl\xF3_J\xE1vor/Szomor\xFA_vas\xE1rnap/Szomor\xFA\
+    _vas\xE1rnap.mxl"
+- id: d_major_001
+  name: 'D major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ennie's_Waltz/Ennie's_Waltz.mxl
+- id: d_major_002
+  name: 'D major #2'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kis_kar\xE1csony,_nagy_kar\xE1csony/Kis_kar\xE1\
+    csony,_nagy_kar\xE1csony.mxl"
+- id: d_major_003
+  name: 'D major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/ABBA_FATHER/ABBA_FATHER.mxl
+- id: d_major_004
+  name: 'D major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Deck_the_halls/Deck_the_halls.mxl
+- id: d_major_005
+  name: 'D major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Goebel_Reeves/Hobo's_Lullaby/Hobo's_Lullaby.mxl
+- id: d_major_006
+  name: 'D major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Cockles_and_Mussels/Cockles_and_Mussels.mxl
+- id: d_major_007
+  name: 'D major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Danse_Norvegienne/Danse_Norvegienne.mxl
+- id: d_major_008
+  name: 'D major #8'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xD3,_gy\xF6ny\xF6r\u0171_sz\xE9p/\xD3\
+    ,_gy\xF6ny\xF6r\u0171_sz\xE9p.mxl"
+- id: d_major_009
+  name: 'D major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Irgalmazz,_Uram,_irgalmazz/Irgalmazz,_Uram,_irgalmazz.mxl
+- id: d_major_010
+  name: 'D major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Dona_Nobis_Pacem/Dona_Nobis_Pacem.mxl
+- id: d_major_011
+  name: 'D major #11'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Minden,_mi_\xE9l/Minden,_mi_\xE9l.mxl"
+- id: d_major_012
+  name: 'D major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Chauncey_Olcott-Ernest_Ball-George_Graff,_Jr./When_Irish_Eyes_Are_Smiling/When_Irish_Eyes_Are_Smiling.mxl
+- id: d_major_013
+  name: 'D major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bill_Evans/Time_Remembered/Time_Remembered.mxl
+- id: d_major_014
+  name: 'D major #14'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Jose\xEDto_Fern\xE1ndez/Guajira_Guantanamera/Guajira_Guantanamera.mxl"
+- id: d_major_015
+  name: 'D major #15'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Krisztus_az_\xDAr/Krisztus_az_\xDAr.mxl"
+- id: d_major_016
+  name: 'D major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Drupal_Song/The_Drupal_Song.mxl
+- id: d_major_017
+  name: 'D major #17'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Hadd_zengjen_\xE9neksz\xF3/Hadd_zengjen_\xE9\
+    neksz\xF3.mxl"
+- id: d_major_018
+  name: 'D major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Mike_Chapman-Nicky_Chinn/Can_the_Can/Can_the_Can.mxl
+- id: d_major_019
+  name: 'D major #19'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Anna_var_i_Anders_k\xE6r/Anna_var_i_Anders_k\xE6\
+    r.mxl"
+- id: d_major_020
+  name: 'D major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/O_kom_er_eens_kijken/O_kom_er_eens_kijken.mxl
+- id: d_major_021
+  name: 'D major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/In_de_stille_kempen/In_de_stille_kempen.mxl
+- id: d_major_022
+  name: 'D major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Trolletjes/Trolletjes.mxl
+- id: d_major_023
+  name: 'D major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tarbolton_Reel/Tarbolton_Reel.mxl
+- id: d_major_024
+  name: 'D major #24'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC1ld\xE1soddal_megy\xFCnk/\xC1ld\xE1\
+    soddal_megy\xFCnk.mxl"
+- id: d_major_025
+  name: 'D major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Ben_Bernie-Kenneth_Casey-Maceo_Pinkard/Sweet_Georgia_Brown/Sweet_Georgia_Brown.mxl
+- id: d_major_026
+  name: 'D major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/Still,_Still,_Still/Still,_Still,_Still.mxl
+- id: d_major_027
+  name: 'D major #27'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nagy_\xDAr/Nagy_\xDAr.mxl"
+- id: d_major_028
+  name: 'D major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Marine's_Hymn/The_Marine's_Hymn.mxl
+- id: d_major_029
+  name: 'D major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/JUST_LET_ME_CRY/JUST_LET_ME_CRY.mxl
+- id: d_major_030
+  name: 'D major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Princess_Leia's_Theme/Princess_Leia's_Theme.mxl
+- id: d_major_031
+  name: 'D major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/A_child_this_day_is_born/A_child_this_day_is_born.mxl
+- id: d_major_032
+  name: 'D major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Teremts_bennem/Teremts_bennem.mxl
+- id: d_major_033
+  name: 'D major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Belleville/Belleville.mxl
+- id: d_major_034
+  name: 'D major #34'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Brendan_Graham-Rolf_L\xF8vland/You_Raise_Me_Up/You_Raise_Me_Up.mxl"
+- id: d_major_035
+  name: 'D major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Fred_Godfrey-Mark_Sheridan/Who_Were_You_with_Last_Night/Who_Were_You_with_Last_Night.mxl
+- id: d_major_036
+  name: 'D major #36'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/K\xF6sz\xF6n\xF6m,_J\xE9zus/K\xF6sz\xF6\
+    n\xF6m,_J\xE9zus.mxl"
+- id: d_major_037
+  name: 'D major #37'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Isten_szeret_benn\xFCnket/Isten_szeret_benn\xFC\
+    nket.mxl"
+- id: d_major_038
+  name: 'D major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/A_MOTHER_AS_LOVELY_AS_YOU/A_MOTHER_AS_LOVELY_AS_YOU.mxl
+- id: d_major_039
+  name: 'D major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/JUDY'S_TURN_TO_CRY/JUDY'S_TURN_TO_CRY.mxl
+- id: d_major_040
+  name: 'D major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I'M_THROWING_MY_ARMS_AROUND_PARIS/I'M_THROWING_MY_ARMS_AROUND_PARIS.mxl
+- id: d_major_041
+  name: 'D major #41'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/T\xE1pl\xE1l\xF3_szent_keny\xE9r/T\xE1\
+    pl\xE1l\xF3_szent_keny\xE9r.mxl"
+- id: d_major_042
+  name: 'D major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/George_A._Norton/She_Wore_a_Yellow_Ribbon/She_Wore_a_Yellow_Ribbon.mxl
+- id: d_major_043
+  name: 'D major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ciao,_ciao,_bambino/Ciao,_ciao,_bambino.mxl
+- id: d_major_044
+  name: 'D major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Wayne_Shorter/Miyako/Miyako.mxl
+- id: d_major_045
+  name: 'D major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jonathan_Cain-Steve_Perry/Open_Arms/Open_Arms.mxl
+- id: d_major_046
+  name: 'D major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Te_Harinui/Te_Harinui.mxl
+- id: d_major_047
+  name: 'D major #47'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Albert_Von_Tilzer-Neville_Fleeson/I'll_Be_with_You_in_Apple_Blossom_Time/I'll_Be_with_You_in_Apple_Blossom_Time.mxl
+- id: d_major_048
+  name: 'D major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Lee_Pockriss-Paul_Vance/Calcutta/Calcutta.mxl
+- id: d_major_049
+  name: 'D major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Het_Levent_Is_Goed_In't_Brasantse_Land/Het_Levent_Is_Goed_In't_Brasantse_Land.mxl
+- id: d_major_050
+  name: 'D major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Albert_E._Brumley/I'll_Fly_Away/I'll_Fly_Away.mxl
+- id: d_minor_001
+  name: 'D minor #1'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Azt_mondj\xE1k,_ideje_f\xE9jhezmenni/Azt_mondj\xE1\
+    k,_ideje_f\xE9jhezmenni.mxl"
+- id: d_minor_002
+  name: 'D minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Traditional]/What_Shall_We_Do_with_a_Drunken_Sailor?/What_Shall_We_Do_with_a_Drunken_Sailor?.mxl
+- id: d_minor_003
+  name: 'D minor #3'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ievan_Polkka/Ievan_Polkka.mxl
+- id: d_minor_004
+  name: 'D minor #4'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bill_Lee_[1]/Mo'_Better_Blues/Mo'_Better_Blues.mxl
+- id: d_minor_005
+  name: 'D minor #5'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Robert_Johnson/I_Believe_I'll_Dust_My_Broom/I_Believe_I'll_Dust_My_Broom.mxl
+- id: d_minor_006
+  name: 'D minor #6'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Blue_Drag/Blue_Drag.mxl
+- id: d_minor_007
+  name: 'D minor #7'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Carisi/Israel/Israel.mxl
+- id: d_minor_008
+  name: 'D minor #8'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Les_Baxter-Will_Holt/Sinner_Man/Sinner_Man.mxl
+- id: d_minor_009
+  name: 'D minor #9'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Retir\xE9s/Retir\xE9s.mxl"
+- id: d_minor_010
+  name: 'D minor #10'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Li'l_Red_Riding_Hood/Li'l_Red_Riding_Hood.mxl
+- id: d_minor_011
+  name: 'D minor #11'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/S\xF6prik_a_p\xE1pai_utc\xE1t/S\xF6prik_a_p\xE1\
+    pai_utc\xE1t.mxl"
+- id: d_minor_012
+  name: 'D minor #12'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Traditional]/\xC0_la_claire_fontaine/\xC0_la_claire_fontaine.mxl"
+- id: d_minor_013
+  name: 'D minor #13'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Gingerbread_Boy/Gingerbread_Boy.mxl
+- id: d_minor_014
+  name: 'D minor #14'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jerome_Kern-Otto_Harbach/Yesterdays/Yesterdays.mxl
+- id: d_minor_015
+  name: 'D minor #15'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Morrissey-Stephen_Street/I_Know_Very_Well_How_I_Got_My_Name/I_Know_Very_Well_How_I_Got_My_Name.mxl
+- id: d_minor_016
+  name: 'D minor #16'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/J\xE9zus,_Te_k\xF6z\xE9nk_elj\xF6tt\xE9\
+    l/J\xE9zus,_Te_k\xF6z\xE9nk_elj\xF6tt\xE9l.mxl"
+- id: d_minor_017
+  name: 'D minor #17'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sleeping_Beauty_Waltz/Sleeping_Beauty_Waltz.mxl
+- id: d_minor_018
+  name: 'D minor #18'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_j\xF3_lovas_katon\xE1nak_de_j\xF3l_vagyon_dolga/A_j\xF3\
+    _lovas_katon\xE1nak_de_j\xF3l_vagyon_dolga.mxl"
+- id: d_minor_019
+  name: 'D minor #19'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bob_Dylan/Dark_Eyes/Dark_Eyes.mxl
+- id: d_minor_020
+  name: 'D minor #20'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xD3,_j\xF6jjetek,_\xF6rvendj\xFCnk/\xD3\
+    ,_j\xF6jjetek,_\xF6rvendj\xFCnk.mxl"
+- id: d_minor_021
+  name: 'D minor #21'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Two_Guitars/Two_Guitars.mxl
+- id: d_minor_022
+  name: 'D minor #22'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Montauk/Montauk.mxl
+- id: d_minor_023
+  name: 'D minor #23'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Gehe_nicht,_oh_Gregor/Gehe_nicht,_oh_Gregor.mxl
+- id: d_minor_024
+  name: 'D minor #24'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Impressions/Impressions.mxl
+- id: d_minor_025
+  name: 'D minor #25'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/New_Friends/New_Friends.mxl
+- id: d_minor_026
+  name: 'D minor #26'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Carl_Schraubstader-Lew_Brown/Last_Night_on_the_Back_Porch/Last_Night_on_the_Back_Porch.mxl
+- id: d_minor_027
+  name: 'D minor #27'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Volga_Boat_Song/The_Volga_Boat_Song.mxl
+- id: d_minor_028
+  name: 'D minor #28'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Oh_Hanukkah_/Oh_Hanukkah_.mxl
+- id: d_minor_029
+  name: 'D minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jerry_Leiber-Mike_Stoller/Bernie's_Tune/Bernie's_Tune.mxl
+- id: d_minor_030
+  name: 'D minor #30'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tumbalalaika/Tumbalalaika.mxl
+- id: d_minor_031
+  name: 'D minor #31'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Grant_Hart/Diane/Diane.mxl
+- id: d_minor_032
+  name: 'D minor #32'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Hello_My_Baby/Hello_My_Baby.mxl
+- id: d_minor_033
+  name: 'D minor #33'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Clifford_Grey-Victor_Schertzinger/Paris_je_t'aime/Paris_je_t'aime.mxl
+- id: d_minor_034
+  name: 'D minor #34'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/El_Cuarto_de_Tula/El_Cuarto_de_Tula.mxl
+- id: d_minor_035
+  name: 'D minor #35'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/K\xE9t_sz\xE1l_p\xFCnk\xF6sdr\xF3zsa/K\xE9\
+    t_sz\xE1l_p\xFCnk\xF6sdr\xF3zsa.mxl"
+- id: d_minor_036
+  name: 'D minor #36'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_Snyder-Larry_Kusik/Games_That_Lovers_Play/Games_That_Lovers_Play.mxl
+- id: d_minor_037
+  name: 'D minor #37'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bernie_Miller/Bernie's_Tune/Bernie's_Tune.mxl
+- id: d_minor_038
+  name: 'D minor #38'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Cindy_Walker/Oh,_Gentle_Shepherd/Oh,_Gentle_Shepherd.mxl
+- id: d_minor_039
+  name: 'D minor #39'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Meet_Me_Tonight_In_Dreamland/Meet_Me_Tonight_In_Dreamland.mxl
+- id: d_minor_040
+  name: 'D minor #40'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Gus_Kahn-Isham_Jones/I'll_See_You_in_My_Dreams/I'll_See_You_in_My_Dreams.mxl
+- id: d_minor_041
+  name: 'D minor #41'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_Durham-Edgar_Battle/Topsy/Topsy.mxl
+- id: d_minor_042
+  name: 'D minor #42'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_pozsonyi_s\xE9tat\xE9ren/A_pozsonyi_s\xE9\
+    tat\xE9ren.mxl"
+- id: d_minor_043
+  name: 'D minor #43'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Melanie/What_Have_They_Done_to_My_Song,_Ma/What_Have_They_Done_to_My_Song,_Ma.mxl
+- id: d_minor_044
+  name: 'D minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Mark_Knopfler/Sultans_of_Swing/Sultans_of_Swing.mxl
+- id: d_minor_045
+  name: 'D minor #45'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_d\xE9dap\xE1m/A_d\xE9dap\xE1m.mxl"
+- id: d_minor_046
+  name: 'D minor #46'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Norman_Gimbel/How_Insensitive/How_Insensitive.mxl
+- id: d_minor_047
+  name: 'D minor #47'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Al_Hoffman-John_Klenner/Heartaches/Heartaches.mxl
+- id: d_minor_048
+  name: 'D minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Serenade_(La_Serenata)/Serenade_(La_Serenata).mxl
+- id: d_minor_049
+  name: 'D minor #49'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jack_Palmer-Spencer_Williams/I've_Found_a_New_Baby/I've_Found_a_New_Baby.mxl
+- id: d_minor_050
+  name: 'D minor #50'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jess_Klein/Little_White_Dove/Little_White_Dove.mxl
+- id: e_minor_001
+  name: 'E minor #1'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Al_die_willen_te_kap'ren_varen/Al_die_willen_te_kap'ren_varen.mxl
+- id: e_minor_002
+  name: 'E minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Katyusha/Katyusha.mxl
+- id: e_minor_003
+  name: 'E minor #3'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Bella_ciao/Bella_ciao.mxl
+- id: e_minor_004
+  name: 'E minor #4'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nem_lesz_egyed\xFCl_a_sz\xEDvem/Nem_lesz_egyed\xFC\
+    l_a_sz\xEDvem.mxl"
+- id: e_minor_005
+  name: 'E minor #5'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Lennon-Paul_McCartney/Eleanor_Rigby/Eleanor_Rigby.mxl
+- id: e_minor_006
+  name: 'E minor #6'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Elvis_Presley-Ken_Darby/Love_Me_Tender/Love_Me_Tender.mxl
+- id: e_minor_007
+  name: 'E minor #7'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/\xC9n_vagyok_az,_aki_nem_j\xF3/\xC9n_vagyok_az,_aki_nem_j\xF3\
+    .mxl"
+- id: e_minor_008
+  name: 'E minor #8'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Louis_Prima/Sing,_Sing,_Sing/Sing,_Sing,_Sing.mxl
+- id: e_minor_009
+  name: 'E minor #9'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Isten_b\xE1r\xE1nya/Isten_b\xE1r\xE1nya.mxl"
+- id: e_minor_010
+  name: 'E minor #10'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Was_wollen_wir_trinken/Was_wollen_wir_trinken.mxl
+- id: e_minor_011
+  name: 'E minor #11'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Billets_Doux/Billets_Doux.mxl
+- id: e_minor_012
+  name: 'E minor #12'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Uram,_irgalmazz/Uram,_irgalmazz.mxl
+- id: e_minor_013
+  name: 'E minor #13'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Hatikvah_(The_Hope)_(\u05D4\u05B7\u05EA\
+    \u05B4\u05BC\u05E7\u05B0\u05D5\u05B8\u05D4)/Hatikvah_(The_Hope)_(\u05D4\u05B7\u05EA\
+    \u05B4\u05BC\u05E7\u05B0\u05D5\u05B8\u05D4).mxl"
+- id: e_minor_014
+  name: 'E minor #14'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Jacques_Pr\xE9vert-Joseph_Kosma/Les_feuilles_mortes/Les_feuilles_mortes.mxl"
+- id: e_minor_015
+  name: 'E minor #15'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/P.F._Sloan-Steve_Barri/Secret_Agent_Man/Secret_Agent_Man.mxl
+- id: e_minor_016
+  name: 'E minor #16'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Blues_My_Naughty_Sweetie_Gives_To_Me_(Simplified_Changes)/Blues_My_Naughty_Sweetie_Gives_To_Me_(Simplified_Changes).mxl
+- id: e_minor_017
+  name: 'E minor #17'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bruce_Sievier/Speak_to_Me_of_Love/Speak_to_Me_of_Love.mxl
+- id: e_minor_018
+  name: 'E minor #18'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bud_Green-Martin_Block-Slim_Gaillard/Vol_Vistu_Gaily_Star/Vol_Vistu_Gaily_Star.mxl
+- id: e_minor_019
+  name: 'E minor #19'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Peter_Wilhousky/Carol_of_the_Bells/Carol_of_the_Bells.mxl
+- id: e_minor_020
+  name: 'E minor #20'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Nights_In_White_Satin_-_Flute_Solo/Nights_In_White_Satin_-_Flute_Solo.mxl
+- id: e_minor_021
+  name: 'E minor #21'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Miles_Davis/Nardis/Nardis.mxl
+- id: e_minor_022
+  name: 'E minor #22'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Michael_Jackson/Beat_It/Beat_It.mxl
+- id: e_minor_023
+  name: 'E minor #23'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Barry/A_Man_Alone_[The_Ipcress_File]/A_Man_Alone_[The_Ipcress_File].mxl
+- id: e_minor_024
+  name: 'E minor #24'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Emile_Carrara-L\xE9on_Agel/Mon_amant_de_Saint-Jean/Mon_amant_de_Saint-Jean.mxl"
+- id: e_minor_025
+  name: 'E minor #25'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Hedy_West/500_Miles/500_Miles.mxl
+- id: e_minor_026
+  name: 'E minor #26'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Dorothy_Stewart/Now_Is_the_Hour/Now_Is_the_Hour.mxl
+- id: e_minor_027
+  name: 'E minor #27'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jesse_Stone/Idaho/Idaho.mxl
+- id: e_minor_028
+  name: 'E minor #28'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/All_God's_Children_Got_Shoes/All_God's_Children_Got_Shoes.mxl
+- id: e_minor_029
+  name: 'E minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Alouette,_Alouette/Alouette,_Alouette.mxl
+- id: e_minor_030
+  name: 'E minor #30'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Samba_de_Orpheu/Samba_de_Orpheu.mxl
+- id: e_minor_031
+  name: 'E minor #31'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Cab_Calloway-Clarence_Gaskill-Irving_Mills/Minnie_the_Moocher/Minnie_the_Moocher.mxl
+- id: e_minor_032
+  name: 'E minor #32'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Rest_My_Chemistry/Rest_My_Chemistry.mxl
+- id: e_minor_033
+  name: 'E minor #33'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Oscar_Hammerstein_II-Otto_Harbach-Sigmund_Romberg/One_Alone/One_Alone.mxl
+- id: e_minor_034
+  name: 'E minor #34'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/YOU'RE_GONNA_NEED_SOMEONE_BY_YOUR_SIDE/YOU'RE_GONNA_NEED_SOMEONE_BY_YOUR_SIDE.mxl
+- id: e_minor_035
+  name: 'E minor #35'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Don't_Tell_A_Lie_About_Me_Dear/Don't_Tell_A_Lie_About_Me_Dear.mxl
+- id: e_minor_036
+  name: 'E minor #36'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Ennio_Morricone/Addio_a_Cheyenne/Addio_a_Cheyenne.mxl
+- id: e_minor_037
+  name: 'E minor #37'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Singing_Bamboo/Singing_Bamboo.mxl
+- id: e_minor_038
+  name: 'E minor #38'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Brian_Holland-Eddie_Holland-Lamont_Dozier/You're_a_Wonderful_One/You're_a_Wonderful_One.mxl
+- id: e_minor_039
+  name: 'E minor #39'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Charles_B._Ward-John_F._Palmer/The_Band_Played_On/The_Band_Played_On.mxl
+- id: e_minor_040
+  name: 'E minor #40'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eden_Ahbez/Nature_Boy/Nature_Boy.mxl
+- id: e_minor_041
+  name: 'E minor #41'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Henry_Blossom-Victor_Herbert/Kiss_Me_Again/Kiss_Me_Again.mxl
+- id: e_minor_042
+  name: 'E minor #42'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/A_bachelor_gay_(from_"The_Maid_of_the_Mountains")/A_bachelor_gay_(from_"The_Maid_of_the_Mountains").mxl
+- id: e_minor_043
+  name: 'E minor #43'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Hans_Fritz_Beckmann-Theo_Mackeben/Bei_dir_war_es_immer_so_sch\xF6\
+    n/Bei_dir_war_es_immer_so_sch\xF6n.mxl"
+- id: e_minor_044
+  name: 'E minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Fickle_Fingers/Fickle_Fingers.mxl
+- id: e_minor_045
+  name: 'E minor #45'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Klenner-Sam_Lewis/Just_Friends/Just_Friends.mxl
+- id: e_minor_046
+  name: 'E minor #46'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Forty_Second_Street/Forty_Second_Street.mxl
+- id: e_minor_047
+  name: 'E minor #47'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Folie_a_Amphion/Folie_a_Amphion.mxl
+- id: e_minor_048
+  name: 'E minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Doce_Taboo/Doce_Taboo.mxl
+- id: e_minor_049
+  name: 'E minor #49'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Theme_From_The_Godfather_II/Theme_From_The_Godfather_II.mxl
+- id: e_minor_050
+  name: 'E minor #50'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Charles_E._Henderson-Rudy_Vall\xE9e/Deep_Night/Deep_Night.mxl"
+- id: eb_major_001
+  name: 'Eb major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Tenor_Madness/Tenor_Madness.mxl
+- id: eb_major_002
+  name: 'Eb major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Every_time_We_Say_Goodbye/Every_time_We_Say_Goodbye.mxl
+- id: eb_major_003
+  name: 'Eb major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Lester_Young/Lester_Leaps_In/Lester_Leaps_In.mxl
+- id: eb_major_004
+  name: 'Eb major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jon_Hendricks/Centerpiece/Centerpiece.mxl
+- id: eb_major_005
+  name: 'Eb major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Duke_Ellington-Irving_Mills/It_Don't_Mean_a_Thing_(If_It_Ain't_Got_That_Swing)/It_Don't_Mean_a_Thing_(If_It_Ain't_Got_That_Swing).mxl
+- id: eb_major_006
+  name: 'Eb major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Oleo/Oleo.mxl
+- id: eb_major_007
+  name: 'Eb major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Kenny_Dorham/Blue_Bossa/Blue_Bossa.mxl
+- id: eb_major_008
+  name: 'Eb major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Johnny_Mercer/I'm_an_Old_Cowhand_(From_the_Rio_Grande)/I'm_an_Old_Cowhand_(From_the_Rio_Grande).mxl
+- id: eb_major_009
+  name: 'Eb major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Golliwog's_Cakewalk/Golliwog's_Cakewalk.mxl
+- id: eb_major_010
+  name: 'Eb major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Dizzy_Gillespie/Groovin'_High/Groovin'_High.mxl
+- id: eb_major_011
+  name: 'Eb major #11'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Leon_Ren\xE9/Boogie_Woogie_Santa_Claus/Boogie_Woogie_Santa_Claus.mxl"
+- id: eb_major_012
+  name: 'Eb major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jerome_Richardson/Groove_Merchant/Groove_Merchant.mxl
+- id: eb_major_013
+  name: 'Eb major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/All_of_Me_Intro/All_of_Me_Intro.mxl
+- id: eb_major_014
+  name: 'Eb major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I_Will_Serve_Thee/I_Will_Serve_Thee.mxl
+- id: eb_major_015
+  name: 'Eb major #15'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Meet_The_Flintstones/Meet_The_Flintstones.mxl
+- id: eb_major_016
+  name: 'Eb major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Pee_Wee_Ellis/The_Chicken/The_Chicken.mxl
+- id: eb_major_017
+  name: 'Eb major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Elizabeth_Cotten/Freight_Train/Freight_Train.mxl
+- id: eb_major_018
+  name: 'Eb major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Leslie_Stuart/Lily_of_Laguna/Lily_of_Laguna.mxl
+- id: eb_major_019
+  name: 'Eb major #19'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ev'ry_Little_Movement/Ev'ry_Little_Movement.mxl
+- id: eb_major_020
+  name: 'Eb major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/George_Whiting-Walter_Donaldson/My_Blue_Heaven/My_Blue_Heaven.mxl
+- id: eb_major_021
+  name: 'Eb major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I_Double_Dare_You/I_Double_Dare_You.mxl
+- id: eb_major_022
+  name: 'Eb major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/In_His_Time/In_His_Time.mxl
+- id: eb_major_023
+  name: 'Eb major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/George_Campbell-Marvin_Moore/Four_Walls/Four_Walls.mxl
+- id: eb_major_024
+  name: 'Eb major #24'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Buddy_Bolden_Blues/Buddy_Bolden_Blues.mxl
+- id: eb_major_025
+  name: 'Eb major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ballad_for_Trane/Ballad_for_Trane.mxl
+- id: eb_major_026
+  name: 'Eb major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Dave_Ringle-Fred_Meinken/Wabash_Blues/Wabash_Blues.mxl
+- id: eb_major_027
+  name: 'Eb major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Deon_Jackson/Love_Makes_the_World_Go_Round/Love_Makes_the_World_Go_Round.mxl
+- id: eb_major_028
+  name: 'Eb major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Rhythm-a-ning/Rhythm-a-ning.mxl
+- id: eb_major_029
+  name: 'Eb major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bill_Evans/Interplay/Interplay.mxl
+- id: eb_major_030
+  name: 'Eb major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Softly_Yes/Softly_Yes.mxl
+- id: eb_major_031
+  name: 'Eb major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/My_Little_Suede_Shoes/My_Little_Suede_Shoes.mxl
+- id: eb_major_032
+  name: 'Eb major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Happy_Trails_to_You/Happy_Trails_to_You.mxl
+- id: eb_major_033
+  name: 'Eb major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Lovely_Lady/Lovely_Lady.mxl
+- id: eb_major_034
+  name: 'Eb major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/George_S._Pomeroy-Meade_Minnigerode-Tod_B._Galloway/The_Whiffenpoof_Song/The_Whiffenpoof_Song.mxl
+- id: eb_major_035
+  name: 'Eb major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Ned_Miller/Dark_Moon/Dark_Moon.mxl
+- id: eb_major_036
+  name: 'Eb major #36'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/If_I_Should_Fall_In_Love_Again/If_I_Should_Fall_In_Love_Again.mxl
+- id: eb_major_037
+  name: 'Eb major #37'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Hoagy_Carmichael-Stuart_Gorrell/Georgia_on_My_Mind/Georgia_on_My_Mind.mxl
+- id: eb_major_038
+  name: 'Eb major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Acapulco_1922/Acapulco_1922.mxl
+- id: eb_major_039
+  name: 'Eb major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Everybody_Ought_to_Go_to_Sunday_School/Everybody_Ought_to_Go_to_Sunday_School.mxl
+- id: eb_major_040
+  name: 'Eb major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Gene_Krupa-Ray_Biondi/Boogie_Blues/Boogie_Blues.mxl
+- id: eb_major_041
+  name: 'Eb major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jerome_Kern-Oscar_Hammerstein_II/Why_Was_I_Born?/Why_Was_I_Born?.mxl
+- id: eb_major_042
+  name: 'Eb major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/There's_Yes!_Yes!_In_Your_Eyes/There's_Yes!_Yes!_In_Your_Eyes.mxl
+- id: eb_major_043
+  name: 'Eb major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Norman_Newell/The_Key_to_Love/The_Key_to_Love.mxl
+- id: eb_major_044
+  name: 'Eb major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Donald_Robinson/Constantly/Constantly.mxl
+- id: eb_major_045
+  name: 'Eb major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Manning_Sherwin-Tommie_Connor/Who's_Taking_You_Home_Tonight?/Who's_Taking_You_Home_Tonight?.mxl
+- id: eb_major_046
+  name: 'Eb major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/When_Your_Hair_Has_Turned_To_Silver/When_Your_Hair_Has_Turned_To_Silver.mxl
+- id: eb_major_047
+  name: 'Eb major #47'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Lew_Brown-Sidney_Clare/I'd_Climb_the_Highest_Mountain_if_I_Knew_I'd_Find_You/I'd_Climb_the_Highest_Mountain_if_I_Knew_I'd_Find_You.mxl
+- id: eb_major_048
+  name: 'Eb major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Egbert_Van_Alstyne-Gus_Kahn-Tony_Jackson_[1]/Pretty_Baby/Pretty_Baby.mxl
+- id: eb_major_049
+  name: 'Eb major #49'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Django_Reinhardt/Manoir_de_mes_r\xEAves/Manoir_de_mes_r\xEA\
+    ves.mxl"
+- id: eb_major_050
+  name: 'Eb major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Billy_Rose-Edward_Eliscu-Vincent_Youmans/Great_Day/Great_Day.mxl
+- id: f_major_001
+  name: 'F major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sinterklaas_kapoentje/Sinterklaas_kapoentje.mxl
+- id: f_major_002
+  name: 'F major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sinterklaasje_bonne_bonne_bonne/Sinterklaasje_bonne_bonne_bonne.mxl
+- id: f_major_003
+  name: 'F major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Herbie_Hancock/Maiden_Voyage/Maiden_Voyage.mxl
+- id: f_major_004
+  name: 'F major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Straight_No_Chaser/Straight_No_Chaser.mxl
+- id: f_major_005
+  name: 'F major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Ach,_Du_Lieber_Augustin/Ach,_Du_Lieber_Augustin.mxl
+- id: f_major_006
+  name: 'F major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Miles_Davis/Blue_in_Green/Blue_in_Green.mxl
+- id: f_major_007
+  name: 'F major #7'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Au_Privave/Au_Privave.mxl
+- id: f_major_008
+  name: 'F major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Alphabet_Song/The_Alphabet_Song.mxl
+- id: f_major_009
+  name: 'F major #9'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Cool_Blues/Cool_Blues.mxl
+- id: f_major_010
+  name: 'F major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/Alouette/Alouette.mxl
+- id: f_major_011
+  name: 'F major #11'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Zachtjes_gaan_de_paardenvoetjes/Zachtjes_gaan_de_paardenvoetjes.mxl
+- id: f_major_012
+  name: 'F major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Little_B's_Poem/Little_B's_Poem.mxl
+- id: f_major_013
+  name: 'F major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Vies_klein_varkentje/Vies_klein_varkentje.mxl
+- id: f_major_014
+  name: 'F major #14'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Fais_Dodo/Fais_Dodo.mxl
+- id: f_major_015
+  name: 'F major #15'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Well_You_Needn't/Well_You_Needn't.mxl
+- id: f_major_016
+  name: 'F major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Joseph_Brackett,_Jr./Simple_Gifts/Simple_Gifts.mxl
+- id: f_major_017
+  name: 'F major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Inch_Worm/The_Inch_Worm.mxl
+- id: f_major_018
+  name: 'F major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I_Love_You_Lord/I_Love_You_Lord.mxl
+- id: f_major_019
+  name: 'F major #19'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Ritchie_Valens/La_bamba/La_bamba.mxl
+- id: f_major_020
+  name: 'F major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bill_Evans-Miles_Davis/Freddie_Freeloader/Freddie_Freeloader.mxl
+- id: f_major_021
+  name: 'F major #21'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Pietro_Mascagni/Intermezzo/Intermezzo.mxl
+- id: f_major_022
+  name: 'F major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Bernie_Baum-Bill_Giant-Florence_Kaye/Down_by_the_Riverside_and_When_the_Saints_Go_Marching_In/Down_by_the_Riverside_and_When_the_Saints_Go_Marching_In.mxl
+- id: f_major_023
+  name: 'F major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Question_Mark/Question_Mark.mxl
+- id: f_major_024
+  name: 'F major #24'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Zie_ginds_komt_de_stoomboot/Zie_ginds_komt_de_stoomboot.mxl
+- id: f_major_025
+  name: 'F major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Man_Of_Constant_Sorrow/Man_Of_Constant_Sorrow.mxl
+- id: f_major_026
+  name: 'F major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/DuBose_Heyward-George_Gershwin-Ira_Gershwin/I_Loves_You,_Porgy/I_Loves_You,_Porgy.mxl
+- id: f_major_027
+  name: 'F major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Barry/The_John_Dunbar_Theme/The_John_Dunbar_Theme.mxl
+- id: f_major_028
+  name: 'F major #28'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nincsen_r\xF3zsa,_mert_lehullott_a_f\xF6\
+    ldre/Nincsen_r\xF3zsa,_mert_lehullott_a_f\xF6ldre.mxl"
+- id: f_major_029
+  name: 'F major #29'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/R\xE1d_b\xEDzom/R\xE1d_b\xEDzom.mxl"
+- id: f_major_030
+  name: 'F major #30'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Little_Annie_Rooney/Little_Annie_Rooney.mxl
+- id: f_major_031
+  name: 'F major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Robert_Burns-[Traditional]/Auld_Lang_Syne/Auld_Lang_Syne.mxl
+- id: f_major_032
+  name: 'F major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/I_Saw_Three_Ships/I_Saw_Three_Ships.mxl
+- id: f_major_033
+  name: 'F major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Lord's_my_Shepherd/The_Lord's_my_Shepherd.mxl
+- id: f_major_034
+  name: 'F major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/Shenandoah/Shenandoah.mxl
+- id: f_major_035
+  name: 'F major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/No_Me_Esqueca/No_Me_Esqueca.mxl
+- id: f_major_036
+  name: 'F major #36'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/O_Christmas_Tree/O_Christmas_Tree.mxl
+- id: f_major_037
+  name: 'F major #37'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Night_Mist_Blues/Night_Mist_Blues.mxl
+- id: f_major_038
+  name: 'F major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Just_a_song_at_twilight/Just_a_song_at_twilight.mxl
+- id: f_major_039
+  name: 'F major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tinker_Polka/Tinker_Polka.mxl
+- id: f_major_040
+  name: 'F major #40'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Albert_Ket\xE8lbey/In_a_Monastery_Garden/In_a_Monastery_Garden.mxl"
+- id: f_major_041
+  name: 'F major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Fill_Me_Now/Fill_Me_Now.mxl
+- id: f_major_042
+  name: 'F major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Nada_Sosou/Nada_Sosou.mxl
+- id: f_major_043
+  name: 'F major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Albert_Fitz-William_Penn/The_Honeysuckle_and_the_Bee/The_Honeysuckle_and_the_Bee.mxl
+- id: f_major_044
+  name: 'F major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Quiereme_Mucho_(Yours)/Quiereme_Mucho_(Yours).mxl
+- id: f_major_045
+  name: 'F major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/For_He's_a_Jolly_Good_Fellow/For_He's_a_Jolly_Good_Fellow.mxl
+- id: f_major_046
+  name: 'F major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Henry_Mancini-Johnny_Mercer/Days_of_Wine_and_Roses/Days_of_Wine_and_Roses.mxl
+- id: f_major_047
+  name: 'F major #47'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Spirit_of_the_Living_God/Spirit_of_the_Living_God.mxl
+- id: f_major_048
+  name: 'F major #48'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Bobby_Woodlen-Grace_Sampson-Mario_Bauz\xE1/Mambo_Inn/Mambo_Inn.mxl"
+- id: f_major_049
+  name: 'F major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/A_Vessel_of_Honor_For_God/A_Vessel_of_Honor_For_God.mxl
+- id: f_major_050
+  name: 'F major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Phil_Boutelje-Richard_A._Winfree/China_Boy/China_Boy.mxl
+- id: f_minor_001
+  name: 'F minor #1'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Barry_Mann-Cynthia_Weil/Mamacita/Mamacita.mxl
+- id: f_minor_002
+  name: 'F minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Mi_Piso_Eb/Mi_Piso_Eb.mxl
+- id: f_minor_003
+  name: 'F minor #3'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Mr._P.C./Mr._P.C..mxl
+- id: f_minor_004
+  name: 'F minor #4'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Charlie_Parker/Now's_the_Time/Now's_the_Time.mxl
+- id: f_minor_005
+  name: 'F minor #5'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Doxy/Doxy.mxl
+- id: f_minor_006
+  name: 'F minor #6'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Denzil_Best-Thelonious_Monk/Bemsha_Swing/Bemsha_Swing.mxl
+- id: f_minor_007
+  name: 'F minor #7'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/RIDERS_IN_THE_SKY/RIDERS_IN_THE_SKY.mxl
+- id: f_minor_008
+  name: 'F minor #8'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Strode_Rode/Strode_Rode.mxl
+- id: f_minor_009
+  name: 'F minor #9'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Billy_Moore-Sy_Oliver/Swingin'_on_Nothin'/Swingin'_on_Nothin'.mxl
+- id: f_minor_010
+  name: 'F minor #10'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Douglas_Furber-Philip_Braham/Limehouse_Blues/Limehouse_Blues.mxl
+- id: f_minor_011
+  name: 'F minor #11'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Egyptian_Fantasy/Egyptian_Fantasy.mxl
+- id: f_minor_012
+  name: 'F minor #12'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Blue_Minor/Blue_Minor.mxl
+- id: f_minor_013
+  name: 'F minor #13'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_Villa_Negra_rom\xE1nca/A_Villa_Negra_rom\xE1\
+    nca.mxl"
+- id: f_minor_014
+  name: 'F minor #14'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Andy_Razaf-Paul_Denniker/S'posin'/S'posin'.mxl
+- id: f_minor_015
+  name: 'F minor #15'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/(213)_Cha_Cha/(213)_Cha_Cha.mxl
+- id: f_minor_016
+  name: 'F minor #16'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/You_Know_When/You_Know_When.mxl
+- id: f_minor_017
+  name: 'F minor #17'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/La_Cachila/La_Cachila.mxl
+- id: f_minor_018
+  name: 'F minor #18'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Thelonious_Monk/Ruby,_My_Dear/Ruby,_My_Dear.mxl
+- id: f_minor_019
+  name: 'F minor #19'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Clifford_Brown/Joy_Spring/Joy_Spring.mxl
+- id: f_minor_020
+  name: 'F minor #20'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Clap_yo'_hands/Clap_yo'_hands.mxl
+- id: f_minor_021
+  name: 'F minor #21'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Jimmy_Giuffre/Four_Brothers/Four_Brothers.mxl
+- id: f_minor_022
+  name: 'F minor #22'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Billy_Strayhorn-Duke_Ellington/Isfahan/Isfahan.mxl
+- id: f_minor_023
+  name: 'F minor #23'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tears_for_alice/Tears_for_alice.mxl
+- id: f_minor_024
+  name: 'F minor #24'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/bons_vents/bons_vents.mxl
+- id: f_minor_025
+  name: 'F minor #25'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Roland_Orzabal/Mad_World/Mad_World.mxl
+- id: f_minor_026
+  name: 'F minor #26'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Edmund_Anderson-Ted_Grouya/Flamingo/Flamingo.mxl
+- id: f_minor_027
+  name: 'F minor #27'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Tu_scendi_dalle_stelle/Tu_scendi_dalle_stelle.mxl
+- id: f_minor_028
+  name: 'F minor #28'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Keith_Richards-Mick_Jagger/Paint_It,_Black/Paint_It,_Black.mxl
+- id: f_minor_029
+  name: 'F minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Never_Never_Will_I_Marry/Never_Never_Will_I_Marry.mxl
+- id: f_minor_030
+  name: 'F minor #30'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Mister_Sandman/Mister_Sandman.mxl
+- id: f_minor_031
+  name: 'F minor #31'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Andreas_Kisser-Igor_Cavalera-Max_Cavalera-Paulo_Jr./Inquisition_Symphony/Inquisition_Symphony.mxl
+- id: f_minor_032
+  name: 'F minor #32'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Harold_Arlen-Leo_Robin/For_Every_Man_There's_a_Woman/For_Every_Man_There's_a_Woman.mxl
+- id: f_minor_033
+  name: 'F minor #33'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Is_You_Is_Or_Is_You_Ain't_My_Baby?/Is_You_Is_Or_Is_You_Ain't_My_Baby?.mxl
+- id: f_minor_034
+  name: 'F minor #34'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/subconscious_lee/subconscious_lee.mxl
+- id: f_minor_035
+  name: 'F minor #35'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Don_Meyer-Elise_Bretton-Sherman_Edwards/For_Heaven's_Sake/For_Heaven's_Sake.mxl
+- id: f_minor_036
+  name: 'F minor #36'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Don_Raye-Gene_de_Paul/You_Don't_Know_What_Love_Is/You_Don't_Know_What_Love_Is.mxl
+- id: f_minor_037
+  name: 'F minor #37'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Dorcas_Cochran/Adventures_in_Paradise/Adventures_in_Paradise.mxl
+- id: f_minor_038
+  name: 'F minor #38'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bob_Merrill/Mambo_Italiano/Mambo_Italiano.mxl
+- id: f_minor_039
+  name: 'F minor #39'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Dave_Guard/Scotch_and_Soda/Scotch_and_Soda.mxl
+- id: f_minor_040
+  name: 'F minor #40'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Arthur_Freed-Nacio_Herb_Brown/Temptation/Temptation.mxl
+- id: f_minor_041
+  name: 'F minor #41'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Barefoot_Days/Barefoot_Days.mxl
+- id: f_minor_042
+  name: 'F minor #42'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Cole_Porter/Well,_Did_You_Evah!/Well,_Did_You_Evah!.mxl
+- id: f_minor_043
+  name: 'F minor #43'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Joe_Steen-Paul_Edwards/Rollin'_Danny/Rollin'_Danny.mxl
+- id: f_minor_044
+  name: 'F minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Johnny_Marr-Morrissey/How_Soon_Is_Now/How_Soon_Is_Now.mxl
+- id: f_minor_045
+  name: 'F minor #45'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Irving_Kahal-Pierre_Norman-Sammy_Fain/You_Brought_a_New_Kind_of_Love_to_Me/You_Brought_a_New_Kind_of_Love_to_Me.mxl
+- id: f_minor_046
+  name: 'F minor #46'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_Harris/Listen_Here/Listen_Here.mxl
+- id: f_minor_047
+  name: 'F minor #47'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Udo_J\xFCrgens-Wolfgang_Hofer/Liebe_ohne_Leiden/Liebe_ohne_Leiden.mxl"
+- id: f_minor_048
+  name: 'F minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Lester_Allen-Robert_Hill/Kiss_of_Fire/Kiss_of_Fire.mxl
+- id: f_minor_049
+  name: 'F minor #49'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Leon_Russell/This_Masquerade/This_Masquerade.mxl
+- id: f_minor_050
+  name: 'F minor #50'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Johnny_Mandel-Paul_Williams/Close_Enough_for_Love/Close_Enough_for_Love.mxl
+- id: g_major_001
+  name: 'G major #1'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Good-Morning_To_All/Good-Morning_To_All.mxl
+- id: g_major_002
+  name: 'G major #2'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Italian_Polka/Italian_Polka.mxl
+- id: g_major_003
+  name: 'G major #3'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Daar_is_de_lente,_daar_is_de_zon/Daar_is_de_lente,_daar_is_de_zon.mxl
+- id: g_major_004
+  name: 'G major #4'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Highway_To_Limerick/The_Highway_To_Limerick.mxl
+- id: g_major_005
+  name: 'G major #5'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Be_Thou_My_Vision/Be_Thou_My_Vision.mxl
+- id: g_major_006
+  name: 'G major #6'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Mildred_Hill-Patty_Hill/Happy_Birthday_to_You/Happy_Birthday_to_You.mxl
+- id: g_major_007
+  name: 'G major #7'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Il_pleut,_il_pleut,_Berg\xE8re/Il_pleut,_il_pleut,_Berg\xE8\
+    re.mxl"
+- id: g_major_008
+  name: 'G major #8'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jimmy_Van_Heusen-Johnny_Burke/It_Could_Happen_to_You/It_Could_Happen_to_You.mxl
+- id: g_major_009
+  name: 'G major #9'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Aupr\xE8s_De_Ma_Blonde/Aupr\xE8s_De_Ma_Blonde.mxl"
+- id: g_major_010
+  name: 'G major #10'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Antoine_Renard/Le_temps_des_cerises/Le_temps_des_cerises.mxl
+- id: g_major_011
+  name: 'G major #11'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl
+- id: g_major_012
+  name: 'G major #12'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Harry_Dixon_Loes/This_Little_Light_of_Mine/This_Little_Light_of_Mine.mxl
+- id: g_major_013
+  name: 'G major #13'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Tex_Logan/Christmas_Time's_A-Coming/Christmas_Time's_A-Coming.mxl
+- id: g_major_014
+  name: 'G major #14'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Negyvenhatos_s\xE1rga_villamoson/Negyvenhatos_s\xE1\
+    rga_villamoson.mxl"
+- id: g_major_015
+  name: 'G major #15'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Fel_nagy_\xF6r\xF6mre/Fel_nagy_\xF6r\xF6\
+    mre.mxl"
+- id: g_major_016
+  name: 'G major #16'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Frederick_Oakeley/O_Come,_All_Ye_Faithful/O_Come,_All_Ye_Faithful.mxl
+- id: g_major_017
+  name: 'G major #17'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Hoor_de_wind_waait_door_de_bomen/Hoor_de_wind_waait_door_de_bomen.mxl
+- id: g_major_018
+  name: 'G major #18'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/The_Black_Velvet_Band/The_Black_Velvet_Band.mxl
+- id: g_major_019
+  name: 'G major #19'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Helen_Lindsey_Parker/\u2018Akaka_Falls/\u2018Akaka_Falls.mxl"
+- id: g_major_020
+  name: 'G major #20'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/It's_a_Long_Way_to_Tipperary/It's_a_Long_Way_to_Tipperary.mxl
+- id: g_major_021
+  name: 'G major #21'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/A_La_P\xEAche_Aux_Moules/A_La_P\xEAche_Aux_Moules.mxl"
+- id: g_major_022
+  name: 'G major #22'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Git_Along_Little_Dogies/Git_Along_Little_Dogies.mxl
+- id: g_major_023
+  name: 'G major #23'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Charles_Macak-Larry_La_Prise-Taftt_Baker/The_Hokey_Pokey/The_Hokey_Pokey.mxl
+- id: g_major_024
+  name: 'G major #24'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Megszentelt_keny\xE9r/Megszentelt_keny\xE9\
+    r.mxl"
+- id: g_major_025
+  name: 'G major #25'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/See_amid_the_winters_snow/See_amid_the_winters_snow.mxl
+- id: g_major_026
+  name: 'G major #26'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Wayne_Shorter/Juju/Juju.mxl
+- id: g_major_027
+  name: 'G major #27'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Manu_rere/Manu_rere.mxl
+- id: g_major_028
+  name: 'G major #28'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Old_Grey_Mare/The_Old_Grey_Mare.mxl
+- id: g_major_029
+  name: 'G major #29'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/John_Browns_body/John_Browns_body.mxl
+- id: g_major_030
+  name: 'G major #30'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/Jo\xE3o_Gilberto/Bim_Bom/Bim_Bom.mxl"
+- id: g_major_031
+  name: 'G major #31'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Fairies'_Hornpipe/The_Fairies'_Hornpipe.mxl
+- id: g_major_032
+  name: 'G major #32'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/John_Williams/Star_Wars_Main_Title/Star_Wars_Main_Title.mxl
+- id: g_major_033
+  name: 'G major #33'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Beth_Slater_Whitson-Leo_Friedman/Let_Me_Call_You_Sweetheart/Let_Me_Call_You_Sweetheart.mxl
+- id: g_major_034
+  name: 'G major #34'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Am_Sonntag_Will_Mein_Susser/Am_Sonntag_Will_Mein_Susser.mxl
+- id: g_major_035
+  name: 'G major #35'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Pass_Me_Not/Pass_Me_Not.mxl
+- id: g_major_036
+  name: 'G major #36'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Kir\xE1lyi_t\xF6rv\xE9ny/Kir\xE1lyi_t\xF6\
+    rv\xE9ny.mxl"
+- id: g_major_037
+  name: 'G major #37'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Az_\u0151si_j\xF3slat/Az_\u0151si_j\xF3\
+    slat.mxl"
+- id: g_major_038
+  name: 'G major #38'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Johnny_Christopher-Mark_James-Wayne_Carson/Always_on_My_Mind/Always_on_My_Mind.mxl
+- id: g_major_039
+  name: 'G major #39'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/C._W._Murphy-Dan_Lipton-John_Neat/She's_a_Lassie_from_Lancashire/She's_a_Lassie_from_Lancashire.mxl
+- id: g_major_040
+  name: 'G major #40'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Comin'_Through_The_Rye/Comin'_Through_The_Rye.mxl
+- id: g_major_041
+  name: 'G major #41'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Once_in_royal_Davids_city/Once_in_royal_Davids_city.mxl
+- id: g_major_042
+  name: 'G major #42'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Gus_Edwards-Vincent_Bryan/In_My_Merry_Oldsmobile/In_My_Merry_Oldsmobile.mxl
+- id: g_major_043
+  name: 'G major #43'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/MY_LOVE_LIFE/MY_LOVE_LIFE.mxl
+- id: g_major_044
+  name: 'G major #44'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Jerome_Kern-Oscar_Hammerstein_II/Why_Do_I_Love_You?/Why_Do_I_Love_You?.mxl
+- id: g_major_045
+  name: 'G major #45'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Harry_Akst-Joe_Young-Sam_Lewis/Dinah/Dinah.mxl
+- id: g_major_046
+  name: 'G major #46'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Traditional]/Coventry_Carol/Coventry_Carol.mxl
+- id: g_major_047
+  name: 'G major #47'
+  color: '#1f77b4'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Aty\xE1m,_Tied_vagyok/Aty\xE1m,_Tied_vagyok.mxl"
+- id: g_major_048
+  name: 'G major #48'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Billy_Strayhorn-Duke_Ellington/Satin_Doll/Satin_Doll.mxl
+- id: g_major_049
+  name: 'G major #49'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/Gus_Kahn-Walter_Donaldson/My_Buddy/My_Buddy.mxl
+- id: g_major_050
+  name: 'G major #50'
+  color: '#1f77b4'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Daisy,_Daisy/Daisy,_Daisy.mxl
+- id: g_minor_001
+  name: 'G minor #1'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/John_Coltrane/Giant_Steps/Giant_Steps.mxl
+- id: g_minor_002
+  name: 'G minor #2'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Charlie_Haden/For_Turiya/For_Turiya.mxl
+- id: g_minor_003
+  name: 'G minor #3'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Nincsen_keny\xE9r,_nincsen_s\xF3/Nincsen_keny\xE9\
+    r,_nincsen_s\xF3.mxl"
+- id: g_minor_004
+  name: 'G minor #4'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Sonny_Rollins/Pent-Up_House/Pent-Up_House.mxl
+- id: g_minor_005
+  name: 'G minor #5'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Carl_McIntosh-Jane_Eugene-Steve_Nichol/Ain't_You_Had_Enough_Love?/Ain't_You_Had_Enough_Love?.mxl
+- id: g_minor_006
+  name: 'G minor #6'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Gigi_Gryce/Minority/Minority.mxl
+- id: g_minor_007
+  name: 'G minor #7'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/N\xE1d_a_h\xE1zam_teteje/N\xE1d_a_h\xE1\
+    zam_teteje.mxl"
+- id: g_minor_008
+  name: 'G minor #8'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ablakomba_bes\xFCt\xF6tt_a_holdvil\xE1\
+    g/Ablakomba_bes\xFCt\xF6tt_a_holdvil\xE1g.mxl"
+- id: g_minor_009
+  name: 'G minor #9'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Sing_We_Now_Of_Christmas/Sing_We_Now_Of_Christmas.mxl
+- id: g_minor_010
+  name: 'G minor #10'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Csak_Benned/Csak_Benned.mxl
+- id: g_minor_011
+  name: 'G minor #11'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/M\xE9g_az_utc\xE1n_lefel\xE9_se_mehetek/M\xE9\
+    g_az_utc\xE1n_lefel\xE9_se_mehetek.mxl"
+- id: g_minor_012
+  name: 'G minor #12'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Traditional]/Satan,_Your_Kingdom_Must_Come_Down/Satan,_Your_Kingdom_Must_Come_Down.mxl
+- id: g_minor_013
+  name: 'G minor #13'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/"LAST_NITE_I_DREAMT_SOMEBODY_LOVED_ME"/"LAST_NITE_I_DREAMT_SOMEBODY_LOVED_ME".mxl
+- id: g_minor_014
+  name: 'G minor #14'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Ray_Noble/Cherokee/Cherokee.mxl
+- id: g_minor_015
+  name: 'G minor #15'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bert_Kaempfert-Milt_Gabler/L-O-V-E/L-O-V-E.mxl
+- id: g_minor_016
+  name: 'G minor #16'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Britney_Spears-Christopher_Stewart-Gary_O'Bryan-Madonna-Penelope_Magnet-Tab_Nkhereanye-The-Dream/Me_Against_the_Music/Me_Against_the_Music.mxl
+- id: g_minor_017
+  name: 'G minor #17'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/The_Imperial_March_(Darth_Vader's_Theme)/The_Imperial_March_(Darth_Vader's_Theme).mxl
+- id: g_minor_018
+  name: 'G minor #18'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Francis_Wheeler-Harry_B._Smith-Ted_Snyder/The_Sheik_of_Araby/The_Sheik_of_Araby.mxl
+- id: g_minor_019
+  name: 'G minor #19'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Cole_Porter/I_Love_Paris/I_Love_Paris.mxl
+- id: g_minor_020
+  name: 'G minor #20'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Buddy_Bernier-Nat_Simon/Poinciana_(Song_of_the_Tree)/Poinciana_(Song_of_the_Tree).mxl
+- id: g_minor_021
+  name: 'G minor #21'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Johannes_Brahms/Hungarian_Dance_No._5_in_F\u266F\
+    _minor/Hungarian_Dance_No._5_in_F\u266F_minor.mxl"
+- id: g_minor_022
+  name: 'G minor #22'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/TO_GIVE_IS_THE_REASON_WE_LIVE/TO_GIVE_IS_THE_REASON_WE_LIVE.mxl
+- id: g_minor_023
+  name: 'G minor #23'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Milt_Gabler/In_a_Mellow_Tone/In_a_Mellow_Tone.mxl
+- id: g_minor_024
+  name: 'G minor #24'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Alex_Callier/Vinegar_&_Salt/Vinegar_&_Salt.mxl
+- id: g_minor_025
+  name: 'G minor #25'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Bronislaw_Kaper-Ned_Washington/On_Green_Dolphin_Street/On_Green_Dolphin_Street.mxl
+- id: g_minor_026
+  name: 'G minor #26'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Francis_Wheeler-Irving_Kahal-Sammy_Fain/Let_a_Smile_Be_Your_Umbrella/Let_a_Smile_Be_Your_Umbrella.mxl
+- id: g_minor_027
+  name: 'G minor #27'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/[Unknown]/Ma\u0109jo/Ma\u0109jo.mxl"
+- id: g_minor_028
+  name: 'G minor #28'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Enrique_P._Maroni-Gerardo_Matos_Rodr\xEDguez-Pascual_Contursi/La_cumparsita/La_cumparsita.mxl"
+- id: g_minor_029
+  name: 'G minor #29'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/George_Gershwin-Ira_Gershwin/'S_Wonderful/'S_Wonderful.mxl
+- id: g_minor_030
+  name: 'G minor #30'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/I'm_Sorry_I_Made_You_Cry/I'm_Sorry_I_Made_You_Cry.mxl
+- id: g_minor_031
+  name: 'G minor #31'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/Jolly_Old_Saint_Nicholas/Jolly_Old_Saint_Nicholas.mxl
+- id: g_minor_032
+  name: 'G minor #32'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Chris_Smith_[1]-Jim_Burris/Ballin'_the_Jack/Ballin'_the_Jack.mxl
+- id: g_minor_033
+  name: 'G minor #33'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Al_Dubin-Joe_Burke/Dancing_with_Tears_in_My_Eyes/Dancing_with_Tears_in_My_Eyes.mxl
+- id: g_minor_034
+  name: 'G minor #34'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Hans_Bradtke/Mary-Rose/Mary-Rose.mxl
+- id: g_minor_035
+  name: 'G minor #35'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Alfred_Bryan-Fred_Fisher/Peg_O'_My_Heart/Peg_O'_My_Heart.mxl
+- id: g_minor_036
+  name: 'G minor #36'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Dorothy_Parker-Jack_King/How_Am_I_to_Know?/How_Am_I_to_Know?.mxl
+- id: g_minor_037
+  name: 'G minor #37'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Rida_Johnson_Young-Victor_Herbert/Ah!_Sweet_Mystery_of_Life/Ah!_Sweet_Mystery_of_Life.mxl
+- id: g_minor_038
+  name: 'G minor #38'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Frank_Westphal-Gus_Kahn/When_You_Come_to_the_End_of_the_Day/When_You_Come_to_the_End_of_the_Day.mxl
+- id: g_minor_039
+  name: 'G minor #39'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Eddie_Adcock-Wendy_Special/Another_Lonesome_Day/Another_Lonesome_Day.mxl
+- id: g_minor_040
+  name: 'G minor #40'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Frank_Loesser/On_a_Slow_Boat_to_China/On_a_Slow_Boat_to_China.mxl
+- id: g_minor_041
+  name: 'G minor #41'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/[Unknown]/All_That_I_Ask_Of_You_Is_Love/All_That_I_Ask_Of_You_Is_Love.mxl
+- id: g_minor_042
+  name: 'G minor #42'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Wes_Montgomery/Four_on_Six/Four_on_Six.mxl
+- id: g_minor_043
+  name: 'G minor #43'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Gordon_Clifford-Nacio_Herb_Brown/Paradise/Paradise.mxl
+- id: g_minor_044
+  name: 'G minor #44'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Del_Lyon-Lani_McIntire/The_One_Rose/The_One_Rose.mxl
+- id: g_minor_045
+  name: 'G minor #45'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Peter_De_Rose/Deep_Purple/Deep_Purple.mxl
+- id: g_minor_046
+  name: 'G minor #46'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Charles_Tobias-Harry_Tobias-Henry_Tobias/Miss_You/Miss_You.mxl
+- id: g_minor_047
+  name: 'G minor #47'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Henry_Mancini/Breakfast_at_Tiffany's/Breakfast_at_Tiffany's.mxl
+- id: g_minor_048
+  name: 'G minor #48'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/George_Gershwin-Ira_Gershwin/(I've_Got_a)_Crush_on_You/(I've_Got_a)_Crush_on_You.mxl
+- id: g_minor_049
+  name: 'G minor #49'
+  color: '#d62728'
+  musicxml_path: ../EWLD/dataset/Billy_Rose-Mort_Dixon-Ray_Henderson/That_Old_Gang_of_Mine/That_Old_Gang_of_Mine.mxl
+- id: g_minor_050
+  name: 'G minor #50'
+  color: '#d62728'
+  musicxml_path: "../EWLD/dataset/Christophe-Pierre_Grillet/Chiqu\xE9,_chiqu\xE9/Chiqu\xE9\
+    ,_chiqu\xE9.mxl"
+average:
+  avg_a_major:
+    name: A major avg
+    color: '#1f77b4'
+    queries: &id001
+    - a_major_001
+    - a_major_002
+    - a_major_003
+    - a_major_004
+    - a_major_005
+    - a_major_006
+    - a_major_007
+    - a_major_008
+    - a_major_009
+    - a_major_010
+    - a_major_011
+    - a_major_012
+    - a_major_013
+    - a_major_014
+    - a_major_015
+    - a_major_016
+    - a_major_017
+    - a_major_018
+    - a_major_019
+    - a_major_020
+    - a_major_021
+    - a_major_022
+    - a_major_023
+    - a_major_024
+    - a_major_025
+    - a_major_026
+    - a_major_027
+    - a_major_028
+    - a_major_029
+    - a_major_030
+    - a_major_031
+    - a_major_032
+    - a_major_033
+    - a_major_034
+    - a_major_035
+    - a_major_036
+    - a_major_037
+    - a_major_038
+    - a_major_039
+    - a_major_040
+    - a_major_041
+    - a_major_042
+    - a_major_043
+    - a_major_044
+    - a_major_045
+    - a_major_046
+    - a_major_047
+    - a_major_048
+    - a_major_049
+    - a_major_050
+  avg_a_minor:
+    name: A minor avg
+    color: '#d62728'
+    queries: &id002
+    - a_minor_001
+    - a_minor_002
+    - a_minor_003
+    - a_minor_004
+    - a_minor_005
+    - a_minor_006
+    - a_minor_007
+    - a_minor_008
+    - a_minor_009
+    - a_minor_010
+    - a_minor_011
+    - a_minor_012
+    - a_minor_013
+    - a_minor_014
+    - a_minor_015
+    - a_minor_016
+    - a_minor_017
+    - a_minor_018
+    - a_minor_019
+    - a_minor_020
+    - a_minor_021
+    - a_minor_022
+    - a_minor_023
+    - a_minor_024
+    - a_minor_025
+    - a_minor_026
+    - a_minor_027
+    - a_minor_028
+    - a_minor_029
+    - a_minor_030
+    - a_minor_031
+    - a_minor_032
+    - a_minor_033
+    - a_minor_034
+    - a_minor_035
+    - a_minor_036
+    - a_minor_037
+    - a_minor_038
+    - a_minor_039
+    - a_minor_040
+    - a_minor_041
+    - a_minor_042
+    - a_minor_043
+    - a_minor_044
+    - a_minor_045
+    - a_minor_046
+    - a_minor_047
+    - a_minor_048
+    - a_minor_049
+    - a_minor_050
+  avg_ab_major:
+    name: Ab major avg
+    color: '#1f77b4'
+    queries: &id003
+    - ab_major_001
+    - ab_major_002
+    - ab_major_003
+    - ab_major_004
+    - ab_major_005
+    - ab_major_006
+    - ab_major_007
+    - ab_major_008
+    - ab_major_009
+    - ab_major_010
+    - ab_major_011
+    - ab_major_012
+    - ab_major_013
+    - ab_major_014
+    - ab_major_015
+    - ab_major_016
+    - ab_major_017
+    - ab_major_018
+    - ab_major_019
+    - ab_major_020
+    - ab_major_021
+    - ab_major_022
+    - ab_major_023
+    - ab_major_024
+    - ab_major_025
+    - ab_major_026
+    - ab_major_027
+    - ab_major_028
+    - ab_major_029
+    - ab_major_030
+    - ab_major_031
+    - ab_major_032
+    - ab_major_033
+    - ab_major_034
+    - ab_major_035
+    - ab_major_036
+    - ab_major_037
+    - ab_major_038
+    - ab_major_039
+    - ab_major_040
+    - ab_major_041
+    - ab_major_042
+    - ab_major_043
+    - ab_major_044
+    - ab_major_045
+    - ab_major_046
+    - ab_major_047
+    - ab_major_048
+    - ab_major_049
+    - ab_major_050
+  avg_bb_major:
+    name: Bb major avg
+    color: '#1f77b4'
+    queries: &id004
+    - bb_major_001
+    - bb_major_002
+    - bb_major_003
+    - bb_major_004
+    - bb_major_005
+    - bb_major_006
+    - bb_major_007
+    - bb_major_008
+    - bb_major_009
+    - bb_major_010
+    - bb_major_011
+    - bb_major_012
+    - bb_major_013
+    - bb_major_014
+    - bb_major_015
+    - bb_major_016
+    - bb_major_017
+    - bb_major_018
+    - bb_major_019
+    - bb_major_020
+    - bb_major_021
+    - bb_major_022
+    - bb_major_023
+    - bb_major_024
+    - bb_major_025
+    - bb_major_026
+    - bb_major_027
+    - bb_major_028
+    - bb_major_029
+    - bb_major_030
+    - bb_major_031
+    - bb_major_032
+    - bb_major_033
+    - bb_major_034
+    - bb_major_035
+    - bb_major_036
+    - bb_major_037
+    - bb_major_038
+    - bb_major_039
+    - bb_major_040
+    - bb_major_041
+    - bb_major_042
+    - bb_major_043
+    - bb_major_044
+    - bb_major_045
+    - bb_major_046
+    - bb_major_047
+    - bb_major_048
+    - bb_major_049
+    - bb_major_050
+  avg_c_major:
+    name: C major avg
+    color: '#1f77b4'
+    queries: &id005
+    - c_major_001
+    - c_major_002
+    - c_major_003
+    - c_major_004
+    - c_major_005
+    - c_major_006
+    - c_major_007
+    - c_major_008
+    - c_major_009
+    - c_major_010
+    - c_major_011
+    - c_major_012
+    - c_major_013
+    - c_major_014
+    - c_major_015
+    - c_major_016
+    - c_major_017
+    - c_major_018
+    - c_major_019
+    - c_major_020
+    - c_major_021
+    - c_major_022
+    - c_major_023
+    - c_major_024
+    - c_major_025
+    - c_major_026
+    - c_major_027
+    - c_major_028
+    - c_major_029
+    - c_major_030
+    - c_major_031
+    - c_major_032
+    - c_major_033
+    - c_major_034
+    - c_major_035
+    - c_major_036
+    - c_major_037
+    - c_major_038
+    - c_major_039
+    - c_major_040
+    - c_major_041
+    - c_major_042
+    - c_major_043
+    - c_major_044
+    - c_major_045
+    - c_major_046
+    - c_major_047
+    - c_major_048
+    - c_major_049
+    - c_major_050
+  avg_c_minor:
+    name: C minor avg
+    color: '#d62728'
+    queries: &id006
+    - c_minor_001
+    - c_minor_002
+    - c_minor_003
+    - c_minor_004
+    - c_minor_005
+    - c_minor_006
+    - c_minor_007
+    - c_minor_008
+    - c_minor_009
+    - c_minor_010
+    - c_minor_011
+    - c_minor_012
+    - c_minor_013
+    - c_minor_014
+    - c_minor_015
+    - c_minor_016
+    - c_minor_017
+    - c_minor_018
+    - c_minor_019
+    - c_minor_020
+    - c_minor_021
+    - c_minor_022
+    - c_minor_023
+    - c_minor_024
+    - c_minor_025
+    - c_minor_026
+    - c_minor_027
+    - c_minor_028
+    - c_minor_029
+    - c_minor_030
+    - c_minor_031
+    - c_minor_032
+    - c_minor_033
+    - c_minor_034
+    - c_minor_035
+    - c_minor_036
+    - c_minor_037
+    - c_minor_038
+    - c_minor_039
+    - c_minor_040
+    - c_minor_041
+    - c_minor_042
+    - c_minor_043
+    - c_minor_044
+    - c_minor_045
+    - c_minor_046
+    - c_minor_047
+    - c_minor_048
+    - c_minor_049
+    - c_minor_050
+  avg_d_major:
+    name: D major avg
+    color: '#1f77b4'
+    queries: &id007
+    - d_major_001
+    - d_major_002
+    - d_major_003
+    - d_major_004
+    - d_major_005
+    - d_major_006
+    - d_major_007
+    - d_major_008
+    - d_major_009
+    - d_major_010
+    - d_major_011
+    - d_major_012
+    - d_major_013
+    - d_major_014
+    - d_major_015
+    - d_major_016
+    - d_major_017
+    - d_major_018
+    - d_major_019
+    - d_major_020
+    - d_major_021
+    - d_major_022
+    - d_major_023
+    - d_major_024
+    - d_major_025
+    - d_major_026
+    - d_major_027
+    - d_major_028
+    - d_major_029
+    - d_major_030
+    - d_major_031
+    - d_major_032
+    - d_major_033
+    - d_major_034
+    - d_major_035
+    - d_major_036
+    - d_major_037
+    - d_major_038
+    - d_major_039
+    - d_major_040
+    - d_major_041
+    - d_major_042
+    - d_major_043
+    - d_major_044
+    - d_major_045
+    - d_major_046
+    - d_major_047
+    - d_major_048
+    - d_major_049
+    - d_major_050
+  avg_d_minor:
+    name: D minor avg
+    color: '#d62728'
+    queries: &id008
+    - d_minor_001
+    - d_minor_002
+    - d_minor_003
+    - d_minor_004
+    - d_minor_005
+    - d_minor_006
+    - d_minor_007
+    - d_minor_008
+    - d_minor_009
+    - d_minor_010
+    - d_minor_011
+    - d_minor_012
+    - d_minor_013
+    - d_minor_014
+    - d_minor_015
+    - d_minor_016
+    - d_minor_017
+    - d_minor_018
+    - d_minor_019
+    - d_minor_020
+    - d_minor_021
+    - d_minor_022
+    - d_minor_023
+    - d_minor_024
+    - d_minor_025
+    - d_minor_026
+    - d_minor_027
+    - d_minor_028
+    - d_minor_029
+    - d_minor_030
+    - d_minor_031
+    - d_minor_032
+    - d_minor_033
+    - d_minor_034
+    - d_minor_035
+    - d_minor_036
+    - d_minor_037
+    - d_minor_038
+    - d_minor_039
+    - d_minor_040
+    - d_minor_041
+    - d_minor_042
+    - d_minor_043
+    - d_minor_044
+    - d_minor_045
+    - d_minor_046
+    - d_minor_047
+    - d_minor_048
+    - d_minor_049
+    - d_minor_050
+  avg_e_minor:
+    name: E minor avg
+    color: '#d62728'
+    queries: &id009
+    - e_minor_001
+    - e_minor_002
+    - e_minor_003
+    - e_minor_004
+    - e_minor_005
+    - e_minor_006
+    - e_minor_007
+    - e_minor_008
+    - e_minor_009
+    - e_minor_010
+    - e_minor_011
+    - e_minor_012
+    - e_minor_013
+    - e_minor_014
+    - e_minor_015
+    - e_minor_016
+    - e_minor_017
+    - e_minor_018
+    - e_minor_019
+    - e_minor_020
+    - e_minor_021
+    - e_minor_022
+    - e_minor_023
+    - e_minor_024
+    - e_minor_025
+    - e_minor_026
+    - e_minor_027
+    - e_minor_028
+    - e_minor_029
+    - e_minor_030
+    - e_minor_031
+    - e_minor_032
+    - e_minor_033
+    - e_minor_034
+    - e_minor_035
+    - e_minor_036
+    - e_minor_037
+    - e_minor_038
+    - e_minor_039
+    - e_minor_040
+    - e_minor_041
+    - e_minor_042
+    - e_minor_043
+    - e_minor_044
+    - e_minor_045
+    - e_minor_046
+    - e_minor_047
+    - e_minor_048
+    - e_minor_049
+    - e_minor_050
+  avg_eb_major:
+    name: Eb major avg
+    color: '#1f77b4'
+    queries: &id010
+    - eb_major_001
+    - eb_major_002
+    - eb_major_003
+    - eb_major_004
+    - eb_major_005
+    - eb_major_006
+    - eb_major_007
+    - eb_major_008
+    - eb_major_009
+    - eb_major_010
+    - eb_major_011
+    - eb_major_012
+    - eb_major_013
+    - eb_major_014
+    - eb_major_015
+    - eb_major_016
+    - eb_major_017
+    - eb_major_018
+    - eb_major_019
+    - eb_major_020
+    - eb_major_021
+    - eb_major_022
+    - eb_major_023
+    - eb_major_024
+    - eb_major_025
+    - eb_major_026
+    - eb_major_027
+    - eb_major_028
+    - eb_major_029
+    - eb_major_030
+    - eb_major_031
+    - eb_major_032
+    - eb_major_033
+    - eb_major_034
+    - eb_major_035
+    - eb_major_036
+    - eb_major_037
+    - eb_major_038
+    - eb_major_039
+    - eb_major_040
+    - eb_major_041
+    - eb_major_042
+    - eb_major_043
+    - eb_major_044
+    - eb_major_045
+    - eb_major_046
+    - eb_major_047
+    - eb_major_048
+    - eb_major_049
+    - eb_major_050
+  avg_f_major:
+    name: F major avg
+    color: '#1f77b4'
+    queries: &id011
+    - f_major_001
+    - f_major_002
+    - f_major_003
+    - f_major_004
+    - f_major_005
+    - f_major_006
+    - f_major_007
+    - f_major_008
+    - f_major_009
+    - f_major_010
+    - f_major_011
+    - f_major_012
+    - f_major_013
+    - f_major_014
+    - f_major_015
+    - f_major_016
+    - f_major_017
+    - f_major_018
+    - f_major_019
+    - f_major_020
+    - f_major_021
+    - f_major_022
+    - f_major_023
+    - f_major_024
+    - f_major_025
+    - f_major_026
+    - f_major_027
+    - f_major_028
+    - f_major_029
+    - f_major_030
+    - f_major_031
+    - f_major_032
+    - f_major_033
+    - f_major_034
+    - f_major_035
+    - f_major_036
+    - f_major_037
+    - f_major_038
+    - f_major_039
+    - f_major_040
+    - f_major_041
+    - f_major_042
+    - f_major_043
+    - f_major_044
+    - f_major_045
+    - f_major_046
+    - f_major_047
+    - f_major_048
+    - f_major_049
+    - f_major_050
+  avg_f_minor:
+    name: F minor avg
+    color: '#d62728'
+    queries: &id012
+    - f_minor_001
+    - f_minor_002
+    - f_minor_003
+    - f_minor_004
+    - f_minor_005
+    - f_minor_006
+    - f_minor_007
+    - f_minor_008
+    - f_minor_009
+    - f_minor_010
+    - f_minor_011
+    - f_minor_012
+    - f_minor_013
+    - f_minor_014
+    - f_minor_015
+    - f_minor_016
+    - f_minor_017
+    - f_minor_018
+    - f_minor_019
+    - f_minor_020
+    - f_minor_021
+    - f_minor_022
+    - f_minor_023
+    - f_minor_024
+    - f_minor_025
+    - f_minor_026
+    - f_minor_027
+    - f_minor_028
+    - f_minor_029
+    - f_minor_030
+    - f_minor_031
+    - f_minor_032
+    - f_minor_033
+    - f_minor_034
+    - f_minor_035
+    - f_minor_036
+    - f_minor_037
+    - f_minor_038
+    - f_minor_039
+    - f_minor_040
+    - f_minor_041
+    - f_minor_042
+    - f_minor_043
+    - f_minor_044
+    - f_minor_045
+    - f_minor_046
+    - f_minor_047
+    - f_minor_048
+    - f_minor_049
+    - f_minor_050
+  avg_g_major:
+    name: G major avg
+    color: '#1f77b4'
+    queries: &id013
+    - g_major_001
+    - g_major_002
+    - g_major_003
+    - g_major_004
+    - g_major_005
+    - g_major_006
+    - g_major_007
+    - g_major_008
+    - g_major_009
+    - g_major_010
+    - g_major_011
+    - g_major_012
+    - g_major_013
+    - g_major_014
+    - g_major_015
+    - g_major_016
+    - g_major_017
+    - g_major_018
+    - g_major_019
+    - g_major_020
+    - g_major_021
+    - g_major_022
+    - g_major_023
+    - g_major_024
+    - g_major_025
+    - g_major_026
+    - g_major_027
+    - g_major_028
+    - g_major_029
+    - g_major_030
+    - g_major_031
+    - g_major_032
+    - g_major_033
+    - g_major_034
+    - g_major_035
+    - g_major_036
+    - g_major_037
+    - g_major_038
+    - g_major_039
+    - g_major_040
+    - g_major_041
+    - g_major_042
+    - g_major_043
+    - g_major_044
+    - g_major_045
+    - g_major_046
+    - g_major_047
+    - g_major_048
+    - g_major_049
+    - g_major_050
+  avg_g_minor:
+    name: G minor avg
+    color: '#d62728'
+    queries: &id014
+    - g_minor_001
+    - g_minor_002
+    - g_minor_003
+    - g_minor_004
+    - g_minor_005
+    - g_minor_006
+    - g_minor_007
+    - g_minor_008
+    - g_minor_009
+    - g_minor_010
+    - g_minor_011
+    - g_minor_012
+    - g_minor_013
+    - g_minor_014
+    - g_minor_015
+    - g_minor_016
+    - g_minor_017
+    - g_minor_018
+    - g_minor_019
+    - g_minor_020
+    - g_minor_021
+    - g_minor_022
+    - g_minor_023
+    - g_minor_024
+    - g_minor_025
+    - g_minor_026
+    - g_minor_027
+    - g_minor_028
+    - g_minor_029
+    - g_minor_030
+    - g_minor_031
+    - g_minor_032
+    - g_minor_033
+    - g_minor_034
+    - g_minor_035
+    - g_minor_036
+    - g_minor_037
+    - g_minor_038
+    - g_minor_039
+    - g_minor_040
+    - g_minor_041
+    - g_minor_042
+    - g_minor_043
+    - g_minor_044
+    - g_minor_045
+    - g_minor_046
+    - g_minor_047
+    - g_minor_048
+    - g_minor_049
+    - g_minor_050
+median:
+  med_a_major:
+    name: A major median
+    color: '#1f77b4'
+    queries: *id001
+  med_a_minor:
+    name: A minor median
+    color: '#d62728'
+    queries: *id002
+  med_ab_major:
+    name: Ab major median
+    color: '#1f77b4'
+    queries: *id003
+  med_bb_major:
+    name: Bb major median
+    color: '#1f77b4'
+    queries: *id004
+  med_c_major:
+    name: C major median
+    color: '#1f77b4'
+    queries: *id005
+  med_c_minor:
+    name: C minor median
+    color: '#d62728'
+    queries: *id006
+  med_d_major:
+    name: D major median
+    color: '#1f77b4'
+    queries: *id007
+  med_d_minor:
+    name: D minor median
+    color: '#d62728'
+    queries: *id008
+  med_e_minor:
+    name: E minor median
+    color: '#d62728'
+    queries: *id009
+  med_eb_major:
+    name: Eb major median
+    color: '#1f77b4'
+    queries: *id010
+  med_f_major:
+    name: F major median
+    color: '#1f77b4'
+    queries: *id011
+  med_f_minor:
+    name: F minor median
+    color: '#d62728'
+    queries: *id012
+  med_g_major:
+    name: G major median
+    color: '#1f77b4'
+    queries: *id013
+  med_g_minor:
+    name: G minor median
+    color: '#d62728'
+    queries: *id014
+axes:
+- name: avg_a_major_vs_d_minor
+  query_a: avg_a_major
+  query_b: avg_d_minor
+  method: explicit
+- name: avg_a_minor_vs_e_minor
+  query_a: avg_a_minor
+  query_b: avg_e_minor
+  method: explicit
+- name: med_a_major_vs_d_minor
+  query_a: med_a_major
+  query_b: med_d_minor
+  method: explicit
+- name: med_a_minor_vs_e_minor
+  query_a: med_a_minor
+  query_b: med_e_minor
+  method: explicit
+- name: pca01
+  query_a: avg_a_major
+  query_b: avg_a_major
+  method: pca_component
+  params:
+    component_index: 0
+- name: pca02
+  query_a: avg_a_major
+  query_b: avg_a_major
+  method: pca_component
+  params:
+    component_index: 1
+plots:
+  tonality_pca_components:
+    axes:
+    - pca01
+    - pca02
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      averaged_only: true
+      group_filter: all
+      cosine_references: &id015
+      - avg_c_major
+      - avg_a_major
+  tonality_averages:
+    axes: &id016
+    - avg_a_major_vs_d_minor
+    - avg_a_minor_vs_e_minor
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      averaged_only: true
+      group_filter: average
+      cosine_references: *id015
+  tonality_averages_pca_only:
+    axes: *id016
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      pca: true
+      averaged_only: true
+      group_filter: average
+      cosine_references: *id015
+  tonality_averages_orthonormalize_only:
+    axes: *id016
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      orthonormalize: true
+      averaged_only: true
+      group_filter: average
+      cosine_references: *id015
+  tonality_averages_pca_and_orthonormalize:
+    axes: *id016
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      pca: true
+      orthonormalize: true
+      averaged_only: true
+      group_filter: average
+      cosine_references: *id015
+  tonality_medians:
+    axes: &id017
+    - med_a_major_vs_d_minor
+    - med_a_minor_vs_e_minor
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      averaged_only: true
+      group_filter: median
+      cosine_references: *id015
+  tonality_medians_pca_only:
+    axes: *id017
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      pca: true
+      averaged_only: true
+      group_filter: median
+      cosine_references: *id015
+  tonality_medians_orthonormalize_only:
+    axes: *id017
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      orthonormalize: true
+      averaged_only: true
+      group_filter: median
+      cosine_references: *id015
+  tonality_medians_pca_and_orthonormalize:
+    axes: *id017
+    options:
+      origin_strategy: mean
+      lda_groups: true
+      pca: true
+      orthonormalize: true
+      averaged_only: true
+      group_filter: median
+      cosine_references: *id015

@@ -249,12 +249,14 @@ plots:
     options:
       orthonormalize: false
       pca: false
+      cosine_references: ["c1", "a1"]
   c1_b6_pca:
     axes:
       - "C1_vs_B6"
     options:
       orthonormalize: false
       pca: true
+      cosine_references: ["c1", "a1"]
   c1_b6_orthonormal_pca:
     axes:
       - "C1_vs_B6"
@@ -262,3 +264,4 @@ plots:
       orthonormalize: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["c1", "a1"]

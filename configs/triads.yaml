@@ -201,6 +201,7 @@ plots:
     options:
       orthonormalize: false
       pca: false
+      cosine_references: ["triad_c_major", "triad_a_major"]
   tritone_grid_t0_o0_n1:
     axes:
       - "Cmaj_vs_Gbmaj"
@@ -210,6 +211,7 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: false
+      cosine_references: ["triad_c_major", "triad_a_major"]
   tritone_grid_t0_o0_n0_pca:
     axes:
       - "Cmaj_vs_Gbmaj"
@@ -217,6 +219,7 @@ plots:
     options:
       orthonormalize: false
       pca: true
+      cosine_references: ["triad_c_major", "triad_a_major"]
   tritone_grid_t0_o0_n0_orthonormal_pca:
     axes:
       - "Cmaj_vs_Gbmaj"
@@ -225,6 +228,7 @@ plots:
       orthonormalize: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["triad_c_major", "triad_a_major"]
   tritone_grid_t0_o0_n1_pca:
     axes:
       - "Cmaj_vs_Gbmaj"
@@ -234,3 +238,4 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
+      cosine_references: ["triad_c_major", "triad_a_major"]

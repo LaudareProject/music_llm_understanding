@@ -8,7 +8,11 @@ from typing import Dict, Any
 
 import numpy as np
 
-from music_latents.config import load_experiment_config
+from music_latents.config import (
+    AxisSpec,
+    is_pca_component_axis_name,
+    load_experiment_config,
+)
 from music_latents.axes import build_axes, compute_projection_scores
 from music_latents.inputs import prepare_midi_input
 from music_latents.models import create_model_client
@@ -38,9 +42,9 @@ class ExperimentRunner:
             embeddings_by_model = self._load_existing_embeddings(
                 output_dir, model_trims
             )
-            embeddings_by_model = self._apply_average_groups(embeddings_by_model)
+            embeddings_by_model = self._apply_aggregate_groups(embeddings_by_model)
             self._save_config_copy(output_dir)
-            if self.config.axes:
+            if self.config.plots:
                 self._save_axis_outputs(output_dir, embeddings_by_model)
             return output_dir
 
@@ -130,8 +134,8 @@ class ExperimentRunner:
 
         self._save_json(output_dir / "manifest.json", manifest)
 
-        if self.config.axes:
-            embeddings_by_model = self._apply_average_groups(embeddings_by_model)
+        if self.config.plots:
+            embeddings_by_model = self._apply_aggregate_groups(embeddings_by_model)
             self._save_axis_outputs(output_dir, embeddings_by_model)
         return output_dir
 
@@ -325,6 +329,9 @@ class ExperimentRunner:
         for average_group in self.config.averages:
             query_names[average_group.group_id] = average_group.name
             query_colors[average_group.group_id] = average_group.color
+        for median_group in self.config.medians:
+            query_names[median_group.group_id] = median_group.name
+            query_colors[median_group.group_id] = median_group.color
 
         for model_name, embeddings in embeddings_by_model.items():
             axes_dir = output_dir / "axes" / model_name
@@ -332,15 +339,37 @@ class ExperimentRunner:
 
             for plot_name, plot_spec in self.config.plots.items():
                 plot_embeddings = embeddings
+                pre_lda_embeddings = embeddings
+                lda_info: Dict[str, Any] = {
+                    "enabled": plot_spec.options.lda_groups,
+                    "applied": False,
+                }
+                if plot_spec.options.lda_groups:
+                    plot_embeddings, lda_info = self._apply_group_lda_embeddings(
+                        embeddings=plot_embeddings
+                    )
+
                 pca_info: Dict[str, Any] = {
                     "enabled": plot_spec.options.pca,
                     "applied": False,
                     "variance_threshold": 0.9,
                 }
                 if plot_spec.options.pca:
-                    plot_embeddings, pca_info = self._apply_pca_embeddings(embeddings)
+                    plot_embeddings, pca_info = self._apply_pca_embeddings(
+                        plot_embeddings
+                    )
 
-                plot_axes_specs = [axes_specs_by_name[name] for name in plot_spec.axes]
+                query_ids = self._select_plot_query_ids(
+                    embeddings=embeddings,
+                    averaged_only=plot_spec.options.averaged_only,
+                    group_filter=plot_spec.options.group_filter,
+                )
+
+                plot_axes_specs = self._resolve_plot_axes_specs(
+                    plot_axes=plot_spec.axes,
+                    axes_specs_by_name=axes_specs_by_name,
+                    pca_info=pca_info,
+                )
                 axes = build_axes(plot_axes_specs, plot_embeddings, plot_spec.options)
                 scores = compute_projection_scores(
                     axes, plot_embeddings, plot_spec.options
@@ -358,8 +387,12 @@ class ExperimentRunner:
                         "normalize_vectors": plot_spec.options.normalize_vectors,
                         "origin_strategy": plot_spec.options.origin_strategy,
                         "pca": plot_spec.options.pca,
+                        "lda_groups": plot_spec.options.lda_groups,
                         "averaged_only": plot_spec.options.averaged_only,
+                        "group_filter": plot_spec.options.group_filter,
+                        "cosine_references": plot_spec.options.cosine_references,
                     },
+                    "lda": lda_info,
                     "pca": pca_info,
                     "axes": [
                         {
@@ -389,10 +422,45 @@ class ExperimentRunner:
                         for query_id in self._select_plot_query_ids(
                             embeddings=embeddings,
                             averaged_only=plot_spec.options.averaged_only,
+                            group_filter=plot_spec.options.group_filter,
                         )
                     ],
                 }
                 self._save_json(axes_dir / f"scores_{plot_slug}.json", scores_payload)
+
+                if plot_spec.options.cosine_references is not None:
+                    if len(plot_spec.options.cosine_references) != 2:
+                        raise ValueError(
+                            f"Plot '{plot_name}' must define exactly two cosine references."
+                        )
+
+                    if lda_info.get("applied", False):
+                        no_lda_embeddings = pre_lda_embeddings
+                        if plot_spec.options.pca:
+                            no_lda_embeddings, _ = self._apply_pca_embeddings(
+                                no_lda_embeddings
+                            )
+                        self._save_cosine_polar_plot(
+                            axes_dir=axes_dir,
+                            plot_slug=plot_slug,
+                            query_ids=query_ids,
+                            embeddings=no_lda_embeddings,
+                            query_names=query_names,
+                            query_colors=query_colors,
+                            cosine_references=plot_spec.options.cosine_references,
+                            variant="no_lda",
+                        )
+
+                    self._save_cosine_polar_plot(
+                        axes_dir=axes_dir,
+                        plot_slug=plot_slug,
+                        query_ids=query_ids,
+                        embeddings=plot_embeddings,
+                        query_names=query_names,
+                        query_colors=query_colors,
+                        cosine_references=plot_spec.options.cosine_references,
+                        variant="lda" if lda_info.get("applied", False) else "standard",
+                    )
 
                 if len(plot_spec.axes) <= 3:
                     self._save_axis_plot(
@@ -400,25 +468,162 @@ class ExperimentRunner:
                         plot_slug,
                         axes,
                         scores,
-                        self._select_plot_query_ids(
-                            embeddings=embeddings,
-                            averaged_only=plot_spec.options.averaged_only,
-                        ),
+                        query_ids,
                         query_names,
                         query_colors,
                     )
 
-    def _apply_average_groups(
+    def _save_cosine_polar_plot(
+        self,
+        axes_dir: Path,
+        plot_slug: str,
+        query_ids: list[str],
+        embeddings: Dict[str, np.ndarray],
+        query_names: Dict[str, str],
+        query_colors: Dict[str, Any],
+        cosine_references: list[str],
+        variant: str,
+    ) -> None:
+        try:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "matplotlib is required to render cosine polar plots."
+            ) from exc
+
+        reference_a, reference_b = cosine_references
+        if reference_a not in embeddings:
+            raise ValueError(f"Cosine reference '{reference_a}' is not available.")
+        if reference_b not in embeddings:
+            raise ValueError(f"Cosine reference '{reference_b}' is not available.")
+
+        ref_a = embeddings[reference_a]
+        ref_b = embeddings[reference_b]
+        ref_a_norm = np.linalg.norm(ref_a)
+        ref_b_norm = np.linalg.norm(ref_b)
+
+        if ref_a_norm == 0:
+            raise ValueError(f"Cosine reference '{reference_a}' has zero norm.")
+        if ref_b_norm == 0:
+            raise ValueError(f"Cosine reference '{reference_b}' has zero norm.")
+
+        points_payload: list[Dict[str, Any]] = []
+        fig, ax = plt.subplots(figsize=(6, 5))
+        for query_id in query_ids:
+            vector = embeddings.get(query_id)
+            if vector is None:
+                continue
+
+            vector_norm = np.linalg.norm(vector)
+            if vector_norm == 0:
+                cos_distance_a = 1.0
+                cos_distance_b = 1.0
+            else:
+                cos_distance_a = 1.0 - float(
+                    np.dot(vector, ref_a) / (vector_norm * ref_a_norm)
+                )
+                cos_distance_b = 1.0 - float(
+                    np.dot(vector, ref_b) / (vector_norm * ref_b_norm)
+                )
+
+            theta = float(np.arctan2(cos_distance_b, cos_distance_a))
+            radius = float(np.sqrt(cos_distance_a**2 + cos_distance_b**2))
+            x = float(radius * np.cos(theta))
+            y = float(radius * np.sin(theta))
+
+            ax.scatter(x, y, s=40, c=query_colors.get(query_id))
+            ax.text(x, y, f" {query_names.get(query_id, query_id)}")
+
+            points_payload.append(
+                {
+                    "id": query_id,
+                    "name": query_names.get(query_id, query_id),
+                    "color": query_colors.get(query_id),
+                    "cosine_distance_reference_a": cos_distance_a,
+                    "cosine_distance_reference_b": cos_distance_b,
+                    "theta": theta,
+                    "radius": radius,
+                    "x": x,
+                    "y": y,
+                }
+            )
+
+        ax.set_xlabel(f"cos-dist to {reference_a}")
+        ax.set_ylabel(f"cos-dist to {reference_b}")
+        ax.set_title(
+            f"Cosine polar map ({variant}) | ref: {reference_a}, {reference_b}"
+        )
+        ax.grid(True, linestyle="--", alpha=0.35)
+
+        fig.tight_layout()
+        fig.savefig(axes_dir / f"cosine_polar_{plot_slug}_{variant}.png", dpi=150)
+        plt.close(fig)
+
+        payload = {
+            "plot": plot_slug,
+            "variant": variant,
+            "references": {
+                "a": reference_a,
+                "b": reference_b,
+            },
+            "points": points_payload,
+        }
+        self._save_json(axes_dir / f"cosine_polar_{plot_slug}_{variant}.json", payload)
+
+    def _resolve_plot_axes_specs(
+        self,
+        plot_axes: list[str],
+        axes_specs_by_name: Dict[str, AxisSpec],
+        pca_info: Dict[str, Any],
+    ) -> list[AxisSpec]:
+        resolved: list[AxisSpec] = []
+        for axis_name in plot_axes:
+            explicit = axes_specs_by_name.get(axis_name)
+            if explicit is not None:
+                resolved.append(explicit)
+                continue
+
+            if not is_pca_component_axis_name(axis_name):
+                raise ValueError(f"Unknown axis '{axis_name}'.")
+
+            component_index = int(axis_name[3:]) - 1
+            if component_index < 0:
+                raise ValueError(f"Axis '{axis_name}' has invalid component index.")
+
+            if pca_info.get("applied", False):
+                n_components = int(pca_info.get("n_components", 0))
+                if component_index >= n_components:
+                    raise ValueError(
+                        f"Axis '{axis_name}' out of range for PCA components: "
+                        f"available 1..{n_components}."
+                    )
+
+            resolved.append(
+                AxisSpec(
+                    name=axis_name,
+                    query_a="__pca_origin__",
+                    query_b="__pca_component__",
+                    method="pca_component",
+                    params={"component_index": component_index},
+                )
+            )
+        return resolved
+
+    def _apply_aggregate_groups(
         self,
         embeddings_by_model: Dict[str, Dict[str, np.ndarray]],
     ) -> Dict[str, Dict[str, np.ndarray]]:
-        if not self.config.averages:
+        aggregate_groups = self.config.averages + self.config.medians
+        if not aggregate_groups:
             return embeddings_by_model
 
         result: Dict[str, Dict[str, np.ndarray]] = {}
         for model_name, embeddings in embeddings_by_model.items():
             merged = dict(embeddings)
-            for average_group in self.config.averages:
+            for average_group in aggregate_groups:
                 vectors: list[np.ndarray] = []
                 for query_id in average_group.query_ids:
                     vector = embeddings.get(query_id)
@@ -428,11 +633,14 @@ class ExperimentRunner:
                             f"'{average_group.group_id}' in model '{model_name}'."
                         )
                     vectors.append(vector)
-                merged[average_group.group_id] = self._bootstrap_average(
-                    vectors=vectors,
-                    group_id=average_group.group_id,
-                    model_name=model_name,
-                )
+                if average_group.method == "median":
+                    merged[average_group.group_id] = self._median(vectors=vectors)
+                else:
+                    merged[average_group.group_id] = self._bootstrap_average(
+                        vectors=vectors,
+                        group_id=average_group.group_id,
+                        model_name=model_name,
+                    )
             result[model_name] = merged
 
         return result
@@ -459,6 +667,12 @@ class ExperimentRunner:
             estimate += np.mean(stacked[sampled_indices], axis=0)
 
         return estimate / float(self._bootstrap_samples)
+
+    def _median(self, vectors: list[np.ndarray]) -> np.ndarray:
+        if len(vectors) == 1:
+            return vectors[0]
+        stacked = np.stack(vectors, axis=0)
+        return np.median(stacked, axis=0).astype(np.float64)
 
     def _apply_pca_embeddings(
         self,
@@ -519,6 +733,83 @@ class ExperimentRunner:
             "n_features": n_features,
             "n_components": n_components,
             "explained_variance_ratio": float(cumulative_ratio[n_components - 1]),
+        }
+
+    def _apply_group_lda_embeddings(
+        self,
+        embeddings: Dict[str, np.ndarray],
+    ) -> tuple[Dict[str, np.ndarray], Dict[str, Any]]:
+        groups = self.config.averages + self.config.medians
+        group_ids = [group.group_id for group in groups if group.group_id in embeddings]
+
+        if len(group_ids) < 2:
+            return embeddings, {
+                "enabled": True,
+                "applied": False,
+                "reason": "insufficient_groups",
+                "n_groups": len(group_ids),
+            }
+
+        query_ids = list(embeddings.keys())
+        matrix = np.stack([embeddings[qid] for qid in query_ids], axis=0).astype(
+            np.float64
+        )
+        n_samples, n_features = matrix.shape
+
+        class_index = {gid: idx for idx, gid in enumerate(group_ids)}
+        y = np.array(
+            [class_index[qid] if qid in class_index else -1 for qid in query_ids],
+            dtype=int,
+        )
+
+        global_mean = np.mean(matrix, axis=0)
+        sw = np.zeros((n_features, n_features), dtype=np.float64)
+        sb = np.zeros((n_features, n_features), dtype=np.float64)
+
+        for gid, cls_idx in class_index.items():
+            cls_mask = y == cls_idx
+            cls_vectors = matrix[cls_mask]
+            if cls_vectors.size == 0:
+                continue
+            cls_mean = np.mean(cls_vectors, axis=0)
+            centered = cls_vectors - cls_mean
+            sw += centered.T @ centered
+
+            mean_diff = (cls_mean - global_mean).reshape(-1, 1)
+            sb += cls_vectors.shape[0] * (mean_diff @ mean_diff.T)
+
+        sw += 1e-6 * np.eye(n_features, dtype=np.float64)
+
+        try:
+            lda_matrix = np.linalg.solve(sw, sb)
+        except np.linalg.LinAlgError:
+            return embeddings, {
+                "enabled": True,
+                "applied": False,
+                "reason": "singular_within_scatter",
+                "n_groups": len(group_ids),
+                "n_samples": n_samples,
+                "n_features": n_features,
+            }
+
+        eigenvalues, eigenvectors = np.linalg.eig(lda_matrix)
+        order = np.argsort(np.real(eigenvalues))[::-1]
+        eigenvectors = np.real(eigenvectors[:, order])
+        n_components = max(1, min(len(group_ids) - 1, n_features))
+        components = eigenvectors[:, :n_components]
+
+        transformed = (matrix - global_mean) @ components
+        transformed_map = {
+            query_id: transformed[idx].astype(np.float64)
+            for idx, query_id in enumerate(query_ids)
+        }
+        return transformed_map, {
+            "enabled": True,
+            "applied": True,
+            "n_groups": len(group_ids),
+            "n_samples": n_samples,
+            "n_features": n_features,
+            "n_components": n_components,
         }
 
     def _save_axis_plot(
@@ -609,6 +900,7 @@ class ExperimentRunner:
         self,
         embeddings: Dict[str, np.ndarray],
         averaged_only: bool,
+        group_filter: str,
     ) -> list[str]:
         if not averaged_only:
             return list(embeddings.keys())
@@ -617,6 +909,17 @@ class ExperimentRunner:
             for group in self.config.averages
             if group.group_id in embeddings
         ]
-        if average_ids:
+        median_ids = [
+            group.group_id
+            for group in self.config.medians
+            if group.group_id in embeddings
+        ]
+        if group_filter == "average" and average_ids:
             return average_ids
+        if group_filter == "median" and median_ids:
+            return median_ids
+
+        combined = average_ids + median_ids
+        if combined:
+            return combined
         return list(embeddings.keys())

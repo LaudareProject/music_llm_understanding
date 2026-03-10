@@ -30,11 +30,23 @@ def build_axes(
     origins: List[np.ndarray] = []
 
     for axis in axes:
-        emb_a = embeddings[axis.query_a]
-        emb_b = embeddings[axis.query_b]
-
-        direction = _compute_axis_direction(axis, emb_a, emb_b)
-        origin = emb_a
+        if axis.method == "pca_component":
+            component_index = int(axis.params.get("component_index", -1))
+            if component_index < 0:
+                raise ValueError(f"Invalid PCA component index for axis '{axis.name}'.")
+            sample_vector = next(iter(embeddings.values()))
+            if component_index >= sample_vector.shape[0]:
+                raise ValueError(
+                    f"PCA component index out of range for axis '{axis.name}'."
+                )
+            direction = np.zeros_like(sample_vector, dtype=np.float64)
+            direction[component_index] = 1.0
+            origin = np.zeros_like(sample_vector, dtype=np.float64)
+        else:
+            emb_a = embeddings[axis.query_a]
+            emb_b = embeddings[axis.query_b]
+            direction = _compute_axis_direction(axis, emb_a, emb_b)
+            origin = emb_a
 
         if options.normalize_vectors:
             direction = _normalize_vector(direction, axis.name)

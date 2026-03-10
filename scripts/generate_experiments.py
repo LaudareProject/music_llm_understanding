@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import random
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -108,6 +110,7 @@ def render_yaml(
             "    options:",
             "      orthonormalize: false",
             "      pca: false",
+            '      cosine_references: ["c", "a"]',
             "  note_circle_orthonormal:",
             "    axes:",
             '      - "C_vs_Gb"',
@@ -116,6 +119,22 @@ def render_yaml(
             "      orthonormalize: true",
             '      origin_strategy: "mean"',
             "      pca: false",
+            '      cosine_references: ["c", "a"]',
+            "  note_circle_mds:",
+            "    axes:",
+            '      - "C_vs_Gb"',
+            '      - "A_vs_Eb"',
+            "    options:",
+            "      orthonormalize: false",
+            "      mds: true",
+            "  note_circle_orthonormal_mds:",
+            "    axes:",
+            '      - "C_vs_Gb"',
+            '      - "A_vs_Eb"',
+            "    options:",
+            "      orthonormalize: true",
+            '      origin_strategy: "mean"',
+            "      mds: true",
             "  note_circle_pca:",
             "    axes:",
             '      - "C_vs_Gb"',
@@ -123,6 +142,7 @@ def render_yaml(
             "    options:",
             "      orthonormalize: false",
             "      pca: true",
+            '      cosine_references: ["c", "a"]',
             "  note_circle_orthonormal_pca:",
             "    axes:",
             '      - "C_vs_Gb"',
@@ -131,6 +151,7 @@ def render_yaml(
             "      orthonormalize: true",
             '      origin_strategy: "mean"',
             "      pca: true",
+            '      cosine_references: ["c", "a"]',
             "",
         ]
     )
@@ -191,12 +212,20 @@ def render_note_grid_yaml(*, experiment_name: str, output_root: str) -> str:
             "    options:",
             "      orthonormalize: false",
             "      pca: false",
+            '      cosine_references: ["c1", "a1"]',
+            "  c1_b6_mds:",
+            "    axes:",
+            '      - "C1_vs_B6"',
+            "    options:",
+            "      orthonormalize: false",
+            "      mds: true",
             "  c1_b6_pca:",
             "    axes:",
             '      - "C1_vs_B6"',
             "    options:",
             "      orthonormalize: false",
             "      pca: true",
+            '      cosine_references: ["c1", "a1"]',
             "  c1_b6_orthonormal_pca:",
             "    axes:",
             '      - "C1_vs_B6"',
@@ -204,11 +233,47 @@ def render_note_grid_yaml(*, experiment_name: str, output_root: str) -> str:
             "      orthonormalize: true",
             '      origin_strategy: "mean"',
             "      pca: true",
+            '      cosine_references: ["c1", "a1"]',
             "",
         ]
     )
 
     return "\n".join(lines)
+
+
+def prepare_ewld_tonality_yaml(
+    *,
+    dataset_root: Path,
+    bin_dir: Path,
+    output_config: Path,
+    target_per_tonality: int,
+    workers: int | None,
+    tonality_set: str,
+    experiment_name: str,
+    output_root: str,
+) -> None:
+    command = [
+        sys.executable,
+        str(Path("scripts") / "prepare_ewld_tonality_experiment.py"),
+        "--dataset-root",
+        str(dataset_root),
+        "--bin-dir",
+        str(bin_dir),
+        "--output-config",
+        str(output_config),
+        "--target-per-tonality",
+        str(target_per_tonality),
+        "--tonality-set",
+        tonality_set,
+        "--experiment-name",
+        experiment_name,
+        "--output-root",
+        output_root,
+    ]
+    if workers is not None:
+        command.extend(["--workers", str(workers)])
+
+    subprocess.run(command, check=True)
 
 
 def main() -> int:
@@ -226,6 +291,54 @@ def main() -> int:
         type=Path,
         default=Path("configs/notes_c1_b6.yaml"),
         help="Output YAML path for C1..B6 single-note experiment.",
+    )
+    parser.add_argument(
+        "--prepare-ewld",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Prepare configs/ewld_tonality.yaml using EWLD dataset.",
+    )
+    parser.add_argument(
+        "--output-ewld-tonality",
+        type=Path,
+        default=Path("configs/ewld_tonality.yaml"),
+        help="Output YAML path for EWLD tonality experiment.",
+    )
+    parser.add_argument(
+        "--ewld-dataset-root",
+        type=Path,
+        default=Path("EWLD"),
+        help="EWLD dataset root (expects a dataset/ subfolder).",
+    )
+    parser.add_argument(
+        "--ewld-bin-dir",
+        type=Path,
+        default=Path("bin"),
+        help="Humdrum binaries directory (xml2hum, keycor, etc.).",
+    )
+    parser.add_argument(
+        "--ewld-target-per-tonality",
+        type=int,
+        default=9,
+        help="Songs to select per tonality (must match committed config).",
+    )
+    parser.add_argument(
+        "--ewld-workers",
+        type=int,
+        default=None,
+        help="Parallel workers for tonality estimation (default: script default).",
+    )
+    parser.add_argument(
+        "--ewld-tonality-set",
+        choices=["available", "all24"],
+        default="available",
+        help="Whether to require all 24 tonalities or only those with enough songs.",
+    )
+    parser.add_argument(
+        "--ewld-experiment-name",
+        type=str,
+        default="EWLDTonality",
+        help="EWLD experiment.name value.",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed.")
     parser.add_argument(
@@ -285,6 +398,19 @@ def main() -> int:
     args.output_note_grid.parent.mkdir(parents=True, exist_ok=True)
     args.output_note_grid.write_text(note_grid_payload, encoding="utf-8")
     print(f"Wrote note-grid config: {args.output_note_grid}")
+
+    if args.prepare_ewld:
+        prepare_ewld_tonality_yaml(
+            dataset_root=args.ewld_dataset_root,
+            bin_dir=args.ewld_bin_dir,
+            output_config=args.output_ewld_tonality,
+            target_per_tonality=args.ewld_target_per_tonality,
+            workers=args.ewld_workers,
+            tonality_set=args.ewld_tonality_set,
+            experiment_name=args.ewld_experiment_name,
+            output_root=args.output_root,
+        )
+        print(f"Wrote EWLD tonality config: {args.output_ewld_tonality}")
 
     return 0
 

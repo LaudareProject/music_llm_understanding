@@ -268,6 +268,16 @@ def build_config_payload(
                     "cosine_references": cosine_references,
                 },
             },
+            "tonality_averages_mds": {
+                "axes": avg_axis_names,
+                "options": {
+                    "origin_strategy": "mean",
+                    "lda_groups": True,
+                    "mds": True,
+                    "averaged_only": True,
+                    "group_filter": "average",
+                },
+            },
             "tonality_averages_pca_only": {
                 "axes": avg_axis_names,
                 "options": {
@@ -310,6 +320,16 @@ def build_config_payload(
                     "averaged_only": True,
                     "group_filter": "median",
                     "cosine_references": cosine_references,
+                },
+            },
+            "tonality_medians_mds": {
+                "axes": med_axis_names,
+                "options": {
+                    "origin_strategy": "mean",
+                    "lda_groups": True,
+                    "mds": True,
+                    "averaged_only": True,
+                    "group_filter": "median",
                 },
             },
             "tonality_medians_pca_only": {

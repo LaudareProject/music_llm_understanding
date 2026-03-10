@@ -250,6 +250,12 @@ plots:
       orthonormalize: false
       pca: false
       cosine_references: ["c1", "a1"]
+  c1_b6_mds:
+    axes:
+      - "C1_vs_B6"
+    options:
+      orthonormalize: false
+      mds: true
   c1_b6_pca:
     axes:
       - "C1_vs_B6"

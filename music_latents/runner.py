@@ -33,6 +33,8 @@ class ExperimentRunner:
         self.reuse_results_dir = reuse_results_dir
         self.output_root_override = output_root_override
         self.experiment_name_override = experiment_name_override
+        self.embedding_cache_dir = (Path.cwd() / "embedding_cache").resolve()
+        self.embedding_cache_dir.mkdir(parents=True, exist_ok=True)
 
     def run(self) -> Path:
         model_trims = self._resolve_model_trims()
@@ -107,10 +109,26 @@ class ExperimentRunner:
 
             for model_name in self._iter_model_names():
                 model_client = model_clients[model_name]
-                result = model_client.encode_midi(input_info.midi_path)
+                cached = self._load_embedding_cache(
+                    model_name=model_name,
+                    input_string=query.value,
+                )
+                if cached is None:
+                    result = model_client.encode_midi(input_info.midi_path)
+                    raw_latent = np.asarray(result.latent)
+                    raw_metadata = dict(result.metadata)
+                    self._save_embedding_cache(
+                        model_name=model_name,
+                        input_string=query.value,
+                        latent=raw_latent,
+                        metadata=raw_metadata,
+                    )
+                else:
+                    raw_latent, raw_metadata = cached
+
                 latent, metadata = self._prepare_result_for_storage(
-                    result.latent,
-                    result.metadata,
+                    raw_latent,
+                    raw_metadata,
                     trim=model_trims.get(model_name),
                 )
                 model_dir = query_dir / model_name
@@ -281,6 +299,68 @@ class ExperimentRunner:
             array = array.reshape(-1)
         return array.astype(np.float64)
 
+    def _embedding_cache_paths(
+        self,
+        model_name: str,
+        input_string: str,
+    ) -> tuple[Path, Path, Path]:
+        cache_key = hashlib.sha256(input_string.encode("utf-8")).hexdigest()
+        model_cache_dir = self.embedding_cache_dir / model_name
+        model_cache_dir.mkdir(parents=True, exist_ok=True)
+        entry_dir = model_cache_dir / cache_key
+        latent_path = entry_dir / "latent.npy"
+        metadata_path = entry_dir / "metadata.json"
+        key_path = entry_dir / "input_key.txt"
+        return latent_path, metadata_path, key_path
+
+    def _load_embedding_cache(
+        self,
+        model_name: str,
+        input_string: str,
+    ) -> tuple[np.ndarray, Dict[str, Any]] | None:
+        latent_path, metadata_path, key_path = self._embedding_cache_paths(
+            model_name=model_name,
+            input_string=input_string,
+        )
+        if (
+            not latent_path.exists()
+            or not metadata_path.exists()
+            or not key_path.exists()
+        ):
+            return None
+
+        try:
+            cached_key = key_path.read_text(encoding="utf-8")
+            if cached_key != input_string:
+                return None
+            latent = np.load(latent_path)
+            metadata_raw = json.loads(metadata_path.read_text(encoding="utf-8"))
+            if not isinstance(metadata_raw, dict):
+                return None
+        except Exception:
+            return None
+
+        return np.asarray(latent), metadata_raw
+
+    def _save_embedding_cache(
+        self,
+        model_name: str,
+        input_string: str,
+        latent: np.ndarray,
+        metadata: Dict[str, Any],
+    ) -> None:
+        latent_path, metadata_path, key_path = self._embedding_cache_paths(
+            model_name=model_name,
+            input_string=input_string,
+        )
+        entry_dir = latent_path.parent
+        entry_dir.mkdir(parents=True, exist_ok=True)
+        np.save(latent_path, np.asarray(latent))
+        metadata_path.write_text(
+            json.dumps(metadata, indent=2, ensure_ascii=True), encoding="utf-8"
+        )
+        key_path.write_text(input_string, encoding="utf-8")
+
     def _save_latent_plot(self, model_dir: Path, latent: np.ndarray) -> None:
         try:
             import matplotlib
@@ -359,6 +439,27 @@ class ExperimentRunner:
                         plot_embeddings
                     )
 
+                mds_info: Dict[str, Any] = {
+                    "enabled": plot_spec.options.mds,
+                    "applied": False,
+                }
+                mds_embeddings: Dict[str, np.ndarray] | None = None
+                mds_dissimilarities: np.ndarray | None = None
+                if plot_spec.options.mds:
+                    if plot_spec.options.pca:
+                        raise ValueError(
+                            f"Plot '{plot_name}' cannot enable both PCA and MDS."
+                        )
+                    if plot_spec.options.cosine_references is not None:
+                        raise ValueError(
+                            f"Plot '{plot_name}' cannot enable both MDS and cosine references."
+                        )
+                    (
+                        mds_embeddings,
+                        mds_info,
+                        mds_dissimilarities,
+                    ) = self._apply_mds_embeddings(plot_embeddings)
+
                 query_ids = self._select_plot_query_ids(
                     embeddings=embeddings,
                     averaged_only=plot_spec.options.averaged_only,
@@ -391,9 +492,11 @@ class ExperimentRunner:
                         "averaged_only": plot_spec.options.averaged_only,
                         "group_filter": plot_spec.options.group_filter,
                         "cosine_references": plot_spec.options.cosine_references,
+                        "mds": plot_spec.options.mds,
                     },
                     "lda": lda_info,
                     "pca": pca_info,
+                    "mds": mds_info,
                     "axes": [
                         {
                             "name": axis.name,
@@ -471,6 +574,18 @@ class ExperimentRunner:
                         query_ids,
                         query_names,
                         query_colors,
+                    )
+                if plot_spec.options.mds and mds_embeddings is not None:
+                    self._save_mds_plots(
+                        axes_dir=axes_dir,
+                        plot_slug=plot_slug,
+                        plot_name=plot_name,
+                        query_ids=list(mds_embeddings.keys()),
+                        query_names=query_names,
+                        query_colors=query_colors,
+                        mds_embeddings=mds_embeddings,
+                        dissimilarities=mds_dissimilarities,
+                        mds_info=mds_info,
                     )
 
     def _save_cosine_polar_plot(
@@ -572,6 +687,101 @@ class ExperimentRunner:
             "points": points_payload,
         }
         self._save_json(axes_dir / f"cosine_polar_{plot_slug}_{variant}.json", payload)
+
+    def _save_mds_plots(
+        self,
+        axes_dir: Path,
+        plot_slug: str,
+        plot_name: str,
+        query_ids: list[str],
+        query_names: Dict[str, str],
+        query_colors: Dict[str, Any],
+        mds_embeddings: Dict[str, np.ndarray],
+        dissimilarities: np.ndarray | None,
+        mds_info: Dict[str, Any],
+    ) -> None:
+        if dissimilarities is None:
+            return
+
+        try:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "matplotlib is required to render MDS plots."
+            ) from exc
+
+        coords_matrix = np.stack(
+            [mds_embeddings[query_id] for query_id in query_ids], axis=0
+        )
+
+        fig, ax = plt.subplots(figsize=(6, 5))
+        points_payload: list[Dict[str, Any]] = []
+        for query_id, coords in zip(query_ids, coords_matrix):
+            x, y = float(coords[0]), float(coords[1])
+            ax.scatter(x, y, s=40, c=query_colors.get(query_id))
+            ax.text(x, y, f" {query_names.get(query_id, query_id)}")
+            points_payload.append(
+                {
+                    "id": query_id,
+                    "name": query_names.get(query_id, query_id),
+                    "color": query_colors.get(query_id),
+                    "x": x,
+                    "y": y,
+                }
+            )
+        ax.set_xlabel("MDS dim 1")
+        ax.set_ylabel("MDS dim 2")
+        ax.set_title(f"MDS embedding ({plot_name})")
+        ax.grid(True, linestyle="--", alpha=0.35)
+
+        fig.tight_layout()
+        fig.savefig(axes_dir / f"mds_{plot_slug}_2d.png", dpi=150)
+        plt.close(fig)
+
+        distances = np.linalg.norm(
+            coords_matrix[:, None, :] - coords_matrix[None, :, :], axis=-1
+        )
+        upper = np.triu_indices(len(query_ids), k=1)
+        shepard_payload: list[Dict[str, Any]] = []
+        shepard_x = dissimilarities[upper]
+        shepard_y = distances[upper]
+        for idx in range(len(shepard_x)):
+            i = upper[0][idx]
+            j = upper[1][idx]
+            shepard_payload.append(
+                {
+                    "query_a": query_ids[i],
+                    "query_b": query_ids[j],
+                    "dissimilarity": float(shepard_x[idx]),
+                    "distance": float(shepard_y[idx]),
+                }
+            )
+
+        fig, ax = plt.subplots(figsize=(6, 5))
+        ax.scatter(shepard_x, shepard_y, s=24, alpha=0.6, color="#4c72b0")
+        ax.set_xlabel("Cosine dissimilarity")
+        ax.set_ylabel("MDS Euclidean distance")
+        ax.set_title(f"Shepard plot ({plot_name})")
+        ax.grid(True, linestyle="--", alpha=0.35)
+
+        fig.tight_layout()
+        fig.savefig(axes_dir / f"shepard_{plot_slug}.png", dpi=150)
+        plt.close(fig)
+
+        payload = {
+            "plot": plot_slug,
+            "name": plot_name,
+            "mds": {
+                "stress": mds_info.get("stress"),
+                "n_components": mds_info.get("n_components"),
+            },
+            "queries": points_payload,
+            "shepard": shepard_payload,
+        }
+        self._save_json(axes_dir / f"mds_{plot_slug}.json", payload)
 
     def _resolve_plot_axes_specs(
         self,
@@ -734,6 +944,69 @@ class ExperimentRunner:
             "n_components": n_components,
             "explained_variance_ratio": float(cumulative_ratio[n_components - 1]),
         }
+
+    def _apply_mds_embeddings(
+        self,
+        embeddings: Dict[str, np.ndarray],
+    ) -> tuple[
+        Dict[str, np.ndarray] | None,
+        Dict[str, Any],
+        np.ndarray | None,
+    ]:
+        query_ids = list(embeddings.keys())
+        info: Dict[str, Any] = {"enabled": True, "applied": False}
+        n_samples = len(query_ids)
+        if n_samples < 2:
+            info.update({"reason": "insufficient_samples", "n_samples": n_samples})
+            return None, info, None
+
+        matrix = np.stack([embeddings[qid] for qid in query_ids], axis=0).astype(
+            np.float64
+        )
+
+        try:
+            from sklearn.metrics.pairwise import cosine_distances
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "scikit-learn is required to compute MDS embeddings."
+            ) from exc
+
+        dissimilarities = np.clip(cosine_distances(matrix), 0.0, 2.0)
+
+        try:
+            from sklearn.manifold import MDS
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "scikit-learn is required to compute MDS embeddings."
+            ) from exc
+
+        try:
+            mds = MDS(
+                n_components=2,
+                metric=False,
+                dissimilarity="precomputed",
+                random_state=0,
+            )
+            transformed = mds.fit_transform(dissimilarities)
+        except Exception as exc:
+            info.update({"reason": "mds_failed", "error": str(exc)})
+            return None, info, dissimilarities
+
+        coords = {
+            query_id: transformed[idx].astype(np.float64)
+            for idx, query_id in enumerate(query_ids)
+        }
+        info.update(
+            {
+                "applied": True,
+                "n_samples": n_samples,
+                "n_features": matrix.shape[1],
+                "n_components": transformed.shape[1],
+                "stress": float(getattr(mds, "stress_", 0.0)),
+                "dissimilarity_metric": "cosine_distance",
+            }
+        )
+        return coords, info, dissimilarities
 
     def _apply_group_lda_embeddings(
         self,

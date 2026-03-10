@@ -44,6 +44,7 @@ class AxesOptions:
     averaged_only: bool
     group_filter: str
     cosine_references: Optional[List[str]]
+    mds: bool
 
 
 @dataclass(frozen=True)
@@ -359,6 +360,7 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
     lda_groups = raw.get("lda_groups", False)
     averaged_only = raw.get("averaged_only", False)
     group_filter = raw.get("group_filter", "all")
+    mds = raw.get("mds", False)
     cosine_references = raw.get("cosine_references")
 
     if not isinstance(translate, bool):
@@ -391,6 +393,12 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
             raise ConfigError(
                 "axes_options.cosine_references must be a list with exactly two non-empty strings."
             )
+    if not isinstance(mds, bool):
+        raise ConfigError("axes_options.mds must be a boolean.")
+    if pca and mds:
+        raise ConfigError("axes_options cannot enable both PCA and MDS.")
+    if mds and cosine_references is not None:
+        raise ConfigError("axes_options cannot enable both MDS and cosine references.")
 
     return AxesOptions(
         translate=translate,
@@ -402,6 +410,7 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         averaged_only=averaged_only,
         group_filter=group_filter,
         cosine_references=cosine_references,
+        mds=mds,
     )
 
 

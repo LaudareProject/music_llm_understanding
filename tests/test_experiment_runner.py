@@ -5,9 +5,11 @@ from pathlib import Path
 import sys
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from music_latents.config import ConfigError
 from music_latents.runner import ExperimentRunner
 
 
@@ -103,6 +105,161 @@ plots:
     assert len(scores_payload["queries"]) == 2
     colors = {q["id"]: q["color"] for q in scores_payload["queries"]}
     assert colors == {"q1": "red", "q2": "blue"}
+
+
+def test_experiment_runner_creates_mds_outputs(tmp_path: Path) -> None:
+    pytest.importorskip("sklearn")
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_mds.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_mds"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      translate: true
+      orthonormalize: false
+      normalize_vectors: true
+      origin_strategy: "mean"
+      mds: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    runner = ExperimentRunner(config_path)
+    output_dir = runner.run()
+
+    axes_dir = output_dir / "axes" / "dummy_model"
+    assert (axes_dir / "mds_plot1_2d.png").exists()
+    assert (axes_dir / "shepard_plot1.png").exists()
+    assert (axes_dir / "mds_plot1.json").exists()
+
+    payload = json.loads((axes_dir / "mds_plot1.json").read_text(encoding="utf-8"))
+    assert payload["plot"] == "plot1"
+    assert payload["mds"]["n_components"] == 2
+    assert payload["shepard"]
+
+
+def test_experiment_runner_rejects_pca_and_mds(tmp_path: Path) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_conflict.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_conflict"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      pca: true
+      mds: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError):
+        ExperimentRunner(config_path)
+
+
+def test_experiment_runner_rejects_mds_and_cosine_references(tmp_path: Path) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_mds_cosine_conflict.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_mds_cosine_conflict"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      mds: true
+      cosine_references: ["q1", "q2"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError):
+        ExperimentRunner(config_path)
 
 
 def test_experiment_runner_reuses_existing_embeddings(tmp_path: Path) -> None:

@@ -124,8 +124,16 @@ def test_build_config_payload_includes_average_and_median_groups(
     assert payload["plots"]["tonality_medians"]["options"]["group_filter"] == "median"
     assert payload["plots"]["tonality_averages"]["options"]["lda_groups"] is True
     assert payload["plots"]["tonality_medians"]["options"]["lda_groups"] is True
-    for plot in payload["plots"].values():
-        assert plot["options"]["cosine_references"] == ["avg_c_major", "avg_a_major"]
+    assert payload["plots"]["tonality_averages_mds"]["options"]["mds"] is True
+    assert payload["plots"]["tonality_medians_mds"]["options"]["mds"] is True
+    for plot_name, plot in payload["plots"].items():
+        if plot_name.endswith("_mds"):
+            assert "cosine_references" not in plot["options"]
+        else:
+            assert plot["options"]["cosine_references"] == [
+                "avg_c_major",
+                "avg_a_major",
+            ]
     assert payload["plots"]["tonality_pca_components"]["axes"] == ["pca01", "pca02"]
     axis_names = [axis["name"] for axis in payload["axes"]]
     assert "pca01" in axis_names

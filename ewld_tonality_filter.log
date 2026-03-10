@@ -1,23 +1,32 @@
 dataset_root=/home/federico/Develop/Laudare/LLM/EWLD/dataset
-target_per_tonality=50
-selected_tonalities=14
+target_per_tonality=9
+selected_tonalities=23
 selection_policy=trust_estimated_tonality_even_when_key_signature_missing_or_mismatched
 
 [selected_counts]
-A_major: 50
-A_minor: 50
-Ab_major: 50
-Bb_major: 50
-C_major: 50
-C_minor: 50
-D_major: 50
-D_minor: 50
-E_minor: 50
-Eb_major: 50
-F_major: 50
-F_minor: 50
-G_major: 50
-G_minor: 50
+A_major: 9
+A_minor: 9
+Ab_major: 9
+B_major: 9
+B_minor: 9
+Bb_major: 9
+Bb_minor: 9
+C#_major: 9
+C#_minor: 9
+C_major: 9
+C_minor: 9
+D_major: 9
+D_minor: 9
+E_major: 9
+E_minor: 9
+Eb_major: 9
+Eb_minor: 9
+F#_major: 9
+F#_minor: 9
+F_major: 9
+F_minor: 9
+G_major: 9
+G_minor: 9
 
 [selected_files]
 A_major:
@@ -30,47 +39,6 @@ A_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/My_Ramblin'_Boy/My_Ramblin'_Boy.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Mars_Bonfire/Born_to_Be_Wild/Born_to_Be_Wild.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Fred_Spielman-Janice_Torre/Paper_Roses/Paper_Roses.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Brian_Wilson-Tony_Asher/God_Only_Knows/God_Only_Knows.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/If_I_Had_A_Hammer/If_I_Had_A_Hammer.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hawk's_Hornpipe/Hawk's_Hornpipe.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harry_Parr-Davies/Sing_as_We_Go/Sing_as_We_Go.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/R._Kelly/I_Look_to_You/I_Look_to_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Tubb/Waltz_Across_Texas/Waltz_Across_Texas.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Magne_Furuholmen-Morten_Harket-Pål_Waaktaar/Take_on_Me/Take_on_Me.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Puff,_The_Magic_Dragon/Puff,_The_Magic_Dragon.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/O_Worship_the_King/O_Worship_the_King.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerry_Livingston-Ralph_Freed/Adios_Amigo/Adios_Amigo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carole_King-Gerry_Goffin/Pleasant_Valley_Sunday/Pleasant_Valley_Sunday.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Pee_Wee_King-Redd_Stewart/Tennessee_Waltz/Tennessee_Waltz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Claude_Kelly-Dr._Luke-Max_Martin/My_Life_Would_Suck_Without_You/My_Life_Would_Suck_Without_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Al_Jackson_Jr.-Booker_T._Jones-Lewie_Steinberg-Steve_Cropper/Green_Onions/Green_Onions.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Phil_Hanseroth/The_Story/The_Story.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Waltz_of_Love/Waltz_of_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bob_Marley/Three_Little_Birds/Three_Little_Birds.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/James_Myers-Max_Freedman/Rock_Around_the_Clock/Rock_Around_the_Clock.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Annie_Lennox-Dave_Stewart/Sweet_Dreams_(Are_Made_of_This)/Sweet_Dreams_(Are_Made_of_This).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Achy_Breaky_Heart/Achy_Breaky_Heart.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Best_That_You_Can_Do_(Arthur's_Theme)/Best_That_You_Can_Do_(Arthur's_Theme).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/"SEASIDE,_YET_DOCKED"/"SEASIDE,_YET_DOCKED".mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Samuel_Barber/Agnus_dei/Agnus_dei.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Amy_Lee-Ben_Moody/My_Immortal/My_Immortal.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bill_Danoff-John_Denver-Taffy_Nivert/Take_Me_Home,_Country_Roads/Take_Me_Home,_Country_Roads.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Boy_from_Ipanema/The_Boy_from_Ipanema.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Come_Back_To_Sorrento_(Torna_a_Surriento)/Come_Back_To_Sorrento_(Torna_a_Surriento).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Danny_Webb/One_Summer_Night/One_Summer_Night.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carole_King-Gerry_Goffin-Jerry_Wexler/(You_Make_Me_Feel_Like)_A_Natural_Woman/(You_Make_Me_Feel_Like)_A_Natural_Woman.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sting/Message_in_a_Bottle/Message_in_a_Bottle.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I'M_OUT_OF_CANDY,_DARLING/I'M_OUT_OF_CANDY,_DARLING.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Barry_Mason-John_Fiddy/We_Got_the_Whole_World_in_Our_Hands/We_Got_the_Whole_World_in_Our_Hands.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Maybe_an_angel/Maybe_an_angel.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Todd_Rundgren/We_Got_to_Get_You_a_Woman/We_Got_to_Get_You_a_Woman.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/WE_GOTTA_GET_YOU_A_WOMAN/WE_GOTTA_GET_YOU_A_WOMAN.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Am_I_Losing_You_(Transcribed)/Am_I_Losing_You_(Transcribed).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Joel/Uptown_Girl/Uptown_Girl.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Andersson-Björn_Ulvaeus-Stig_Anderson/Dancing_Queen/Dancing_Queen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eric_Olson-Jason_Halbert-Kelly_Clarkson/Catch_My_Breath/Catch_My_Breath.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/KARNAVALS_POTPOURRI_125/KARNAVALS_POTPOURRI_125.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jeff_Lynne-Roy_Orbison-Tom_Petty/You_Got_It/You_Got_It.mxl
 A_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/DOWNTON_ABBEY/DOWNTON_ABBEY.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Betlehem,_Betlehem/Betlehem,_Betlehem.mxl
@@ -81,47 +49,6 @@ A_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Felsütött_a_nap_sugára/Felsütött_a_nap_sugára.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tüzed,_Uram,_Jézus/Tüzed,_Uram,_Jézus.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ochi_Chornya/Ochi_Chornya.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_barátok,_a_barátok/A_barátok,_a_barátok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gerald_Marks-Seymour_Simons/All_of_Me/All_of_Me.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Akkor_szép_az_erdő/Akkor_szép_az_erdő.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kis_kece_lányom/Kis_kece_lányom.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Bonchidai_menyecskék/Bonchidai_menyecskék.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fehér_kapcát_igazán/Fehér_kapcát_igazán.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Száz_forintnak_ötven_a_fele/Száz_forintnak_ötven_a_fele.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Túl_a_vizen/Túl_a_vizen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Esik_az_eső,_ázik_a_heveder/Esik_az_eső,_ázik_a_heveder.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Piros_alma,_ha_leeseik_a_sárba/Piros_alma,_ha_leeseik_a_sárba.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Még_azt_mondják,_nem_merek/Még_azt_mondják,_nem_merek.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Elment_a_Lidi_néni_a_vásárba/Elment_a_Lidi_néni_a_vásárba.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_csitári_hegyek_alatt/A_csitári_hegyek_alatt.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ott_ahol_már_nem_szól/Ott_ahol_már_nem_szól.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ha_énnékem/Ha_énnékem.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tristan_Begins/Tristan_Begins.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kossuth_Lajos_azt_üzente/Kossuth_Lajos_azt_üzente.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hogyha_nékem_sok_pénzem_lesz/Hogyha_nékem_sok_pénzem_lesz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Meghalt_a_báró/Meghalt_a_báró.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Samba_de_Janeiro_(Celebration_Suite)/Samba_de_Janeiro_(Celebration_Suite).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Carter-Spencer_Williams/When_Lights_Are_Low/When_Lights_Are_Low.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Csínom_Palkó,_csínom_Jankó/Csínom_Palkó,_csínom_Jankó.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nyolc_óra_munka/Nyolc_óra_munka.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Utcára_nyílik_a_kocsmaajtó/Utcára_nyílik_a_kocsmaajtó.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fölém_hajló_jóságodra/Fölém_hajló_jóságodra.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Strayhorn/Passion_Flower/Passion_Flower.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Just_A-wearying_For_You/Just_A-wearying_For_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Anne_Segalen-Jacques_Dutronc-Jacques_Lanzmann/Il_est_cinq_heures,_Paris_s'éveille/Il_est_cinq_heures,_Paris_s'éveille.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ben_Weisman-Fred_Wise/Don't_Ask_Me_Why/Don't_Ask_Me_Why.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bobby_Hebb/Sunny/Sunny.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Luiz_Bonfá/The_Gentle_Rain/The_Gentle_Rain.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Concerto_In_A_Minor/Concerto_In_A_Minor.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ha_én_rózsa_volnék/Ha_én_rózsa_volnék.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hal_Swain-Jimmy_Campbell-Reg_Connelly/Show_Me_the_Way_to_Go_Home/Show_Me_the_Way_to_Go_Home.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Tommy_Johnson/Bye_Bye_Blues/Bye_Bye_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_"Cleanhead"_Vinson-Louis_Zito/Alimony_Blues/Alimony_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jacques_Plante-Louis_Ferrari/Domino/Domino.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Isten_báránya_(Mise_IV)/Isten_báránya_(Mise_IV).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Strayhorn/Take_the_"A"_Train/Take_the_"A"_Train.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Teri_Moïse/Les_poèmes_de_Michelle/Les_poèmes_de_Michelle.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/David_Seville/The_Chipmunk_Song/The_Chipmunk_Song.mxl
 Ab_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Blue_Train/Blue_Train.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Honvéd_banda/Honvéd_banda.mxl
@@ -132,47 +59,26 @@ Ab_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Naima/Naima.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bill_Withers-Ralph_MacDonald-William_Salter/Just_the_Two_of_Us/Just_the_Two_of_Us.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dizzy_Gillespie/Woody'n_You/Woody'n_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Lotus_Blossom/Lotus_Blossom.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gene_Autry/You're_the_Only_Star_(In_My_Blue_Heaven)/You're_the_Only_Star_(In_My_Blue_Heaven).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Tadd_Dameron/Our_Delight/Our_Delight.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/If_I_Loved_You_(Alternative_Changes)/If_I_Loved_You_(Alternative_Changes).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Horace_Silver/Song_for_My_Father/Song_for_My_Father.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sweetheart_Of_All_My_Dreams/Sweetheart_Of_All_My_Dreams.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Shine_through_my_dreams_(from_"Glamorous_Night")/Shine_through_my_dreams_(from_"Glamorous_Night").mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leonard_Bernstein-Stephen_Sondheim/One_Hand,_One_Heart/One_Hand,_One_Heart.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Veni,_Creator_Spiritus/Veni,_Creator_Spiritus.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Waltz_in_Ab_Op.39,No.15/Waltz_in_Ab_Op.39,No.15.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_Mingus/Jump_Monk/Jump_Monk.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Giacomo_Puccini-Giovacchino_Forzano/O_mio_babbino_caro/O_mio_babbino_caro.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/He_Looked_Beyond_My_Fault/He_Looked_Beyond_My_Fault.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joe_Garland/In_the_Mood/In_the_Mood.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lorenz_Hart-Richard_Rodgers/Spring_Is_Here/Spring_Is_Here.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Golden-Raymond_Hubbell/Poor_Butterfly/Poor_Butterfly.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frank_Loesser/I_Wish_I_Didn't_Love_You_So/I_Wish_I_Didn't_Love_You_So.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Lord,_I'm_Coming_Home/Lord,_I'm_Coming_Home.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Anthony_Newley-Leslie_Bricusse/Once_in_a_Lifetime/Once_in_a_Lifetime.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Barney_Bigard-Duke_Ellington-Irving_Mills/Mood_Indigo/Mood_Indigo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Rox/It's_a_Big,_Wide,_Wonderful_World/It's_a_Big,_Wide,_Wonderful_World.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jimmy_Van_Heusen-Johnny_Burke/It's_Always_You/It's_Always_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Blood_Will_Never_Lose_It's_Power/The_Blood_Will_Never_Lose_It's_Power.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Murray_Berlin-Roy_Alfred/The_Late_Late_Show/The_Late_Late_Show.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leonard_Bernstein-Stephen_Sondheim/Somewhere/Somewhere.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Andrew_Lloyd_Webber-[Traditional]/Pie_Jesu/Pie_Jesu.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/Donna_Lee/Donna_Lee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Grant_Hart/Back_from_Somewhere/Back_from_Somewhere.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ray_Noble/The_Very_Thought_of_You/The_Very_Thought_of_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Longer_I_Serve_Him/The_Longer_I_Serve_Him.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carl_Belew-Shelby_Singleton-W.S._Stevenson/Am_I_That_Easy_to_Forget/Am_I_That_Easy_to_Forget.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Claude_Boone/Wedding_Bells/Wedding_Bells.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dana_Suesse-Edward_Heyman/My_Silent_Love/My_Silent_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Matthew_Koma-Porter_Robinson-Skylar_Grey-Zedd/Clarity/Clarity.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carlo_Karges-Uwe_Fahrenkrog-Petersen/Irgendwie,_irgendwo,_irgendwann/Irgendwie,_irgendwo,_irgendwann.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Duke_Ellington-Henry_Nemo-Irving_Mills-John_Redmond/I_Let_a_Song_Go_Out_of_My_Heart/I_Let_a_Song_Go_Out_of_My_Heart.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Al_Trace-Elsa_Doran-Sid_Flick/Blond_Hair,_Blue_Eyes_and_Ruby_Lips/Blond_Hair,_Blue_Eyes_and_Ruby_Lips.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Buck_Ram-Peter_Tinturin/Ring,_Telephone,_Ring/Ring,_Telephone,_Ring.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Cole_Porter/So_in_Love/So_in_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harold_Arlen-Truman_Capote/A_Sleepin'_Bee/A_Sleepin'_Bee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Rube_Bloom-Ted_Koehler/Don't_Worry_'Bout_Me/Don't_Worry_'Bout_Me.mxl
+B_major:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Central_Park_West/Central_Park_West.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_Mingus/Goodbye_Pork_Pie_Hat/Goodbye_Pork_Pie_Hat.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/BLISTER_IN_THE_SUN/BLISTER_IN_THE_SUN.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Kenny_Clarke-Thelonious_Monk/Epistrophy/Epistrophy.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Chris_Stein-Clem_Burke-Debbie_Harry/Heart_of_Glass/Heart_of_Glass.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joe_Melson-Roy_Orbison/Blue_Bayou/Blue_Bayou.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dolly_Parton/I_Will_Always_Love_You/I_Will_Always_Love_You.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hugh_Harris-Luke_Pritchard-Max_Rafferty-Paul_Garred/Naive/Naive.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Stevie_Wonder/Sir_Duke/Sir_Duke.mxl
+B_minor:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Keon-hyung_Yoo-Psy/강남스타일_[Gangnam_Style]/강남스타일_[Gangnam_Style].mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Georges_Brassens/L'orage/L'orage.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Just_Dropped_In_(To_See_What_Condition_My_Condition_Was_In)/Just_Dropped_In_(To_See_What_Condition_My_Condition_Was_In).mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Georges_Brassens/Les_copains_d'abord/Les_copains_d'abord.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jöjj,_Szentlélek/Jöjj,_Szentlélek.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Szent,_szent_a_neve/Szent,_szent_a_neve.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Együtt_fog_ujjongni/Együtt_fog_ujjongni.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Blanco-Mikkel_Eriksen-Sia-Tor_Erik_Hermansen/Diamonds/Diamonds.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Si_tu_savais/Si_tu_savais.mxl
 Bb_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Herbie_Hancock/Watermelon_Man/Watermelon_Man.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Blue_Monk/Blue_Monk.mxl
@@ -183,47 +89,36 @@ Bb_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Mercer_Ellington-Ted_Persons/Things_Ain't_What_They_Used_to_Be/Things_Ain't_What_They_Used_to_Be.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Blues_for_Paynter/Blues_for_Paynter.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Someday_My_Prince_Will_Come/Someday_My_Prince_Will_Come.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alain_Souchon-Laurent_Voulzy/Allo_maman_bobo/Allo_maman_bobo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Bridal_Chorus_(from_"Lohengrin")/Bridal_Chorus_(from_"Lohengrin").mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sy_Oliver/Yes_Indeed/Yes_Indeed.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/An_Ocean_of_Feeling/An_Ocean_of_Feeling.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alton_Delmore-Arthur_Smith_[1]/Beautiful_Brown_Eyes/Beautiful_Brown_Eyes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Serge_Gainsbourg/La_javanaise/La_javanaise.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Aubrey_Hopwood-Lionel_Monckton/Soldiers_in_the_Park/Soldiers_in_the_Park.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jimi_Hendrix/Star_Spangled_Banner/Star_Spangled_Banner.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Thou_Art_Worthy/Thou_Art_Worthy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/Billie's_Bounce/Billie's_Bounce.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joe_Goodwin-Larry_Shay-Mark_Fisher/When_You're_Smiling/When_You're_Smiling.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Oscar_Hammerstein_II-Richard_Rodgers/Edelweiss/Edelweiss.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Nat_Adderley/The_Jive_Samba/The_Jive_Samba.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Fogerty/Bad_Moon_Rising/Bad_Moon_Rising.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kiss_Me_(capo_3)/Kiss_Me_(capo_3).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Could_It_Be_You/Could_It_Be_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nellie_Kelly__I_love_you/Nellie_Kelly__I_love_you.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Mack_Rice/Betcha_Can't_Kiss_Me_(Just_One_Time_Baby)/Betcha_Can't_Kiss_Me_(Just_One_Time_Baby).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/B.G._DeSylva-Lew_Brown-Ray_Henderson/Together/Together.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/Moose_the_Mooche/Moose_the_Mooche.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Dream_(When_You're_Feeling_Blue)/Dream_(When_You're_Feeling_Blue).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Juan_Tizol/Perdido/Perdido.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Das_Plublikum_war_heute_wieder_wundervoll/Das_Plublikum_war_heute_wieder_wundervoll.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ev'rywhere/Ev'rywhere.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Judy's_Turn_To_Cry_/Judy's_Turn_To_Cry_.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Curtis_Mayfield/Little_Child_Runnin'_Wild/Little_Child_Runnin'_Wild.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Burton_Lane-Frank_Loesser/Moments_Like_This/Moments_Like_This.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Oh,_Lord_I_Am_Not_Worthy/Oh,_Lord_I_Am_Not_Worthy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Paul_Dresser/My_Gal_Sal/My_Gal_Sal.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frank_Loesser/I've_Never_Been_in_Love_Before/I've_Never_Been_in_Love_Before.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alec_Wilder-Thad_Jones/A_Child_Is_Born/A_Child_Is_Born.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lisa_Hannigan/Silent_Night/Silent_Night.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harold_Adamson-Jan_Savitt-Johnny_Watson_[1]/It's_a_Wonderful_World/It's_a_Wonderful_World.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Mercer/Dream/Dream.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sultry_Serenade/Sultry_Serenade.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frank_Lake-Fred_Godfrey-James_Lally/Bless_'Em_All/Bless_'Em_All.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/You_Were_Only_Fooling/You_Were_Only_Fooling.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bob_Wills-Cindy_Walker/Sugar_Moon/Sugar_Moon.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/C._Mordaunt_Spencer-Charles_William_Glover/The_Rose_of_Tralee/The_Rose_of_Tralee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Neal_Hefti-Stanley_Styne/Cute/Cute.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/If_Ever_I_Cease_To_Love/If_Ever_I_Cease_To_Love.mxl
+Bb_minor:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/No._1_Green_Street/No._1_Green_Street.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Bags'_Groove/Bags'_Groove.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Duke_Ellington-Juan_Tizol/Caravan/Caravan.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ba-Lue_Bolivar_Ba-Lues_Are/Ba-Lue_Bolivar_Ba-Lues_Are.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_Mingus/Nostalgia_in_Times_Square/Nostalgia_in_Times_Square.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jon_Hendricks/One_Note_Samba/One_Note_Samba.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sonny_Rollins/No_Moe/No_Moe.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_Little_Night_Music/A_Little_Night_Music.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Subway_Harry/Subway_Harry.mxl
+C#_major:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Manfred_Mann_[artist]-Peter_Thomas_[1]/One_Way_Glass/One_Way_Glass.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Harris/Cold_Duck_Time/Cold_Duck_Time.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Strasbourg_St._Denis/Strasbourg_St._Denis.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Ugly_Beauty/Ugly_Beauty.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Horace_Silver/Peace/Peace.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/O_To_Be_Like_Thee/O_To_Be_Like_Thee.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Stablemates/Stablemates.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Laplace/Laplace.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Piano_Concerto_No.1_in_Bb_Minor,_Op._23/Piano_Concerto_No.1_in_Bb_Minor,_Op._23.mxl
+C#_minor:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Katherine_Davis/Carol_of_the_Drum/Carol_of_the_Drum.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lee_Morgan/Speedball/Speedball.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Denver/Annie's_Song/Annie's_Song.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Marr-Morrissey/Some_Girls_Are_Bigger_Than_Others/Some_Girls_Are_Bigger_Than_Others.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Golson/Along_Came_Betty/Along_Came_Betty.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Barry_Gibb-Robin_Gibb/How_Can_You_Mend_a_Broken_Heart/How_Can_You_Mend_a_Broken_Heart.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Desmond_Child-Robi_Rosa/Livin'_la_vida_loca/Livin'_la_vida_loca.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ryan_Tedder/Counting_Stars/Counting_Stars.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Akon-Lady_Gaga-RedOne/Just_Dance/Just_Dance.mxl
 C_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hoedje_van_papier/Hoedje_van_papier.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Altijd_is_Kortjakje_ziek/Altijd_is_Kortjakje_ziek.mxl
@@ -234,47 +129,6 @@ C_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Klein,_klein_kleutertje/Klein,_klein_kleutertje.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kőrösi_lány/Kőrösi_lány.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Láttál-e_már_valaha/Láttál-e_már_valaha.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jane_Taylor/Twinkle,_Twinkle,_Little_Star/Twinkle,_Twinkle,_Little_Star.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zöld_az_erdő,_zöld_a_petrezselyem/Zöld_az_erdő,_zöld_a_petrezselyem.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/You_look_Good_to_Me/You_look_Good_to_Me.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_bundának_nincs_gallérja/A_bundának_nincs_gallérja.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Am_Weihnachtsbaum_die_Lichter_brennen/Am_Weihnachtsbaum_die_Lichter_brennen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Megy_a_gőzös/Megy_a_gőzös.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Parking_Lot_Blues/Parking_Lot_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Herbert_Wasserman-Ray_Passman/Down_St._Thomas_Way/Down_St._Thomas_Way.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Megindult_a_vonat/Megindult_a_vonat.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Erdő,_erdő,_kerek_erdő/Erdő,_erdő,_kerek_erdő.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sinterklaas_is_jarig/Sinterklaas_is_jarig.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Indiansummer_Thuesday/Indiansummer_Thuesday.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zörög_az_akácfalevél/Zörög_az_akácfalevél.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nem_loptam_én_életembe/Nem_loptam_én_életembe.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_szeretet_mindenkié/A_szeretet_mindenkié.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Mennyből_az_angyal/Mennyből_az_angyal.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_faluban_nincs_több_kislány/A_faluban_nincs_több_kislány.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Lang-Richard_Page-Steve_George/Kyrie/Kyrie.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_juhásznak_jól_van_dolga/A_juhásznak_jól_van_dolga.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/De_zak_van_Sinterklaas/De_zak_van_Sinterklaas.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Golson/Killer_Joe/Killer_Joe.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Által_mennék_én_a_Tiszán/Által_mennék_én_a_Tiszán.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Esztike/Esztike.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jó_estét_kívánok/Jó_estét_kívánok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Az_a_szép/Az_a_szép.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kilenc_kis_gólya/Kilenc_kis_gólya.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Pásztorok,_pásztorok/Pásztorok,_pásztorok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Elmúltak_a_mézeshetek/Elmúltak_a_mézeshetek.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Roosevelt_Sykes/The_Way_I_Feel_Blues/The_Way_I_Feel_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Százados_úr,_sejehaj/Százados_úr,_sejehaj.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Navy_Hymn/Navy_Hymn.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Megjött_már_a_fecsekemadár/Megjött_már_a_fecsekemadár.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Részeg_vagyok,_rózsám/Részeg_vagyok,_rózsám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Erdő,_erdő,_erdő,_marosszéki_kerek_erdő/Erdő,_erdő,_erdő,_marosszéki_kerek_erdő.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Látod-e_babám/Látod-e_babám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Szálljatok_le/Szálljatok_le.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Esik_eső_csendesen/Esik_eső_csendesen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ároni_áldás/Ároni_áldás.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Szánt_a_babám,_csireg-csörög/Szánt_a_babám,_csireg-csörög.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Mikor_mentem,_mikor_mentem_Gyergyó_felé/Mikor_mentem,_mikor_mentem_Gyergyó_felé.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zöldre_van_a_rácsos_kapu_festve/Zöldre_van_a_rácsos_kapu_festve.mxl
 C_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Equinox/Equinox.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Herbie_Hancock/Cantaloupe_Island/Cantaloupe_Island.mxl
@@ -285,47 +139,6 @@ C_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jászkunsági_gyerek_vagyok/Jászkunsági_gyerek_vagyok.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Az_ördög_útja_(Drumul_dracului)/Az_ördög_útja_(Drumul_dracului).mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Buen_Compleanos/Buen_Compleanos.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Eger_városa/Eger_városa.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Haragszik_az_édesanyám/Haragszik_az_édesanyám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Boyd/Five_Long_Years/Five_Long_Years.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Julcsika,_Tercsike/Julcsika,_Tercsike.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Rámás_csizmát_visel_a_babám/Rámás_csizmát_visel_a_babám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Lakodalom_van_a_mi_utcánkba/Lakodalom_van_a_mi_utcánkba.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Julcsa_hogyha_kimegy_a_piacra/Julcsa_hogyha_kimegy_a_piacra.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Avocet/Avocet.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kombiné/Kombiné.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Azt_gondoltad,_azt_gondoltad/Azt_gondoltad,_azt_gondoltad.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ugye_gondolsz_néha_rám/Ugye_gondolsz_néha_rám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Buster_Rides_Again/Buster_Rides_Again.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Azt_hallottam,_picike_babám/Azt_hallottam,_picike_babám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hadnagyuram/Hadnagyuram.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Szőr_a_szitába/Szőr_a_szitába.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Add_ide_a_didit/Add_ide_a_didit.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Én_vagyok_a_falu_rossza_egyedül/Én_vagyok_a_falu_rossza_egyedül.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Blues_for_Vanessa/Blues_for_Vanessa.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Morton_Stevens/Hawaii_Five-O/Hawaii_Five-O.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Árad_a_Duna_vize/Árad_a_Duna_vize.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_füredi_Annabálon/A_füredi_Annabálon.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ott_fogsz_majd_sírni/Ott_fogsz_majd_sírni.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jaj,_de_nagyon_régen_volt,_de_soká_lesz/Jaj,_de_nagyon_régen_volt,_de_soká_lesz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Lesz_maga_jusztis_az_enyém/Lesz_maga_jusztis_az_enyém.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ladybird/Ladybird.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Halljátok,_cigányok/Halljátok,_cigányok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Adam_Levine-James_Valentine-Jesse_Carmichael-Mickey_Madden-Ryan_Dusick/This_Love/This_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_szegedi_csikós/A_szegedi_csikós.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Egy_asszonynak_kilenc_a_leánya/Egy_asszonynak_kilenc_a_leánya.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zsebkendőm_négy_sarka/Zsebkendőm_négy_sarka.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/János,_legyen/János,_legyen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Daltól_hangos/Daltól_hangos.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Que_Reste-t-il_des_nos_Amours_?/Que_Reste-t-il_des_nos_Amours_?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Az_a_rendes_iparos/Az_a_rendes_iparos.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Irving_Kahal-Sammy_Fain/I'll_Be_Seeing_You/I'll_Be_Seeing_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Országúton_hosszú_a_jegenyesor/Országúton_hosszú_a_jegenyesor.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Szép_asszonynak_kurizálok/Szép_asszonynak_kurizálok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Londonban,_hej/Londonban,_hej.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nem_látlak_téged_soha/Nem_látlak_téged_soha.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/László_Jávor/Szomorú_vasárnap/Szomorú_vasárnap.mxl
 D_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ennie's_Waltz/Ennie's_Waltz.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Kis_karácsony,_nagy_karácsony/Kis_karácsony,_nagy_karácsony.mxl
@@ -336,47 +149,6 @@ D_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Danse_Norvegienne/Danse_Norvegienne.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ó,_gyönyörű_szép/Ó,_gyönyörű_szép.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Irgalmazz,_Uram,_irgalmazz/Irgalmazz,_Uram,_irgalmazz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Dona_Nobis_Pacem/Dona_Nobis_Pacem.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Minden,_mi_él/Minden,_mi_él.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Chauncey_Olcott-Ernest_Ball-George_Graff,_Jr./When_Irish_Eyes_Are_Smiling/When_Irish_Eyes_Are_Smiling.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bill_Evans/Time_Remembered/Time_Remembered.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joseíto_Fernández/Guajira_Guantanamera/Guajira_Guantanamera.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Krisztus_az_Úr/Krisztus_az_Úr.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Drupal_Song/The_Drupal_Song.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hadd_zengjen_énekszó/Hadd_zengjen_énekszó.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Mike_Chapman-Nicky_Chinn/Can_the_Can/Can_the_Can.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Anna_var_i_Anders_kær/Anna_var_i_Anders_kær.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/O_kom_er_eens_kijken/O_kom_er_eens_kijken.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/In_de_stille_kempen/In_de_stille_kempen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Trolletjes/Trolletjes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tarbolton_Reel/Tarbolton_Reel.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Áldásoddal_megyünk/Áldásoddal_megyünk.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ben_Bernie-Kenneth_Casey-Maceo_Pinkard/Sweet_Georgia_Brown/Sweet_Georgia_Brown.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/Still,_Still,_Still/Still,_Still,_Still.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nagy_Úr/Nagy_Úr.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Marine's_Hymn/The_Marine's_Hymn.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/JUST_LET_ME_CRY/JUST_LET_ME_CRY.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Princess_Leia's_Theme/Princess_Leia's_Theme.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_child_this_day_is_born/A_child_this_day_is_born.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Teremts_bennem/Teremts_bennem.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Belleville/Belleville.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Brendan_Graham-Rolf_Løvland/You_Raise_Me_Up/You_Raise_Me_Up.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Fred_Godfrey-Mark_Sheridan/Who_Were_You_with_Last_Night/Who_Were_You_with_Last_Night.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Köszönöm,_Jézus/Köszönöm,_Jézus.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Isten_szeret_bennünket/Isten_szeret_bennünket.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_MOTHER_AS_LOVELY_AS_YOU/A_MOTHER_AS_LOVELY_AS_YOU.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/JUDY'S_TURN_TO_CRY/JUDY'S_TURN_TO_CRY.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I'M_THROWING_MY_ARMS_AROUND_PARIS/I'M_THROWING_MY_ARMS_AROUND_PARIS.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tápláló_szent_kenyér/Tápláló_szent_kenyér.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_A._Norton/She_Wore_a_Yellow_Ribbon/She_Wore_a_Yellow_Ribbon.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ciao,_ciao,_bambino/Ciao,_ciao,_bambino.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Wayne_Shorter/Miyako/Miyako.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jonathan_Cain-Steve_Perry/Open_Arms/Open_Arms.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Te_Harinui/Te_Harinui.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Albert_Von_Tilzer-Neville_Fleeson/I'll_Be_with_You_in_Apple_Blossom_Time/I'll_Be_with_You_in_Apple_Blossom_Time.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lee_Pockriss-Paul_Vance/Calcutta/Calcutta.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Het_Levent_Is_Goed_In't_Brasantse_Land/Het_Levent_Is_Goed_In't_Brasantse_Land.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Albert_E._Brumley/I'll_Fly_Away/I'll_Fly_Away.mxl
 D_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Azt_mondják,_ideje_féjhezmenni/Azt_mondják,_ideje_féjhezmenni.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/What_Shall_We_Do_with_a_Drunken_Sailor?/What_Shall_We_Do_with_a_Drunken_Sailor?.mxl
@@ -387,47 +159,16 @@ D_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Carisi/Israel/Israel.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Les_Baxter-Will_Holt/Sinner_Man/Sinner_Man.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Retirés/Retirés.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Li'l_Red_Riding_Hood/Li'l_Red_Riding_Hood.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Söprik_a_pápai_utcát/Söprik_a_pápai_utcát.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/À_la_claire_fontaine/À_la_claire_fontaine.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Gingerbread_Boy/Gingerbread_Boy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerome_Kern-Otto_Harbach/Yesterdays/Yesterdays.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Morrissey-Stephen_Street/I_Know_Very_Well_How_I_Got_My_Name/I_Know_Very_Well_How_I_Got_My_Name.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jézus,_Te_közénk_eljöttél/Jézus,_Te_közénk_eljöttél.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sleeping_Beauty_Waltz/Sleeping_Beauty_Waltz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_jó_lovas_katonának_de_jól_vagyon_dolga/A_jó_lovas_katonának_de_jól_vagyon_dolga.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bob_Dylan/Dark_Eyes/Dark_Eyes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ó,_jöjjetek,_örvendjünk/Ó,_jöjjetek,_örvendjünk.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Two_Guitars/Two_Guitars.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Montauk/Montauk.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Gehe_nicht,_oh_Gregor/Gehe_nicht,_oh_Gregor.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Impressions/Impressions.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/New_Friends/New_Friends.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carl_Schraubstader-Lew_Brown/Last_Night_on_the_Back_Porch/Last_Night_on_the_Back_Porch.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Volga_Boat_Song/The_Volga_Boat_Song.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Oh_Hanukkah_/Oh_Hanukkah_.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerry_Leiber-Mike_Stoller/Bernie's_Tune/Bernie's_Tune.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tumbalalaika/Tumbalalaika.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Grant_Hart/Diane/Diane.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hello_My_Baby/Hello_My_Baby.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Clifford_Grey-Victor_Schertzinger/Paris_je_t'aime/Paris_je_t'aime.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/El_Cuarto_de_Tula/El_Cuarto_de_Tula.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Két_szál_pünkösdrózsa/Két_szál_pünkösdrózsa.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Snyder-Larry_Kusik/Games_That_Lovers_Play/Games_That_Lovers_Play.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bernie_Miller/Bernie's_Tune/Bernie's_Tune.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Cindy_Walker/Oh,_Gentle_Shepherd/Oh,_Gentle_Shepherd.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Meet_Me_Tonight_In_Dreamland/Meet_Me_Tonight_In_Dreamland.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gus_Kahn-Isham_Jones/I'll_See_You_in_My_Dreams/I'll_See_You_in_My_Dreams.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Durham-Edgar_Battle/Topsy/Topsy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_pozsonyi_sétatéren/A_pozsonyi_sétatéren.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Melanie/What_Have_They_Done_to_My_Song,_Ma/What_Have_They_Done_to_My_Song,_Ma.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Mark_Knopfler/Sultans_of_Swing/Sultans_of_Swing.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_dédapám/A_dédapám.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Norman_Gimbel/How_Insensitive/How_Insensitive.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Al_Hoffman-John_Klenner/Heartaches/Heartaches.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Serenade_(La_Serenata)/Serenade_(La_Serenata).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jack_Palmer-Spencer_Williams/I've_Found_a_New_Baby/I've_Found_a_New_Baby.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jess_Klein/Little_White_Dove/Little_White_Dove.mxl
+E_major:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ron_Mael-Russell_Mael/Propaganda/Propaganda.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Benny_Blanco-Cirkut-Dr._Luke-Ke$ha-Nate_Ruess/Die_Young/Die_Young.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Add_a_kezed/Add_a_kezed.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Ditch/Droomland/Droomland.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Stan_Haag/Mooi_was_die_tijd/Mooi_was_die_tijd.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Once_Upon_A_Time_In_America/Once_Upon_A_Time_In_America.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Joel/4_O'Clock_in_the_Morning/4_O'Clock_in_the_Morning.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Marr-Morrissey/Girl_Afraid/Girl_Afraid.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Holy,_Holy,_Holy,_Lord_God_Almighty/Holy,_Holy,_Holy,_Lord_God_Almighty.mxl
 E_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Al_die_willen_te_kap'ren_varen/Al_die_willen_te_kap'ren_varen.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Katyusha/Katyusha.mxl
@@ -438,47 +179,6 @@ E_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Én_vagyok_az,_aki_nem_jó/Én_vagyok_az,_aki_nem_jó.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Louis_Prima/Sing,_Sing,_Sing/Sing,_Sing,_Sing.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Isten_báránya/Isten_báránya.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Was_wollen_wir_trinken/Was_wollen_wir_trinken.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Billets_Doux/Billets_Doux.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Uram,_irgalmazz/Uram,_irgalmazz.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hatikvah_(The_Hope)_(הַתִּקְוָה)/Hatikvah_(The_Hope)_(הַתִּקְוָה).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jacques_Prévert-Joseph_Kosma/Les_feuilles_mortes/Les_feuilles_mortes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/P.F._Sloan-Steve_Barri/Secret_Agent_Man/Secret_Agent_Man.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Blues_My_Naughty_Sweetie_Gives_To_Me_(Simplified_Changes)/Blues_My_Naughty_Sweetie_Gives_To_Me_(Simplified_Changes).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bruce_Sievier/Speak_to_Me_of_Love/Speak_to_Me_of_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bud_Green-Martin_Block-Slim_Gaillard/Vol_Vistu_Gaily_Star/Vol_Vistu_Gaily_Star.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Peter_Wilhousky/Carol_of_the_Bells/Carol_of_the_Bells.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nights_In_White_Satin_-_Flute_Solo/Nights_In_White_Satin_-_Flute_Solo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Miles_Davis/Nardis/Nardis.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Michael_Jackson/Beat_It/Beat_It.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Barry/A_Man_Alone_[The_Ipcress_File]/A_Man_Alone_[The_Ipcress_File].mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Emile_Carrara-Léon_Agel/Mon_amant_de_Saint-Jean/Mon_amant_de_Saint-Jean.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hedy_West/500_Miles/500_Miles.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dorothy_Stewart/Now_Is_the_Hour/Now_Is_the_Hour.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jesse_Stone/Idaho/Idaho.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/All_God's_Children_Got_Shoes/All_God's_Children_Got_Shoes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Alouette,_Alouette/Alouette,_Alouette.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Samba_de_Orpheu/Samba_de_Orpheu.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Cab_Calloway-Clarence_Gaskill-Irving_Mills/Minnie_the_Moocher/Minnie_the_Moocher.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Rest_My_Chemistry/Rest_My_Chemistry.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Oscar_Hammerstein_II-Otto_Harbach-Sigmund_Romberg/One_Alone/One_Alone.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/YOU'RE_GONNA_NEED_SOMEONE_BY_YOUR_SIDE/YOU'RE_GONNA_NEED_SOMEONE_BY_YOUR_SIDE.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Don't_Tell_A_Lie_About_Me_Dear/Don't_Tell_A_Lie_About_Me_Dear.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ennio_Morricone/Addio_a_Cheyenne/Addio_a_Cheyenne.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Singing_Bamboo/Singing_Bamboo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Brian_Holland-Eddie_Holland-Lamont_Dozier/You're_a_Wonderful_One/You're_a_Wonderful_One.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_B._Ward-John_F._Palmer/The_Band_Played_On/The_Band_Played_On.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eden_Ahbez/Nature_Boy/Nature_Boy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Henry_Blossom-Victor_Herbert/Kiss_Me_Again/Kiss_Me_Again.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_bachelor_gay_(from_"The_Maid_of_the_Mountains")/A_bachelor_gay_(from_"The_Maid_of_the_Mountains").mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hans_Fritz_Beckmann-Theo_Mackeben/Bei_dir_war_es_immer_so_schön/Bei_dir_war_es_immer_so_schön.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fickle_Fingers/Fickle_Fingers.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Klenner-Sam_Lewis/Just_Friends/Just_Friends.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Forty_Second_Street/Forty_Second_Street.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Folie_a_Amphion/Folie_a_Amphion.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Doce_Taboo/Doce_Taboo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Theme_From_The_Godfather_II/Theme_From_The_Godfather_II.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_E._Henderson-Rudy_Vallée/Deep_Night/Deep_Night.mxl
 Eb_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sonny_Rollins/Tenor_Madness/Tenor_Madness.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Every_time_We_Say_Goodbye/Every_time_We_Say_Goodbye.mxl
@@ -489,47 +189,36 @@ Eb_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Kenny_Dorham/Blue_Bossa/Blue_Bossa.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Mercer/I'm_an_Old_Cowhand_(From_the_Rio_Grande)/I'm_an_Old_Cowhand_(From_the_Rio_Grande).mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Golliwog's_Cakewalk/Golliwog's_Cakewalk.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dizzy_Gillespie/Groovin'_High/Groovin'_High.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leon_René/Boogie_Woogie_Santa_Claus/Boogie_Woogie_Santa_Claus.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerome_Richardson/Groove_Merchant/Groove_Merchant.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/All_of_Me_Intro/All_of_Me_Intro.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I_Will_Serve_Thee/I_Will_Serve_Thee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Meet_The_Flintstones/Meet_The_Flintstones.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Pee_Wee_Ellis/The_Chicken/The_Chicken.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Elizabeth_Cotten/Freight_Train/Freight_Train.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leslie_Stuart/Lily_of_Laguna/Lily_of_Laguna.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ev'ry_Little_Movement/Ev'ry_Little_Movement.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_Whiting-Walter_Donaldson/My_Blue_Heaven/My_Blue_Heaven.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I_Double_Dare_You/I_Double_Dare_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/In_His_Time/In_His_Time.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_Campbell-Marvin_Moore/Four_Walls/Four_Walls.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Buddy_Bolden_Blues/Buddy_Bolden_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ballad_for_Trane/Ballad_for_Trane.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dave_Ringle-Fred_Meinken/Wabash_Blues/Wabash_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Deon_Jackson/Love_Makes_the_World_Go_Round/Love_Makes_the_World_Go_Round.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Rhythm-a-ning/Rhythm-a-ning.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bill_Evans/Interplay/Interplay.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Softly_Yes/Softly_Yes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/My_Little_Suede_Shoes/My_Little_Suede_Shoes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Happy_Trails_to_You/Happy_Trails_to_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Lovely_Lady/Lovely_Lady.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_S._Pomeroy-Meade_Minnigerode-Tod_B._Galloway/The_Whiffenpoof_Song/The_Whiffenpoof_Song.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ned_Miller/Dark_Moon/Dark_Moon.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/If_I_Should_Fall_In_Love_Again/If_I_Should_Fall_In_Love_Again.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hoagy_Carmichael-Stuart_Gorrell/Georgia_on_My_Mind/Georgia_on_My_Mind.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Acapulco_1922/Acapulco_1922.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Everybody_Ought_to_Go_to_Sunday_School/Everybody_Ought_to_Go_to_Sunday_School.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gene_Krupa-Ray_Biondi/Boogie_Blues/Boogie_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerome_Kern-Oscar_Hammerstein_II/Why_Was_I_Born?/Why_Was_I_Born?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/There's_Yes!_Yes!_In_Your_Eyes/There's_Yes!_Yes!_In_Your_Eyes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Norman_Newell/The_Key_to_Love/The_Key_to_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Donald_Robinson/Constantly/Constantly.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Manning_Sherwin-Tommie_Connor/Who's_Taking_You_Home_Tonight?/Who's_Taking_You_Home_Tonight?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/When_Your_Hair_Has_Turned_To_Silver/When_Your_Hair_Has_Turned_To_Silver.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lew_Brown-Sidney_Clare/I'd_Climb_the_Highest_Mountain_if_I_Knew_I'd_Find_You/I'd_Climb_the_Highest_Mountain_if_I_Knew_I'd_Find_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Egbert_Van_Alstyne-Gus_Kahn-Tony_Jackson_[1]/Pretty_Baby/Pretty_Baby.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Django_Reinhardt/Manoir_de_mes_rêves/Manoir_de_mes_rêves.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Rose-Edward_Eliscu-Vincent_Youmans/Great_Day/Great_Day.mxl
+Eb_minor:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sonny_Rollins/Sonnymoon_for_Two/Sonnymoon_for_Two.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Cousin_Mary/Cousin_Mary.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dizzy_Gillespie/Con_Alma/Con_Alma.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bennie_Moten-Buster_Moten/Moten_Swing/Moten_Swing.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Paul_Desmond/Take_Five/Take_Five.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Duke_Ellington/Warm_Valley/Warm_Valley.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Buddy_Johnson/Since_I_Fell_for_You/Since_I_Fell_for_You.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Horace_Silver/Come_on_Home/Come_on_Home.mxl
+F#_major:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Blues_By_Five/Blues_By_Five.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I_Like_Pie_I_Like_Cake/I_Like_Pie_I_Like_Cake.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ben_Raleigh-Joe_Zawinul/Midnight_Mood/Midnight_Mood.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bennie_Maupin-Harvey_Mason-Herbie_Hancock-Paul_Jackson_Jr./Chameleon/Chameleon.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/BC_Jean-Toby_Gad/If_I_Were_a_Boy/If_I_Were_a_Boy.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Brilliant_Corners/Brilliant_Corners.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leon_René/When_the_Swallows_Come_Back_to_Capistrano/When_the_Swallows_Come_Back_to_Capistrano.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Seeing_other_people/Seeing_other_people.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Stevie_Wonder/Don't_You_Worry_'Bout_a_Thing/Don't_You_Worry_'Bout_a_Thing.mxl
+F#_minor:
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/"JACK_THE_RIPPER"/"JACK_THE_RIPPER".mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Morrissey-Stephen_Street/Suedehead/Suedehead.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alex_Van_Halen-David_Lee_Roth-Eddie_Van_Halen-Michael_Anthony/Beautiful_Girls/Beautiful_Girls.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Brandon_Flowers-Dave_Keuning-Mark_Stoermer-Ronnie_Vannucci/Somebody_Told_Me/Somebody_Told_Me.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gary_Lightbody-Jonny_Quinn-Nathan_Connolly-Paul_Wilson-Tom_Simpson/Chasing_Cars/Chasing_Cars.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Carlo_Nistri-Ennio_Morricone/Chi_mai/Chi_mai.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Shel_Silverstein/Daddy_What_If/Daddy_What_If.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Fran_Healy/Sing/Sing.mxl
+  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Stevie_Wonder-Yvonne_Wright/They_Won't_Go_When_I_Go/They_Won't_Go_When_I_Go.mxl
 F_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sinterklaas_kapoentje/Sinterklaas_kapoentje.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sinterklaasje_bonne_bonne_bonne/Sinterklaasje_bonne_bonne_bonne.mxl
@@ -540,47 +229,6 @@ F_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/Au_Privave/Au_Privave.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Alphabet_Song/The_Alphabet_Song.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Parker/Cool_Blues/Cool_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/Alouette/Alouette.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zachtjes_gaan_de_paardenvoetjes/Zachtjes_gaan_de_paardenvoetjes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Little_B's_Poem/Little_B's_Poem.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Vies_klein_varkentje/Vies_klein_varkentje.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fais_Dodo/Fais_Dodo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Well_You_Needn't/Well_You_Needn't.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joseph_Brackett,_Jr./Simple_Gifts/Simple_Gifts.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Inch_Worm/The_Inch_Worm.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I_Love_You_Lord/I_Love_You_Lord.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ritchie_Valens/La_bamba/La_bamba.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bill_Evans-Miles_Davis/Freddie_Freeloader/Freddie_Freeloader.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Pietro_Mascagni/Intermezzo/Intermezzo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bernie_Baum-Bill_Giant-Florence_Kaye/Down_by_the_Riverside_and_When_the_Saints_Go_Marching_In/Down_by_the_Riverside_and_When_the_Saints_Go_Marching_In.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Question_Mark/Question_Mark.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Zie_ginds_komt_de_stoomboot/Zie_ginds_komt_de_stoomboot.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Man_Of_Constant_Sorrow/Man_Of_Constant_Sorrow.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/DuBose_Heyward-George_Gershwin-Ira_Gershwin/I_Loves_You,_Porgy/I_Loves_You,_Porgy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Barry/The_John_Dunbar_Theme/The_John_Dunbar_Theme.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nincsen_rózsa,_mert_lehullott_a_földre/Nincsen_rózsa,_mert_lehullott_a_földre.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Rád_bízom/Rád_bízom.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Little_Annie_Rooney/Little_Annie_Rooney.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Robert_Burns-[Traditional]/Auld_Lang_Syne/Auld_Lang_Syne.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/I_Saw_Three_Ships/I_Saw_Three_Ships.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Lord's_my_Shepherd/The_Lord's_my_Shepherd.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/Shenandoah/Shenandoah.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/No_Me_Esqueca/No_Me_Esqueca.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/O_Christmas_Tree/O_Christmas_Tree.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Night_Mist_Blues/Night_Mist_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Just_a_song_at_twilight/Just_a_song_at_twilight.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tinker_Polka/Tinker_Polka.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Albert_Ketèlbey/In_a_Monastery_Garden/In_a_Monastery_Garden.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fill_Me_Now/Fill_Me_Now.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nada_Sosou/Nada_Sosou.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Albert_Fitz-William_Penn/The_Honeysuckle_and_the_Bee/The_Honeysuckle_and_the_Bee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Quiereme_Mucho_(Yours)/Quiereme_Mucho_(Yours).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/For_He's_a_Jolly_Good_Fellow/For_He's_a_Jolly_Good_Fellow.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Henry_Mancini-Johnny_Mercer/Days_of_Wine_and_Roses/Days_of_Wine_and_Roses.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Spirit_of_the_Living_God/Spirit_of_the_Living_God.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bobby_Woodlen-Grace_Sampson-Mario_Bauzá/Mambo_Inn/Mambo_Inn.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_Vessel_of_Honor_For_God/A_Vessel_of_Honor_For_God.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Phil_Boutelje-Richard_A._Winfree/China_Boy/China_Boy.mxl
 F_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Barry_Mann-Cynthia_Weil/Mamacita/Mamacita.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Mi_Piso_Eb/Mi_Piso_Eb.mxl
@@ -591,47 +239,6 @@ F_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/RIDERS_IN_THE_SKY/RIDERS_IN_THE_SKY.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Sonny_Rollins/Strode_Rode/Strode_Rode.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Moore-Sy_Oliver/Swingin'_on_Nothin'/Swingin'_on_Nothin'.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Douglas_Furber-Philip_Braham/Limehouse_Blues/Limehouse_Blues.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Egyptian_Fantasy/Egyptian_Fantasy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Blue_Minor/Blue_Minor.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_Villa_Negra_románca/A_Villa_Negra_románca.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Andy_Razaf-Paul_Denniker/S'posin'/S'posin'.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/(213)_Cha_Cha/(213)_Cha_Cha.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/You_Know_When/You_Know_When.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/La_Cachila/La_Cachila.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Thelonious_Monk/Ruby,_My_Dear/Ruby,_My_Dear.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Clifford_Brown/Joy_Spring/Joy_Spring.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Clap_yo'_hands/Clap_yo'_hands.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jimmy_Giuffre/Four_Brothers/Four_Brothers.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Strayhorn-Duke_Ellington/Isfahan/Isfahan.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tears_for_alice/Tears_for_alice.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/bons_vents/bons_vents.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Roland_Orzabal/Mad_World/Mad_World.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Edmund_Anderson-Ted_Grouya/Flamingo/Flamingo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Tu_scendi_dalle_stelle/Tu_scendi_dalle_stelle.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Keith_Richards-Mick_Jagger/Paint_It,_Black/Paint_It,_Black.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Never_Never_Will_I_Marry/Never_Never_Will_I_Marry.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Mister_Sandman/Mister_Sandman.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Andreas_Kisser-Igor_Cavalera-Max_Cavalera-Paulo_Jr./Inquisition_Symphony/Inquisition_Symphony.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harold_Arlen-Leo_Robin/For_Every_Man_There's_a_Woman/For_Every_Man_There's_a_Woman.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Is_You_Is_Or_Is_You_Ain't_My_Baby?/Is_You_Is_Or_Is_You_Ain't_My_Baby?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/subconscious_lee/subconscious_lee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Don_Meyer-Elise_Bretton-Sherman_Edwards/For_Heaven's_Sake/For_Heaven's_Sake.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Don_Raye-Gene_de_Paul/You_Don't_Know_What_Love_Is/You_Don't_Know_What_Love_Is.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dorcas_Cochran/Adventures_in_Paradise/Adventures_in_Paradise.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bob_Merrill/Mambo_Italiano/Mambo_Italiano.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dave_Guard/Scotch_and_Soda/Scotch_and_Soda.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Arthur_Freed-Nacio_Herb_Brown/Temptation/Temptation.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Barefoot_Days/Barefoot_Days.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Cole_Porter/Well,_Did_You_Evah!/Well,_Did_You_Evah!.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Joe_Steen-Paul_Edwards/Rollin'_Danny/Rollin'_Danny.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Marr-Morrissey/How_Soon_Is_Now/How_Soon_Is_Now.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Irving_Kahal-Pierre_Norman-Sammy_Fain/You_Brought_a_New_Kind_of_Love_to_Me/You_Brought_a_New_Kind_of_Love_to_Me.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Harris/Listen_Here/Listen_Here.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Udo_Jürgens-Wolfgang_Hofer/Liebe_ohne_Leiden/Liebe_ohne_Leiden.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Lester_Allen-Robert_Hill/Kiss_of_Fire/Kiss_of_Fire.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Leon_Russell/This_Masquerade/This_Masquerade.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Mandel-Paul_Williams/Close_Enough_for_Love/Close_Enough_for_Love.mxl
 G_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Good-Morning_To_All/Good-Morning_To_All.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Italian_Polka/Italian_Polka.mxl
@@ -642,47 +249,6 @@ G_major:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Il_pleut,_il_pleut,_Bergère/Il_pleut,_il_pleut,_Bergère.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jimmy_Van_Heusen-Johnny_Burke/It_Could_Happen_to_You/It_Could_Happen_to_You.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Auprès_De_Ma_Blonde/Auprès_De_Ma_Blonde.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Antoine_Renard/Le_temps_des_cerises/Le_temps_des_cerises.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harry_Dixon_Loes/This_Little_Light_of_Mine/This_Little_Light_of_Mine.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Tex_Logan/Christmas_Time's_A-Coming/Christmas_Time's_A-Coming.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Negyvenhatos_sárga_villamoson/Negyvenhatos_sárga_villamoson.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Fel_nagy_örömre/Fel_nagy_örömre.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frederick_Oakeley/O_Come,_All_Ye_Faithful/O_Come,_All_Ye_Faithful.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Hoor_de_wind_waait_door_de_bomen/Hoor_de_wind_waait_door_de_bomen.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/The_Black_Velvet_Band/The_Black_Velvet_Band.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Helen_Lindsey_Parker/‘Akaka_Falls/‘Akaka_Falls.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/It's_a_Long_Way_to_Tipperary/It's_a_Long_Way_to_Tipperary.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/A_La_Pêche_Aux_Moules/A_La_Pêche_Aux_Moules.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Git_Along_Little_Dogies/Git_Along_Little_Dogies.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_Macak-Larry_La_Prise-Taftt_Baker/The_Hokey_Pokey/The_Hokey_Pokey.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Megszentelt_kenyér/Megszentelt_kenyér.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/See_amid_the_winters_snow/See_amid_the_winters_snow.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Wayne_Shorter/Juju/Juju.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Manu_rere/Manu_rere.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Old_Grey_Mare/The_Old_Grey_Mare.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/John_Browns_body/John_Browns_body.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/João_Gilberto/Bim_Bom/Bim_Bom.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Fairies'_Hornpipe/The_Fairies'_Hornpipe.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Williams/Star_Wars_Main_Title/Star_Wars_Main_Title.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Beth_Slater_Whitson-Leo_Friedman/Let_Me_Call_You_Sweetheart/Let_Me_Call_You_Sweetheart.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Am_Sonntag_Will_Mein_Susser/Am_Sonntag_Will_Mein_Susser.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Pass_Me_Not/Pass_Me_Not.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Királyi_törvény/Királyi_törvény.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Az_ősi_jóslat/Az_ősi_jóslat.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johnny_Christopher-Mark_James-Wayne_Carson/Always_on_My_Mind/Always_on_My_Mind.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/C._W._Murphy-Dan_Lipton-John_Neat/She's_a_Lassie_from_Lancashire/She's_a_Lassie_from_Lancashire.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Comin'_Through_The_Rye/Comin'_Through_The_Rye.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Once_in_royal_Davids_city/Once_in_royal_Davids_city.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gus_Edwards-Vincent_Bryan/In_My_Merry_Oldsmobile/In_My_Merry_Oldsmobile.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/MY_LOVE_LIFE/MY_LOVE_LIFE.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Jerome_Kern-Oscar_Hammerstein_II/Why_Do_I_Love_You?/Why_Do_I_Love_You?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Harry_Akst-Joe_Young-Sam_Lewis/Dinah/Dinah.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/Coventry_Carol/Coventry_Carol.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Atyám,_Tied_vagyok/Atyám,_Tied_vagyok.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Strayhorn-Duke_Ellington/Satin_Doll/Satin_Doll.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gus_Kahn-Walter_Donaldson/My_Buddy/My_Buddy.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Daisy,_Daisy/Daisy,_Daisy.mxl
 G_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/John_Coltrane/Giant_Steps/Giant_Steps.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charlie_Haden/For_Turiya/For_Turiya.mxl
@@ -693,47 +259,6 @@ G_minor:
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Nád_a_házam_teteje/Nád_a_házam_teteje.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Ablakomba_besütött_a_holdvilág/Ablakomba_besütött_a_holdvilág.mxl
   - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Sing_We_Now_Of_Christmas/Sing_We_Now_Of_Christmas.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Csak_Benned/Csak_Benned.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Még_az_utcán_lefelé_se_mehetek/Még_az_utcán_lefelé_se_mehetek.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Traditional]/Satan,_Your_Kingdom_Must_Come_Down/Satan,_Your_Kingdom_Must_Come_Down.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/"LAST_NITE_I_DREAMT_SOMEBODY_LOVED_ME"/"LAST_NITE_I_DREAMT_SOMEBODY_LOVED_ME".mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Ray_Noble/Cherokee/Cherokee.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bert_Kaempfert-Milt_Gabler/L-O-V-E/L-O-V-E.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Britney_Spears-Christopher_Stewart-Gary_O'Bryan-Madonna-Penelope_Magnet-Tab_Nkhereanye-The-Dream/Me_Against_the_Music/Me_Against_the_Music.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/The_Imperial_March_(Darth_Vader's_Theme)/The_Imperial_March_(Darth_Vader's_Theme).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Francis_Wheeler-Harry_B._Smith-Ted_Snyder/The_Sheik_of_Araby/The_Sheik_of_Araby.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Cole_Porter/I_Love_Paris/I_Love_Paris.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Buddy_Bernier-Nat_Simon/Poinciana_(Song_of_the_Tree)/Poinciana_(Song_of_the_Tree).mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Johannes_Brahms/Hungarian_Dance_No._5_in_F♯_minor/Hungarian_Dance_No._5_in_F♯_minor.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/TO_GIVE_IS_THE_REASON_WE_LIVE/TO_GIVE_IS_THE_REASON_WE_LIVE.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Milt_Gabler/In_a_Mellow_Tone/In_a_Mellow_Tone.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alex_Callier/Vinegar_&_Salt/Vinegar_&_Salt.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Bronislaw_Kaper-Ned_Washington/On_Green_Dolphin_Street/On_Green_Dolphin_Street.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Francis_Wheeler-Irving_Kahal-Sammy_Fain/Let_a_Smile_Be_Your_Umbrella/Let_a_Smile_Be_Your_Umbrella.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Maĉjo/Maĉjo.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Enrique_P._Maroni-Gerardo_Matos_Rodríguez-Pascual_Contursi/La_cumparsita/La_cumparsita.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_Gershwin-Ira_Gershwin/'S_Wonderful/'S_Wonderful.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/I'm_Sorry_I_Made_You_Cry/I'm_Sorry_I_Made_You_Cry.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/Jolly_Old_Saint_Nicholas/Jolly_Old_Saint_Nicholas.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Chris_Smith_[1]-Jim_Burris/Ballin'_the_Jack/Ballin'_the_Jack.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Al_Dubin-Joe_Burke/Dancing_with_Tears_in_My_Eyes/Dancing_with_Tears_in_My_Eyes.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Hans_Bradtke/Mary-Rose/Mary-Rose.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Alfred_Bryan-Fred_Fisher/Peg_O'_My_Heart/Peg_O'_My_Heart.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Dorothy_Parker-Jack_King/How_Am_I_to_Know?/How_Am_I_to_Know?.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Rida_Johnson_Young-Victor_Herbert/Ah!_Sweet_Mystery_of_Life/Ah!_Sweet_Mystery_of_Life.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frank_Westphal-Gus_Kahn/When_You_Come_to_the_End_of_the_Day/When_You_Come_to_the_End_of_the_Day.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Eddie_Adcock-Wendy_Special/Another_Lonesome_Day/Another_Lonesome_Day.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Frank_Loesser/On_a_Slow_Boat_to_China/On_a_Slow_Boat_to_China.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/[Unknown]/All_That_I_Ask_Of_You_Is_Love/All_That_I_Ask_Of_You_Is_Love.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Wes_Montgomery/Four_on_Six/Four_on_Six.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Gordon_Clifford-Nacio_Herb_Brown/Paradise/Paradise.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Del_Lyon-Lani_McIntire/The_One_Rose/The_One_Rose.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Peter_De_Rose/Deep_Purple/Deep_Purple.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Charles_Tobias-Harry_Tobias-Henry_Tobias/Miss_You/Miss_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Henry_Mancini/Breakfast_at_Tiffany's/Breakfast_at_Tiffany's.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/George_Gershwin-Ira_Gershwin/(I've_Got_a)_Crush_on_You/(I've_Got_a)_Crush_on_You.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Billy_Rose-Mort_Dixon-Ray_Henderson/That_Old_Gang_of_Mine/That_Old_Gang_of_Mine.mxl
-  - /home/federico/Develop/Laudare/LLM/EWLD/dataset/Christophe-Pierre_Grillet/Chiqué,_chiqué/Chiqué,_chiqué.mxl
 
 [analysis_reason_counts]
 humdrum_error:HumdrumError: 40

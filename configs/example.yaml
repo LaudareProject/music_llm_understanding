@@ -1,76 +1,102 @@
 experiment:
-  name: "symbolic_latent_demo"
-  output_root: "../outputs"
+  name: symbolic_latent_demo
+  output_root: ../outputs
   models:
-    - "aria_embedding"
-    - "phrase_vae"
-
+  - aria_embedding
+  - phrase_vae
 models:
   aria_embedding:
-    type: "aria_embedding"
-    repo_id: "loubb/aria-medium-embedding"
-    checkpoint_filename: "model.safetensors"
-    model_config_name: "medium-emb"
-    device: "cpu"
+    type: aria_embedding
+    repo_id: loubb/aria-medium-embedding
+    checkpoint_filename: model.safetensors
+    model_config_name: medium-emb
+    device: cpu
   phrase_vae:
-    type: "phrase_vae"
-    # Use either repo_id (HF) or lightning_ckpt_path.
-    repo_id: "LongshenOu/phrase-vae"
-    device: "cpu"
+    type: phrase_vae
+    repo_id: LongshenOu/phrase-vae
+    device: cpu
     trim: 16
-
 queries:
-  - id: "twinkle_abc"
-    name: "Twinkle"
-    abc: |
-      X:1
-      T:Twinkle Twinkle
-      M:4/4
-      L:1/4
-      K:C
-      C C G G | A A G2 |
-      F F E E | D D C2 |
-  - id: "example_midi"
-    name: "Example MIDI"
-    midi_path: "data/example.mid"
-  - id: "custom_example"
-    name: "Custom C-E-G"
-    custom: "C-E-G"
+- id: twinkle_abc
+  name: Twinkle
+  abc: 'X:1
 
+    T:Twinkle Twinkle
+
+    M:4/4
+
+    L:1/4
+
+    K:C
+
+    C C G G | A A G2 |
+
+    F F E E | D D C2 |
+
+    '
+- id: example_midi
+  name: Example MIDI
+  midi_path: data/example.mid
+- id: custom_example
+  name: Custom C-E-G
+  custom: C-E-G
 axes:
-  - name: "abc_vs_custom"
-    query_a: "twinkle_abc"
-    query_b: "custom_example"
-    method: "explicit"
-
+- name: abc_vs_custom
+  query_a: twinkle_abc
+  query_b: custom_example
+  method: explicit
 plots:
   demo:
     axes:
-      - "abc_vs_custom"
+    - abc_vs_custom
     options:
       translate: true
       orthonormalize: false
       normalize_vectors: true
-      origin_strategy: "mean"
+      origin_strategy: mean
       pca: false
-      cosine_references: ["twinkle_abc", "custom_example"]
+      cosine_references:
+      - twinkle_abc
+      - custom_example
   demo_pca:
     axes:
-      - "abc_vs_custom"
+    - abc_vs_custom
     options:
       translate: true
       orthonormalize: false
       normalize_vectors: true
-      origin_strategy: "mean"
+      origin_strategy: mean
       pca: true
-      cosine_references: ["twinkle_abc", "custom_example"]
+      cosine_references:
+      - twinkle_abc
+      - custom_example
   demo_orthonormal_pca:
     axes:
-      - "abc_vs_custom"
+    - abc_vs_custom
     options:
       translate: true
       orthonormalize: true
       normalize_vectors: true
-      origin_strategy: "mean"
+      origin_strategy: mean
       pca: true
-      cosine_references: ["twinkle_abc", "custom_example"]
+      cosine_references:
+      - twinkle_abc
+      - custom_example
+  demo_mds:
+    axes:
+    - abc_vs_custom
+    options:
+      translate: true
+      orthonormalize: false
+      normalize_vectors: true
+      origin_strategy: mean
+      mds: true
+  demo_orthonormal_mds:
+    axes:
+    - abc_vs_custom
+    options:
+      translate: true
+      orthonormalize: true
+      normalize_vectors: true
+      origin_strategy: mean
+      mds: true

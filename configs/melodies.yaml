@@ -84,6 +84,21 @@ plots:
       origin_strategy: "mean"
       pca: false
       cosine_references: ["c", "a"]
+  note_circle_mds:
+    axes:
+      - "C_vs_Gb"
+      - "A_vs_Eb"
+    options:
+      orthonormalize: false
+      mds: true
+  note_circle_orthonormal_mds:
+    axes:
+      - "C_vs_Gb"
+      - "A_vs_Eb"
+    options:
+      orthonormalize: true
+      origin_strategy: "mean"
+      mds: true
   note_circle_pca:
     axes:
       - "C_vs_Gb"

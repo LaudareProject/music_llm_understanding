@@ -6,3 +6,4 @@ scripts/__pycache__
 EWLD
 EWLD.zip
 bin
+embedding_cache/

@@ -278,12 +278,12 @@ def prepare_ewld_tonality_yaml(
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate note-melody experiment config with random octaves."
+        description="Generate random-melody experiment config with random octaves."
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("configs/melodies.yaml"),
+        default=Path("configs/random-melody.yaml"),
         help="Output YAML path.",
     )
     parser.add_argument(

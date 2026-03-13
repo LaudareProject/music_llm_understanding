@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List
@@ -8,6 +7,7 @@ from xml.etree import ElementTree as ET
 import zipfile
 
 from music_latents.humdrum import HumdrumError, estimate_tonality_by_voting
+from music_latents.ewld_analysis import analyze_files
 
 
 PITCH_CLASS_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
@@ -229,7 +229,7 @@ def select_balanced_tonality_subset(
         raise ValueError("workers must be > 0")
 
     sorted_files = sorted(files, key=lambda path: path.stat().st_size)
-    analyses = _analyze_files(
+    analyses = analyze_files(
         sorted_files,
         analyzer=analyzer,
         workers=workers,
@@ -284,59 +284,3 @@ def select_balanced_tonality_subset(
         )
 
     return grouped, analyses
-
-
-def _analyze_files(
-    files: List[Path],
-    *,
-    analyzer: Callable[[Path], TonalityAnalysis],
-    workers: int,
-    progress_callback: Callable[[int, int], None] | None,
-) -> List[TonalityAnalysis]:
-    total = len(files)
-    if total == 0:
-        return []
-
-    analyses_buffer: List[TonalityAnalysis | None] = [None for _ in range(total)]
-
-    completed = 0
-
-    def _tick() -> None:
-        nonlocal completed
-        completed += 1
-        if progress_callback is not None:
-            progress_callback(completed, total)
-
-    def _safe_analyze(path: Path) -> TonalityAnalysis:
-        try:
-            return analyzer(path)
-        except Exception as exc:  # pragma: no cover - defensive hardening
-            try:
-                size = path.stat().st_size
-            except OSError:
-                size = 0
-            return TonalityAnalysis(
-                file_path=path,
-                file_size=size,
-                tonality=None,
-                accepted=False,
-                reason=f"analyzer_exception:{type(exc).__name__}",
-            )
-
-    if workers == 1:
-        for idx, file_path in enumerate(files):
-            analyses_buffer[idx] = _safe_analyze(file_path)
-            _tick()
-        return [item for item in analyses_buffer if item is not None]
-
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_index = {
-            executor.submit(_safe_analyze, file_path): idx
-            for idx, file_path in enumerate(files)
-        }
-        for future in as_completed(future_to_index):
-            idx = future_to_index[future]
-            analyses_buffer[idx] = future.result()
-            _tick()
-
-    return [item for item in analyses_buffer if item is not None]

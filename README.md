@@ -77,6 +77,54 @@ Then run it with:
 uv run python scripts/run_experiment.py configs/ewld_tonality.yaml
 ```
 
+## Supervised Vector-Feature Experiment
+
+You can also run a supervised experiment directly from latent vectors.
+Each query can optionally include a `target` (or `label`) value, and the
+runner can fit:
+
+- regression: elastic-net linear regression
+- classification: elastic-net logistic regression
+
+Pipeline:
+
+1. build vector features (`embedding`, `norm`, `polar`)
+2. standardize features
+3. PCA retain 95% variance
+4. train elastic-net model
+5. use 5-fold CV if samples > 50, else leave-one-out CV
+6. project weights back to original features and plot sorted importance
+
+Example config snippet:
+
+```yaml
+queries:
+  - id: "q1"
+    midi_path: "a.mid"
+    target: 0.2
+  - id: "q2"
+    midi_path: "b.mid"
+    target: 0.8
+
+supervised:
+  task: "regression" # or "classification"
+  features: ["embedding", "descriptive", "polar"]
+  l1_ratio: 0.5
+  alpha: 1.0
+  max_iter: 5000
+  top_k: 50
+```
+
+`descriptive` includes location/scale, shape, norm/energy, sparsity/concentration,
+and sign-structure descriptors (mean/median/std/variance/IQR/MAD/min/max/range,
+skewness/kurtosis/trimmed mean/quantiles, L1/L2/Linf/RMS/energy,
+near-zero fraction/Gini-like concentration/binned entropy, positive/negative fractions).
+
+Outputs are written to:
+
+- `supervised/<model>/supervised_report.json`
+- `supervised/<model>/feature_importance.png`
+
 ## Troubleshooting
 
 ### Linux i386 runtime compatibility for Humdrum binaries

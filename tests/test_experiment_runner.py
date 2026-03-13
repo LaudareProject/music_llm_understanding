@@ -59,7 +59,6 @@ plots:
       normalize_vectors: true
       origin_strategy: "mean"
       pca: true
-      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -83,10 +82,11 @@ plots:
     assert metadata["model_type"] == "dummy"
     assert metadata["model_name"] == "dummy_model"
 
-    axes_dir = output_dir / "axes" / "dummy_model"
-    axes_path = axes_dir / "axes_plot1.json"
-    scores_path = axes_dir / "scores_plot1.json"
-    plot_path = axes_dir / "projections_plot1_1d.png"
+    axes_path = output_dir / "dummy_model" / "json" / "pca" / "axes_plot1.json"
+    scores_path = output_dir / "dummy_model" / "json" / "pca" / "projections_plot1.json"
+    plot_path = (
+        output_dir / "dummy_model" / "plots" / "pca" / "projections_plot1_1d.png"
+    )
 
     assert axes_path.exists()
     assert scores_path.exists()
@@ -157,15 +157,153 @@ plots:
     runner = ExperimentRunner(config_path)
     output_dir = runner.run()
 
-    axes_dir = output_dir / "axes" / "dummy_model"
-    assert (axes_dir / "mds_plot1_2d.png").exists()
-    assert (axes_dir / "shepard_plot1.png").exists()
-    assert (axes_dir / "mds_plot1.json").exists()
+    plots_dir = output_dir / "dummy_model" / "plots" / "mds"
+    json_dir = output_dir / "dummy_model" / "json" / "mds"
+    assert (plots_dir / "mds_plot1_2d.png").exists()
+    assert (plots_dir / "mds_plot1_shepard.png").exists()
+    assert (json_dir / "mds_plot1.json").exists()
 
-    payload = json.loads((axes_dir / "mds_plot1.json").read_text(encoding="utf-8"))
+    payload = json.loads((json_dir / "mds_plot1.json").read_text(encoding="utf-8"))
     assert payload["plot"] == "plot1"
     assert payload["mds"]["n_components"] == 2
     assert payload["shepard"]
+
+
+def test_experiment_runner_links_intersections_for_processing_folders(
+    tmp_path: Path,
+) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_links.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_links"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      orthonormalize: true
+      pca: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+
+    canonical_plot = (
+        output_dir
+        / "dummy_model"
+        / "plots"
+        / "orthonormal+pca"
+        / "projections_plot1_1d.png"
+    )
+    canonical_json = (
+        output_dir
+        / "dummy_model"
+        / "json"
+        / "orthonormal+pca"
+        / "projections_plot1.json"
+    )
+    assert canonical_plot.exists()
+    assert canonical_json.exists()
+
+    for alias_folder in ("orthonormal", "pca"):
+        alias_plot = (
+            output_dir
+            / "dummy_model"
+            / "plots"
+            / alias_folder
+            / "projections_plot1_1d.png"
+        )
+        alias_json = (
+            output_dir
+            / "dummy_model"
+            / "json"
+            / alias_folder
+            / "projections_plot1.json"
+        )
+        assert alias_plot.is_symlink()
+        assert alias_json.is_symlink()
+        assert alias_plot.resolve() == canonical_plot.resolve()
+        assert alias_json.resolve() == canonical_json.resolve()
+
+
+def test_experiment_runner_cosine_projection_is_exclusive(tmp_path: Path) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_cosine_only.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_cosine_only"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      cosine_references: ["q1", "q2"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    plots_dir = output_dir / "dummy_model" / "plots" / "standard"
+    json_dir = output_dir / "dummy_model" / "json" / "standard"
+
+    assert (plots_dir / "cosine_plot1.png").exists()
+    assert (json_dir / "cosine_plot1.json").exists()
+    assert not (json_dir / "axes_plot1.json").exists()
+    assert not (json_dir / "projections_plot1.json").exists()
 
 
 def test_experiment_runner_rejects_pca_and_mds(tmp_path: Path) -> None:
@@ -303,7 +441,6 @@ plots:
       orthonormalize: false
       normalize_vectors: true
       origin_strategy: "mean"
-      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -319,7 +456,9 @@ plots:
     ).run()
 
     assert reused_output_dir == output_dir
-    assert (output_dir / "axes" / "dummy_model" / "projections_plot1_1d.png").exists()
+    assert (
+        output_dir / "dummy_model" / "plots" / "standard" / "projections_plot1_1d.png"
+    ).exists()
 
 
 def test_experiment_runner_supports_average_groups(tmp_path: Path) -> None:
@@ -378,13 +517,14 @@ plots:
       orthonormalize: false
       normalize_vectors: true
       origin_strategy: "mean"
-      cosine_references: ["q12_avg", "q3"]
 """.lstrip(),
         encoding="utf-8",
     )
 
     output_dir = ExperimentRunner(config_path).run()
-    scores_path = output_dir / "axes" / "dummy_model" / "scores_avg_plot.json"
+    scores_path = (
+        output_dir / "dummy_model" / "json" / "standard" / "projections_avg_plot.json"
+    )
     assert scores_path.exists()
 
     scores_payload = json.loads(scores_path.read_text(encoding="utf-8"))
@@ -486,14 +626,12 @@ plots:
     options:
       averaged_only: true
       group_filter: "average"
-      cosine_references: ["avg_all", "med_all"]
   median_plot:
     axes:
       - "med_vs_avg"
     options:
       averaged_only: true
       group_filter: "median"
-      cosine_references: ["avg_all", "med_all"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -502,14 +640,22 @@ plots:
     output_dir = runner.run()
 
     avg_scores = json.loads(
-        (output_dir / "axes" / "dummy_model" / "scores_average_plot.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            output_dir
+            / "dummy_model"
+            / "json"
+            / "standard"
+            / "projections_average_plot.json"
+        ).read_text(encoding="utf-8")
     )
     med_scores = json.loads(
-        (output_dir / "axes" / "dummy_model" / "scores_median_plot.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            output_dir
+            / "dummy_model"
+            / "json"
+            / "standard"
+            / "projections_median_plot.json"
+        ).read_text(encoding="utf-8")
     )
 
     assert [entry["id"] for entry in avg_scores["queries"]] == ["avg_all"]
@@ -564,14 +710,15 @@ plots:
       pca: true
       translate: true
       normalize_vectors: true
-      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
 
     output_dir = ExperimentRunner(config_path).run()
-    axes_path = output_dir / "axes" / "dummy_model" / "axes_pca_plot.json"
-    scores_path = output_dir / "axes" / "dummy_model" / "scores_pca_plot.json"
+    axes_path = output_dir / "dummy_model" / "json" / "pca" / "axes_pca_plot.json"
+    scores_path = (
+        output_dir / "dummy_model" / "json" / "pca" / "projections_pca_plot.json"
+    )
 
     assert axes_path.exists()
     assert scores_path.exists()
@@ -619,13 +766,14 @@ plots:
     axes: ["pca01"]
     options:
       pca: false
-      cosine_references: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
 
     output_dir = ExperimentRunner(config_path).run()
-    scores_path = output_dir / "axes" / "dummy_model" / "scores_bad_plot.json"
+    scores_path = (
+        output_dir / "dummy_model" / "json" / "standard" / "projections_bad_plot.json"
+    )
     assert scores_path.exists()
 
 
@@ -686,15 +834,114 @@ plots:
       averaged_only: true
       group_filter: "average"
       lda_groups: true
-      cosine_references: ["g1", "g2"]
 """.lstrip(),
         encoding="utf-8",
     )
 
     output_dir = ExperimentRunner(config_path).run()
-    axes_path = output_dir / "axes" / "dummy_model" / "axes_lda_plot.json"
+    axes_path = output_dir / "dummy_model" / "json" / "lda" / "axes_lda_plot.json"
     assert axes_path.exists()
 
     payload = json.loads(axes_path.read_text(encoding="utf-8"))
     assert payload["options"]["lda_groups"] is True
     assert payload["lda"]["enabled"] is True
+
+
+def test_center_and_whiten_embeddings_produces_centered_output() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    embeddings = {
+        "q1": np.array([1.0, 0.0, 2.0]),
+        "q2": np.array([0.0, 1.0, 3.0]),
+        "q3": np.array([2.0, 2.0, 4.0]),
+        "q4": np.array([3.0, 1.0, 5.0]),
+    }
+
+    transformed = runner._center_and_whiten_embeddings(embeddings)
+    matrix = np.stack([transformed[key] for key in embeddings], axis=0)
+
+    assert np.allclose(np.mean(matrix, axis=0), 0.0, atol=1e-7)
+
+
+def test_supervised_regression_outputs(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+
+    config_path = tmp_path / "config_supervised_regression.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_supervised_regression"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+    target: 0.1
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+    target: 0.4
+  - id: "q3"
+    name: "Q3"
+    midi_path: "a.mid"
+    target: 0.8
+  - id: "q4"
+    name: "Q4"
+    midi_path: "b.mid"
+    target: 1.1
+
+supervised:
+  task: "regression"
+  features: ["embedding", "norm", "polar"]
+  top_k: 10
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    report_path = output_dir / "supervised" / "dummy_model" / "supervised_report.json"
+    plot_path = output_dir / "supervised" / "dummy_model" / "feature_importance.png"
+
+    assert report_path.exists()
+    assert plot_path.exists()
+
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["task"] == "regression"
+    assert payload["cv_strategy"] == "leave_one_out"
+    assert payload["cv_folds"] == 4
+    assert payload["n_samples"] == 4
+    assert payload["top_feature_importances"]
+
+
+def test_supervised_cv_fold_policy() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    _, label_small, splits_small = runner._determine_cv_strategy(10)
+    _, label_large, splits_large = runner._determine_cv_strategy(51)
+    assert label_small == "leave_one_out"
+    assert splits_small == 10
+    assert label_large == "kfold_5"
+    assert splits_large == 5
+
+
+def test_descriptive_features_extractor() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    vec = np.array([1.0, -1.0, 2.0, -2.0, 0.0], dtype=np.float64)
+    values, names = runner._descriptive_features(vec)
+    by_name = {name: values[idx] for idx, name in enumerate(names)}
+
+    assert "mean" in by_name
+    assert "median" in by_name
+    assert "q90" in by_name
+    assert "gini_concentration" in by_name
+    assert np.isclose(by_name["mean"], 0.0)
+    assert np.isclose(by_name["median"], 0.0)
+    assert np.isclose(by_name["positive_fraction"], 0.4)
+    assert np.isclose(by_name["negative_fraction"], 0.4)

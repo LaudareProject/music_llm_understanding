@@ -17,31 +17,10 @@ class RunnerSupervisedMixin:
         supervised_dir = output_dir / "supervised"
         supervised_dir.mkdir(parents=True, exist_ok=True)
 
-        labeled_queries = [
-            query for query in self.config.queries if query.target is not None
-        ]
-        if not labeled_queries:
-            raise ValueError(
-                "Supervised experiment requires query targets (target/label)."
-            )
-
-        query_ids = [query.query_id for query in labeled_queries]
-        raw_targets = [query.target for query in labeled_queries]
-
         task = self.config.supervised["task"]
-        if task == "regression":
-            try:
-                y = np.asarray(
-                    [float(value) for value in raw_targets], dtype=np.float64
-                )
-            except Exception as exc:
-                raise ValueError(
-                    "Regression targets must be numeric (query target/label)."
-                ) from exc
-        else:
-            y = np.asarray([str(value) for value in raw_targets], dtype=object)
+        query_ids, y = self._build_supervised_targets(task)
 
-        cv_strategy, cv_label, cv_splits = self._determine_cv_strategy(
+        _, cv_label, cv_splits = self._determine_cv_strategy(
             sample_count=len(query_ids)
         )
 
@@ -59,8 +38,6 @@ class RunnerSupervisedMixin:
                 X=matrix,
                 y=y,
                 task=task,
-                cv_strategy=cv_strategy,
-                cv_splits=cv_splits,
                 l1_ratio=float(self.config.supervised["l1_ratio"]),
                 alpha=float(self.config.supervised["alpha"]),
                 max_iter=int(self.config.supervised["max_iter"]),
@@ -73,13 +50,12 @@ class RunnerSupervisedMixin:
                 feature_names=feature_names,
             )
 
-            top_k = int(self.config.supervised["top_k"])
-            sorted_importances = sorted(
-                importances,
-                key=lambda item: abs(float(item["importance"])),
-                reverse=True,
+            selected_importances, selected_share = (
+                self._select_importances_for_cumulative_share(
+                    importances=importances,
+                    target_share=0.5,
+                )
             )
-            top_importances = sorted_importances[:top_k]
 
             payload = {
                 "task": task,
@@ -90,29 +66,83 @@ class RunnerSupervisedMixin:
                 "n_components": int(result["pca"].n_components_),
                 "features": self.config.supervised["features"],
                 "model": result["model_info"],
+                "score_metric": result["score_metric"],
+                "loo_score": float(result["training_score"]),
                 "training_score": float(result["training_score"]),
-                "top_feature_importances": top_importances,
+                "feature_importance_target_share": 0.5,
+                "feature_importance_selected_share": float(selected_share),
+                "top_feature_importances": selected_importances,
             }
             self._save_json(model_dir / "supervised_report.json", payload)
             self._save_supervised_importance_plot(
                 model_dir=model_dir,
-                importances=top_importances,
+                importances=selected_importances,
+                training_score=float(result["training_score"]),
+                score_metric=str(result["score_metric"]),
             )
 
-
-
-
     def _determine_cv_strategy(self, sample_count: int) -> tuple[Any, str, int]:
-        if sample_count > 50:
-            return 5, "kfold_5", 5
         if sample_count > 1:
             from sklearn.model_selection import LeaveOneOut
 
             return LeaveOneOut(), "leave_one_out", sample_count
         return 1, "single_sample", 1
 
+    def _build_supervised_targets(self, task: str) -> tuple[list[str], np.ndarray]:
+        labeled_queries = [
+            query for query in self.config.queries if query.target is not None
+        ]
+        if labeled_queries:
+            query_ids = [query.query_id for query in labeled_queries]
+            raw_targets = [query.target for query in labeled_queries]
+            if task == "regression":
+                try:
+                    y = np.asarray(
+                        [float(value) for value in raw_targets], dtype=np.float64
+                    )
+                except Exception as exc:
+                    raise ValueError(
+                        "Regression targets must be numeric (query target/label)."
+                    ) from exc
+            else:
+                y = np.asarray([str(value) for value in raw_targets], dtype=object)
+            return query_ids, y
 
+        if task != "regression":
+            raise ValueError(
+                "Supervised classification requires query targets (target/label)."
+            )
 
+        value_queries = [
+            query for query in self.config.queries if query.input_kind == "value"
+        ]
+        if not value_queries:
+            raise ValueError(
+                "Supervised regression requires query targets or numeric query 'value' inputs."
+            )
+
+        try:
+            raw_values = np.asarray(
+                [float(query.value) for query in value_queries], dtype=np.float64
+            )
+        except Exception as exc:
+            raise ValueError(
+                "Numeric query 'value' inputs must be parseable as numbers."
+            ) from exc
+
+        if bool(self.config.supervised.get("normalize", False)):
+            min_value = float(np.min(raw_values))
+            max_value = float(np.max(raw_values))
+            span = max_value - min_value
+            if span <= 1e-12:
+                raise ValueError(
+                    "Cannot normalize regression targets from 'value' because all values are identical."
+                )
+            targets = (raw_values - min_value) / span
+        else:
+            targets = raw_values
+
+        return [query.query_id for query in value_queries], targets
 
     def _build_supervised_feature_matrix(
         self,
@@ -136,9 +166,6 @@ class RunnerSupervisedMixin:
 
         assert feature_names is not None
         return np.stack(rows, axis=0), feature_names
-
-
-
 
     def _extract_vector_features(
         self,
@@ -171,9 +198,6 @@ class RunnerSupervisedMixin:
 
         return np.concatenate(feature_chunks), feature_names
 
-
-
-
     def _spherical_coordinates(
         self, vector: np.ndarray
     ) -> tuple[np.ndarray, list[str]]:
@@ -202,8 +226,6 @@ class RunnerSupervisedMixin:
             values.append(angle)
 
         return np.asarray(values, dtype=np.float64), names
-
-
 
     def _descriptive_features(self, vector: np.ndarray) -> tuple[np.ndarray, list[str]]:
         vec = np.asarray(vector, dtype=np.float64)
@@ -347,9 +369,6 @@ class RunnerSupervisedMixin:
         ]
         return values, names
 
-
-
-
     def _gini_coefficient(self, values: np.ndarray) -> float:
         arr = np.asarray(values, dtype=np.float64)
         if arr.size == 0:
@@ -362,9 +381,6 @@ class RunnerSupervisedMixin:
         index = np.arange(1, n + 1, dtype=np.float64)
         gini = float((2.0 * np.sum(index * sorted_arr) / (n * total)) - (n + 1) / n)
         return max(0.0, min(1.0, gini))
-
-
-
 
     def _binned_entropy(self, values: np.ndarray, bins: int = 16) -> float:
         arr = np.asarray(values, dtype=np.float64)
@@ -380,27 +396,82 @@ class RunnerSupervisedMixin:
         probs = probs[probs > 0]
         return float(-np.sum(probs * np.log(probs)))
 
-
-
     def _fit_supervised_model(
         self,
         X: np.ndarray,
         y: np.ndarray,
         task: str,
-        cv_strategy: Any,
-        cv_splits: int,
         l1_ratio: float,
         alpha: float,
         max_iter: int,
     ) -> Dict[str, Any]:
         from sklearn.decomposition import PCA
-        from sklearn.linear_model import (
-            ElasticNet,
-            ElasticNetCV,
-            LogisticRegression,
-            LogisticRegressionCV,
-        )
+        from sklearn.linear_model import ElasticNet, LogisticRegression
+        from sklearn.metrics import balanced_accuracy_score, mean_absolute_error
+        from sklearn.model_selection import LeaveOneOut
         from sklearn.preprocessing import StandardScaler
+
+        if X.shape[0] <= 1:
+            raise ValueError("Leave-one-out evaluation requires at least two samples.")
+
+        if task == "classification":
+            classes, counts = np.unique(y, return_counts=True)
+            if classes.shape[0] < 2:
+                raise ValueError("Classification requires at least two classes.")
+            if np.min(counts) < 2:
+                raise ValueError(
+                    "Leave-one-out classification requires at least two samples per class."
+                )
+
+        y_true: list[Any] = []
+        y_pred: list[Any] = []
+        for train_idx, test_idx in LeaveOneOut().split(X):
+            X_train = X[train_idx]
+            X_test = X[test_idx]
+            y_train = y[train_idx]
+            y_test = y[test_idx]
+
+            fold_scaler = StandardScaler()
+            X_train_scaled = fold_scaler.fit_transform(X_train)
+            X_test_scaled = fold_scaler.transform(X_test)
+
+            fold_pca = PCA(n_components=0.95, svd_solver="full")
+            X_train_reduced = fold_pca.fit_transform(X_train_scaled)
+            X_test_reduced = fold_pca.transform(X_test_scaled)
+
+            if task == "regression":
+                fold_model = ElasticNet(
+                    alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter
+                )
+            else:
+                fold_model = LogisticRegression(
+                    penalty="elasticnet",
+                    solver="saga",
+                    l1_ratio=l1_ratio,
+                    max_iter=max_iter,
+                )
+
+            fold_model.fit(X_train_reduced, y_train)
+            fold_pred = fold_model.predict(X_test_reduced)
+            y_true.extend(np.ravel(y_test).tolist())
+            y_pred.extend(np.ravel(fold_pred).tolist())
+
+        if task == "regression":
+            training_score = float(
+                mean_absolute_error(
+                    np.asarray(y_true, dtype=np.float64),
+                    np.asarray(y_pred, dtype=np.float64),
+                )
+            )
+            score_metric = "l1_error"
+        else:
+            training_score = float(
+                balanced_accuracy_score(
+                    np.asarray(y_true, dtype=object),
+                    np.asarray(y_pred, dtype=object),
+                )
+            )
+            score_metric = "balanced_accuracy"
 
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -409,34 +480,16 @@ class RunnerSupervisedMixin:
         X_reduced = pca.fit_transform(X_scaled)
 
         if task == "regression":
-            if cv_splits > 1:
-                model = ElasticNetCV(
-                    l1_ratio=[l1_ratio], cv=cv_strategy, max_iter=max_iter
-                )
-            else:
-                model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter)
+            model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter)
         else:
-            classes = np.unique(y)
-            if classes.shape[0] < 2:
-                raise ValueError("Classification requires at least two classes.")
-            if cv_splits > 1:
-                model = LogisticRegressionCV(
-                    cv=cv_strategy,
-                    penalty="elasticnet",
-                    solver="saga",
-                    l1_ratios=[l1_ratio],
-                    max_iter=max_iter,
-                )
-            else:
-                model = LogisticRegression(
-                    penalty="elasticnet",
-                    solver="saga",
-                    l1_ratio=l1_ratio,
-                    max_iter=max_iter,
-                )
+            model = LogisticRegression(
+                penalty="elasticnet",
+                solver="saga",
+                l1_ratio=l1_ratio,
+                max_iter=max_iter,
+            )
 
         model.fit(X_reduced, y)
-        training_score = float(model.score(X_reduced, y))
 
         model_info: Dict[str, Any] = {
             "estimator": type(model).__name__,
@@ -454,11 +507,9 @@ class RunnerSupervisedMixin:
             "pca": pca,
             "model": model,
             "training_score": training_score,
+            "score_metric": score_metric,
             "model_info": model_info,
         }
-
-
-
 
     def _compute_importances_from_pca_model(
         self,
@@ -487,13 +538,42 @@ class RunnerSupervisedMixin:
             for idx in range(len(feature_names))
         ]
 
+    def _select_importances_for_cumulative_share(
+        self,
+        importances: list[Dict[str, Any]],
+        target_share: float,
+    ) -> tuple[list[Dict[str, Any]], float]:
+        if not importances:
+            return [], 0.0
 
+        sorted_importances = sorted(
+            importances,
+            key=lambda item: abs(float(item["importance"])),
+            reverse=True,
+        )
 
+        total_abs = float(
+            np.sum([abs(float(item["importance"])) for item in sorted_importances])
+        )
+        if total_abs <= 1e-12:
+            return sorted_importances[:1], 0.0
+
+        cumulative_abs = 0.0
+        selected: list[Dict[str, Any]] = []
+        for item in sorted_importances:
+            selected.append(item)
+            cumulative_abs += abs(float(item["importance"]))
+            if cumulative_abs / total_abs >= target_share:
+                break
+
+        return selected, cumulative_abs / total_abs
 
     def _save_supervised_importance_plot(
         self,
         model_dir: Path,
         importances: list[Dict[str, Any]],
+        training_score: float,
+        score_metric: str,
     ) -> None:
         if not importances:
             return
@@ -516,10 +596,11 @@ class RunnerSupervisedMixin:
         ax.barh(labels, values, color="#4c72b0")
         ax.set_xlabel("Importance")
         ax.set_ylabel("Feature")
-        ax.set_title("Supervised feature importance")
+        ax.set_title(
+            f"Supervised feature importance (LOO {score_metric}={training_score:.4f})"
+        )
         ax.grid(axis="x", linestyle="--", alpha=0.35)
 
         fig.tight_layout()
         fig.savefig(model_dir / "feature_importance.png", dpi=self._plot_dpi)
         plt.close(fig)
-

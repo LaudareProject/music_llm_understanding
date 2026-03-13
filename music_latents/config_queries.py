@@ -52,17 +52,29 @@ def normalize_query(raw: Dict, inherited_color: Optional[str]) -> QuerySpec:
         raise ConfigError(f"Query '{query_id}' field 'color' must be a string.")
     target = raw.get("target", raw.get("label"))
 
-    input_fields: List[Tuple[str, str]] = []
-    for key in ("abc", "midi_path", "musicxml_path", "mei_path", "custom"):
+    input_fields: List[Tuple[str, Any]] = []
+    for key in ("abc", "midi_path", "musicxml_path", "mei_path", "custom", "value"):
         if key in raw and raw[key] is not None:
             value = raw[key]
-            if not isinstance(value, str):
-                raise ConfigError(f"Query '{query_id}' field '{key}' must be a string.")
+            if key == "value":
+                if not isinstance(value, int):
+                    raise ConfigError(
+                        f"Query '{query_id}' field 'value' must be an integer in [1, 120]."
+                    )
+                if value < 1 or value > 120:
+                    raise ConfigError(
+                        f"Query '{query_id}' field 'value' must be in [1, 120]."
+                    )
+            else:
+                if not isinstance(value, str):
+                    raise ConfigError(
+                        f"Query '{query_id}' field '{key}' must be a string."
+                    )
             input_fields.append((key, value))
 
     if len(input_fields) != 1:
         raise ConfigError(
-            f"Query '{query_id}' must define exactly one input field: abc, midi_path, musicxml_path, mei_path, or custom."
+            f"Query '{query_id}' must define exactly one input field: abc, midi_path, musicxml_path, mei_path, custom, or value."
         )
 
     input_kind, value = input_fields[0]

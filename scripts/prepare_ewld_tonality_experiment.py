@@ -249,59 +249,53 @@ def build_config_payload(
         "axes": [*avg_axes, *med_axes, *pca_axes],
         "plots": {
             "tonality_pca_components": {
-                "axes": ["pca01", "pca02"],
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "averaged_only": True,
                     "group_filter": "all",
-                    "cosine_references": cosine_references,
+                    "pca": True,
                 },
             },
             "tonality_averages": {
-                "axes": avg_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "averaged_only": True,
                     "group_filter": "average",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_averages_mds": {
-                "axes": avg_axis_names,
+                "mds": True,
                 "options": {
-                    "origin_strategy": "mean",
-                    "lda_groups": True,
-                    "mds": True,
                     "averaged_only": True,
                     "group_filter": "average",
                 },
             },
             "tonality_averages_pca_only": {
-                "axes": avg_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "pca": True,
                     "averaged_only": True,
                     "group_filter": "average",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_averages_orthonormalize_only": {
-                "axes": avg_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "orthonormalize": True,
                     "averaged_only": True,
                     "group_filter": "average",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_averages_pca_and_orthonormalize": {
-                "axes": avg_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
@@ -309,53 +303,46 @@ def build_config_payload(
                     "orthonormalize": True,
                     "averaged_only": True,
                     "group_filter": "average",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_medians": {
-                "axes": med_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "averaged_only": True,
                     "group_filter": "median",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_medians_mds": {
-                "axes": med_axis_names,
+                "mds": True,
                 "options": {
-                    "origin_strategy": "mean",
-                    "lda_groups": True,
-                    "mds": True,
                     "averaged_only": True,
                     "group_filter": "median",
                 },
             },
             "tonality_medians_pca_only": {
-                "axes": med_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "pca": True,
                     "averaged_only": True,
                     "group_filter": "median",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_medians_orthonormalize_only": {
-                "axes": med_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
                     "orthonormalize": True,
                     "averaged_only": True,
                     "group_filter": "median",
-                    "cosine_references": cosine_references,
                 },
             },
             "tonality_medians_pca_and_orthonormalize": {
-                "axes": med_axis_names,
+                "cosine": cosine_references,
                 "options": {
                     "origin_strategy": "mean",
                     "lda_groups": True,
@@ -363,7 +350,6 @@ def build_config_payload(
                     "orthonormalize": True,
                     "averaged_only": True,
                     "group_filter": "median",
-                    "cosine_references": cosine_references,
                 },
             },
         },

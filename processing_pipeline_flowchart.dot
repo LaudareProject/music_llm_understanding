@@ -1,0 +1,72 @@
+digraph ProcessingPipeline {
+  rankdir=TB;
+  graph [fontname="Helvetica", bgcolor="white", splines=true, nodesep=0.4, ranksep=0.6];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, fillcolor="#f8fbff", color="#6a8fbf"];
+  edge [color="#4d6b91", arrowsize=0.8];
+
+  start [shape=oval, fillcolor="#e8f3ff", label="Start: ExperimentRunner.run()"];
+  mode [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="reuse_results_dir set?"];
+  reuse [label="Load cached latents\nfrom existing output dir"];
+  fresh [label="Prepare query input -> encode model ->\nstore latent + metadata"];
+  aggregate [label="Apply aggregate groups (if configured):\nbootstrap average + median"];
+
+  model_loop [shape=component, fillcolor="#eef8ee", color="#599159", label="Per model loop"];
+  preprocess [label="Global preprocessing:\ncenter + whiten all embeddings\n(sklearn centering + SVD whitening)"];
+  colors [label="Assign colors:\nconfigured color OR pitch-class palette"];
+  plot_loop [shape=component, fillcolor="#eef8ee", color="#599159", label="Per plot loop"];
+
+  validate [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="Config validation done at load time"];
+  mode_ok [shape=note, fillcolor="#eef8ee", color="#599159", label="Exactly one plot mode required:\naxes OR cosine OR mds"];
+  mode_select [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="plot mode?"];
+
+  axes_cos_path [label="Shared preprocessing for axes/cosine:\n(optional) LDA -> (optional) PCA"];
+  mds_path [label="MDS path:\nno LDA, no PCA, no orthonormalize"];
+
+  qsel [label="Select query IDs for plot\n(all OR averaged_only + group_filter)"];
+
+  cosine_out [label="Cosine mode output:\nplots/<proc>/cosine_<plot>.png\njson/<proc>/cosine_<plot>.json"];
+
+  axes_specs [label="Resolve axes specs\n(explicit + pcaXX component axes)"];
+  axes_scores [label="Build axes + projection scores"];
+  save_json [label="Save json/<proc>/axes_<plot>.json\nSave json/<proc>/projections_<plot>.json"];
+
+  axis_plot [label="Save plots/<proc>/projections_<plot>_1d|2d.png"];
+
+  mds_run [label="Run non-metric MDS\nfrom cosine dissimilarities"];
+  mds_out [label="Save plots/<proc>/mds_<plot>_2d.png\nSave plots/<proc>/mds_<plot>_shepard.png\nSave json/<proc>/mds_<plot>.json"];
+
+  links [label="If processing is combined (e.g. orthonormal+pca),\nwrite canonical files in combo folder and\ncreate symlinks in single-processing folders"];
+
+  done_plot [shape=oval, fillcolor="#e8f3ff", label="Next plot"];
+  done_model [shape=oval, fillcolor="#e8f3ff", label="Next model"];
+  end [shape=oval, fillcolor="#e8f3ff", label="End: output dir ready"];
+
+  start -> mode;
+  mode -> reuse [label="yes"];
+  mode -> fresh [label="no"];
+  reuse -> aggregate;
+  fresh -> aggregate;
+  aggregate -> model_loop;
+  model_loop -> preprocess -> colors -> plot_loop;
+
+  plot_loop -> validate;
+  validate -> mode_ok -> mode_select;
+
+  mode_select -> axes_cos_path [label="axes or cosine"];
+  mode_select -> mds_path [label="mds"];
+
+  axes_cos_path -> qsel;
+  qsel -> cosine_out [label="cosine mode"];
+  qsel -> axes_specs [label="axes mode"];
+  cosine_out -> links;
+
+  axes_specs -> axes_scores -> save_json -> axis_plot -> links;
+
+  mds_path -> mds_run -> mds_out -> links;
+  links -> done_plot;
+
+  done_plot -> plot_loop [label="more plots"];
+  done_plot -> done_model [label="plot loop done"];
+  done_model -> model_loop [label="more models"];
+  done_model -> end [label="all models done"];
+}

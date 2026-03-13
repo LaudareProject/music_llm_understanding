@@ -8,7 +8,7 @@ from typing import Any, Dict
 import numpy as np
 
 from music_latents.axes import build_axes, compute_projection_scores
-from music_latents.config import AxesOptions, AxisSpec, is_pca_component_axis_name
+from music_latents.config import AxisSpec, PlotSpec, is_pca_component_axis_name
 
 
 class RunnerAxesMixin:
@@ -44,7 +44,19 @@ class RunnerAxesMixin:
             )
 
         for model_name, model_embeddings in embeddings_by_model.items():
-            embeddings = self._center_and_whiten_embeddings(model_embeddings)
+            raw_embeddings = {
+                query_id: np.asarray(vector, dtype=np.float64)
+                for query_id, vector in model_embeddings.items()
+            }
+            needs_center_and_whiten = any(
+                plot_spec.options.center_and_whiten
+                for plot_spec in self.config.plots.values()
+            )
+            centered_whitened_embeddings = (
+                self._center_and_whiten_embeddings(raw_embeddings)
+                if needs_center_and_whiten
+                else raw_embeddings
+            )
             model_dir = output_dir / model_name
             plots_root = model_dir / "plots"
             json_root = model_dir / "json"
@@ -52,7 +64,11 @@ class RunnerAxesMixin:
             json_root.mkdir(parents=True, exist_ok=True)
 
             for plot_name, plot_spec in self.config.plots.items():
-                plot_embeddings = embeddings
+                plot_embeddings = (
+                    centered_whitened_embeddings
+                    if plot_spec.options.center_and_whiten
+                    else raw_embeddings
+                )
                 lda_info: Dict[str, Any] = {
                     "enabled": plot_spec.options.lda_groups,
                     "applied": False,
@@ -73,20 +89,12 @@ class RunnerAxesMixin:
                     )
 
                 mds_info: Dict[str, Any] = {
-                    "enabled": plot_spec.options.mds,
+                    "enabled": plot_spec.mode == "mds",
                     "applied": False,
                 }
                 mds_embeddings: Dict[str, np.ndarray] | None = None
                 mds_dissimilarities: np.ndarray | None = None
-                if plot_spec.options.mds:
-                    if plot_spec.options.pca:
-                        raise ValueError(
-                            f"Plot '{plot_name}' cannot enable both PCA and MDS."
-                        )
-                    if plot_spec.options.cosine_references is not None:
-                        raise ValueError(
-                            f"Plot '{plot_name}' cannot enable both MDS and cosine references."
-                        )
+                if plot_spec.mode == "mds":
                     (
                         mds_embeddings,
                         mds_info,
@@ -94,7 +102,7 @@ class RunnerAxesMixin:
                     ) = self._apply_mds_embeddings(plot_embeddings)
 
                 query_ids = self._select_plot_query_ids(
-                    embeddings=embeddings,
+                    embeddings=plot_embeddings,
                     averaged_only=plot_spec.options.averaged_only,
                     group_filter=plot_spec.options.group_filter,
                 )
@@ -102,7 +110,7 @@ class RunnerAxesMixin:
                 plot_slug = "".join(
                     ch if ch.isalnum() or ch in {"_", "-"} else "_" for ch in plot_name
                 )
-                processing_labels = self._active_processing_labels(plot_spec.options)
+                processing_labels = self._active_processing_labels(plot_spec)
                 processing_folder = self._processing_folder_name(processing_labels)
                 canonical_plots_dir = plots_root / processing_folder
                 canonical_json_dir = json_root / processing_folder
@@ -111,25 +119,22 @@ class RunnerAxesMixin:
                 alias_plot_dirs = [plots_root / label for label in processing_labels]
                 alias_json_dirs = [json_root / label for label in processing_labels]
 
-                if plot_spec.options.cosine_references is not None:
-                    if len(plot_spec.options.cosine_references) != 2:
-                        raise ValueError(
-                            f"Plot '{plot_name}' must define exactly two cosine references."
-                        )
-
+                if plot_spec.mode == "cosine":
+                    plot_file_suffix = "_lda" if plot_spec.options.lda_groups else ""
                     self._save_cosine_polar_plot(
                         plots_dir=canonical_plots_dir,
                         json_dir=canonical_json_dir,
                         plot_slug=plot_slug,
+                        plot_file_suffix=plot_file_suffix,
                         query_ids=query_ids,
                         embeddings=plot_embeddings,
                         query_names=query_names,
                         query_colors=query_colors,
-                        cosine_references=plot_spec.options.cosine_references,
+                        cosine_references=plot_spec.cosine_references,
                         variant="lda" if lda_info.get("applied", False) else "standard",
                     )
                     self._link_plot_outputs(
-                        file_name=f"cosine_{plot_slug}.png",
+                        file_name=f"cosine_{plot_slug}{plot_file_suffix}.png",
                         canonical_dir=canonical_plots_dir,
                         alias_dirs=alias_plot_dirs,
                     )
@@ -140,19 +145,25 @@ class RunnerAxesMixin:
                     )
                     continue
 
-                plot_axes_specs = self._resolve_plot_axes_specs(
-                    plot_axes=plot_spec.axes,
-                    axes_specs_by_name=axes_specs_by_name,
-                    pca_info=pca_info,
-                )
-                axes = build_axes(plot_axes_specs, plot_embeddings, plot_spec.options)
-                scores = compute_projection_scores(
-                    axes, plot_embeddings, plot_spec.options
-                )
+                axes = []
+                scores: Dict[str, Dict[str, float]] = {}
+                if plot_spec.mode == "axes":
+                    plot_axes_specs = self._resolve_plot_axes_specs(
+                        plot_axes=plot_spec.axes,
+                        axes_specs_by_name=axes_specs_by_name,
+                        pca_info=pca_info,
+                    )
+                    axes = build_axes(
+                        plot_axes_specs, plot_embeddings, plot_spec.options
+                    )
+                    scores = compute_projection_scores(
+                        axes, plot_embeddings, plot_spec.options
+                    )
 
                 axes_payload = {
                     "plot": plot_name,
                     "options": {
+                        "center_and_whiten": plot_spec.options.center_and_whiten,
                         "translate": plot_spec.options.translate,
                         "orthonormalize": plot_spec.options.orthonormalize,
                         "normalize_vectors": plot_spec.options.normalize_vectors,
@@ -161,8 +172,8 @@ class RunnerAxesMixin:
                         "lda_groups": plot_spec.options.lda_groups,
                         "averaged_only": plot_spec.options.averaged_only,
                         "group_filter": plot_spec.options.group_filter,
-                        "cosine_references": plot_spec.options.cosine_references,
-                        "mds": plot_spec.options.mds,
+                        "mode": plot_spec.mode,
+                        "cosine": plot_spec.cosine_references,
                     },
                     "lda": lda_info,
                     "pca": pca_info,
@@ -201,38 +212,41 @@ class RunnerAxesMixin:
                     canonical_json_dir / f"projections_{plot_slug}.json", scores_payload
                 )
 
-                self._save_axis_plot(
-                    canonical_plots_dir,
-                    plot_slug,
-                    axes,
-                    scores,
-                    query_ids,
-                    query_names,
-                    query_colors,
-                )
-                if len(axes) == 1:
-                    self._link_plot_outputs(
-                        file_name=f"projections_{plot_slug}_1d.png",
-                        canonical_dir=canonical_plots_dir,
-                        alias_dirs=alias_plot_dirs,
+                if plot_spec.mode == "axes":
+                    plot_file_suffix = "_lda" if plot_spec.options.lda_groups else ""
+                    self._save_axis_plot(
+                        canonical_plots_dir,
+                        plot_slug,
+                        plot_file_suffix,
+                        axes,
+                        scores,
+                        query_ids,
+                        query_names,
+                        query_colors,
                     )
-                else:
+                    if len(axes) == 1:
+                        self._link_plot_outputs(
+                            file_name=f"projections_{plot_slug}_1d{plot_file_suffix}.png",
+                            canonical_dir=canonical_plots_dir,
+                            alias_dirs=alias_plot_dirs,
+                        )
+                    else:
+                        self._link_plot_outputs(
+                            file_name=f"projections_{plot_slug}_2d{plot_file_suffix}.png",
+                            canonical_dir=canonical_plots_dir,
+                            alias_dirs=alias_plot_dirs,
+                        )
                     self._link_plot_outputs(
-                        file_name=f"projections_{plot_slug}_2d.png",
-                        canonical_dir=canonical_plots_dir,
-                        alias_dirs=alias_plot_dirs,
+                        file_name=f"axes_{plot_slug}.json",
+                        canonical_dir=canonical_json_dir,
+                        alias_dirs=alias_json_dirs,
                     )
-                self._link_plot_outputs(
-                    file_name=f"axes_{plot_slug}.json",
-                    canonical_dir=canonical_json_dir,
-                    alias_dirs=alias_json_dirs,
-                )
-                self._link_plot_outputs(
-                    file_name=f"projections_{plot_slug}.json",
-                    canonical_dir=canonical_json_dir,
-                    alias_dirs=alias_json_dirs,
-                )
-                if plot_spec.options.mds and mds_embeddings is not None:
+                    self._link_plot_outputs(
+                        file_name=f"projections_{plot_slug}.json",
+                        canonical_dir=canonical_json_dir,
+                        alias_dirs=alias_json_dirs,
+                    )
+                if plot_spec.mode == "mds" and mds_embeddings is not None:
                     self._save_mds_plots(
                         plots_dir=canonical_plots_dir,
                         json_dir=canonical_json_dir,
@@ -261,11 +275,12 @@ class RunnerAxesMixin:
                         alias_dirs=alias_json_dirs,
                     )
 
-    def _active_processing_labels(self, options: AxesOptions) -> list[str]:
+    def _active_processing_labels(self, plot_spec: PlotSpec) -> list[str]:
         labels: list[str] = []
+        options = plot_spec.options
         if options.lda_groups:
             labels.append("lda")
-        if options.mds:
+        if plot_spec.mode == "mds":
             labels.append("mds")
         if options.orthonormalize:
             labels.append("orthonormal")
@@ -308,6 +323,7 @@ class RunnerAxesMixin:
         plots_dir: Path,
         json_dir: Path,
         plot_slug: str,
+        plot_file_suffix: str,
         query_ids: list[str],
         embeddings: Dict[str, np.ndarray],
         query_names: Dict[str, str],
@@ -403,7 +419,9 @@ class RunnerAxesMixin:
         ax.grid(True, linestyle="--", alpha=0.35)
 
         fig.tight_layout()
-        fig.savefig(plots_dir / f"cosine_{plot_slug}.png", dpi=self._plot_dpi)
+        fig.savefig(
+            plots_dir / f"cosine_{plot_slug}{plot_file_suffix}.png", dpi=self._plot_dpi
+        )
         plt.close(fig)
 
         payload = {
@@ -762,6 +780,7 @@ class RunnerAxesMixin:
         self,
         plots_dir: Path,
         plot_slug: str,
+        plot_file_suffix: str,
         axes,
         scores: Dict[str, Dict[str, float]],
         query_ids: list[str],
@@ -800,7 +819,7 @@ class RunnerAxesMixin:
             ax.set_xlabel("Query")
             ax.set_ylabel(axis_names[0])
             ax.grid(axis="y", linestyle="--", alpha=0.35)
-            plot_path = plots_dir / f"projections_{plot_slug}_1d.png"
+            plot_path = plots_dir / f"projections_{plot_slug}_1d{plot_file_suffix}.png"
         else:
             fig, ax = plt.subplots(figsize=(6, 5))
             for query_id, coords in points:
@@ -813,7 +832,7 @@ class RunnerAxesMixin:
                 )
             ax.set_xlabel(axis_names[0])
             ax.set_ylabel(axis_names[1])
-            plot_path = plots_dir / f"projections_{plot_slug}_2d.png"
+            plot_path = plots_dir / f"projections_{plot_slug}_2d{plot_file_suffix}.png"
 
         if fig is not None:
             fig.tight_layout()

@@ -95,6 +95,7 @@ plots:
     axes_payload = json.loads(axes_path.read_text(encoding="utf-8"))
     assert axes_payload["plot"] == "plot1"
     assert axes_payload["options"]["translate"] is True
+    assert axes_payload["options"]["center_and_whiten"] is False
     assert axes_payload["options"]["normalize_vectors"] is True
     assert axes_payload["options"]["pca"] is True
     assert axes_payload["pca"]["applied"] is True
@@ -142,14 +143,7 @@ axes:
 
 plots:
   plot1:
-    axes:
-      - "q1_vs_q2"
-    options:
-      translate: true
-      orthonormalize: false
-      normalize_vectors: true
-      origin_strategy: "mean"
-      mds: true
+    mds: true
 """.lstrip(),
         encoding="utf-8",
     )
@@ -288,10 +282,7 @@ axes:
 
 plots:
   plot1:
-    axes:
-      - "q1_vs_q2"
-    options:
-      cosine_references: ["q1", "q2"]
+    cosine: ["q1", "q2"]
 """.lstrip(),
         encoding="utf-8",
     )
@@ -340,11 +331,9 @@ axes:
 
 plots:
   plot1:
-    axes:
-      - "q1_vs_q2"
+    mds: true
     options:
       pca: true
-      mds: true
 """.lstrip(),
         encoding="utf-8",
     )
@@ -387,11 +376,8 @@ axes:
 
 plots:
   plot1:
-    axes:
-      - "q1_vs_q2"
-    options:
-      mds: true
-      cosine_references: ["q1", "q2"]
+    cosine: ["q1", "q2"]
+    mds: true
 """.lstrip(),
         encoding="utf-8",
     )
@@ -917,8 +903,60 @@ supervised:
     assert payload["task"] == "regression"
     assert payload["cv_strategy"] == "leave_one_out"
     assert payload["cv_folds"] == 4
+    assert payload["score_metric"] == "l1_error"
+    assert "loo_score" in payload
+    assert payload["loo_score"] == payload["training_score"]
+    assert payload["feature_importance_target_share"] == 0.5
+    assert 0.0 <= payload["feature_importance_selected_share"] <= 1.0
     assert payload["n_samples"] == 4
     assert payload["top_feature_importances"]
+
+
+def test_supervised_regression_auto_targets_from_value(tmp_path: Path) -> None:
+    config_path = tmp_path / "config_supervised_regression_value.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_supervised_regression_value"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    value: 24
+  - id: "q2"
+    name: "Q2"
+    value: 36
+  - id: "q3"
+    name: "Q3"
+    value: 48
+  - id: "q4"
+    name: "Q4"
+    value: 60
+
+supervised:
+  task: "regression"
+  normalize: true
+  features: ["embedding", "norm", "polar"]
+  top_k: 10
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    report_path = output_dir / "supervised" / "dummy_model" / "supervised_report.json"
+
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["task"] == "regression"
+    assert payload["cv_strategy"] == "leave_one_out"
+    assert payload["cv_folds"] == 4
+    assert payload["score_metric"] == "l1_error"
+    assert 0.0 <= payload["loo_score"]
 
 
 def test_supervised_cv_fold_policy() -> None:
@@ -927,8 +965,8 @@ def test_supervised_cv_fold_policy() -> None:
     _, label_large, splits_large = runner._determine_cv_strategy(51)
     assert label_small == "leave_one_out"
     assert splits_small == 10
-    assert label_large == "kfold_5"
-    assert splits_large == 5
+    assert label_large == "leave_one_out"
+    assert splits_large == 51
 
 
 def test_descriptive_features_extractor() -> None:

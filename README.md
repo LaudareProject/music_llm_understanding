@@ -17,6 +17,12 @@ uv sync
 uv run python scripts/run_experiment.py configs/example.yaml
 ```
 
+To explicitly enable global centering+whitening for plot generation:
+
+```bash
+uv run python scripts/run_experiment.py configs/example.yaml --center-and-whiten
+```
+
 If no config is provided, the runner executes all `configs/*.ya?ml` files except `example.yaml`.
 
 Outputs are stored under `outputs/<experiment_name>/<timestamp>/` with per-query/model latent files and metadata.
@@ -33,6 +39,7 @@ Outputs are stored under `outputs/<experiment_name>/<timestamp>/` with per-query
 - `musicxml_path`: path to a MusicXML file
 - `mei_path`: path to a MEI file
 - `custom`: space-separated tokens; use `-` inside a token to form chords (e.g. `C-E-G`)
+- `value`: integer pitch value in [1, 120], rendered as a single-note MIDI input
 
 `abc`, `custom`, and `mei_path` inputs are rendered to MIDI through `music21`.
 
@@ -108,12 +115,17 @@ queries:
 
 supervised:
   task: "regression" # or "classification"
+  normalize: false    # optional: for regression auto-targets from query value
   features: ["embedding", "descriptive", "polar"]
   l1_ratio: 0.5
   alpha: 1.0
   max_iter: 5000
   top_k: 50
 ```
+
+If `task: "regression"` and query targets are omitted, the runner derives targets
+from query `value` fields. Set `supervised.normalize: true` to min-max normalize
+these derived targets to [0, 1].
 
 `descriptive` includes location/scale, shape, norm/energy, sparsity/concentration,
 and sign-structure descriptors (mean/median/std/variance/IQR/MAD/min/max/range,

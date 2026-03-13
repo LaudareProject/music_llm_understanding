@@ -45,24 +45,75 @@ def _collect_batch_outputs(
                     target = latents_dir / f"{config_name}__{query_id}__{filename}"
                     shutil.copy2(source, target)
 
+    for model_dir in experiment_dir.iterdir():
+        if not model_dir.is_dir() or model_dir.name in {
+            "queries",
+            "axes",
+            "supervised",
+        }:
+            continue
+
+        plots_root = model_dir / "plots"
+        json_root = model_dir / "json"
+        if not plots_root.exists() and not json_root.exists():
+            continue
+
+        model_name = model_dir.name
+        batch_plots_dir = batch_dir / model_name / "plots"
+        batch_json_dir = batch_dir / model_name / "json"
+        batch_plots_dir.mkdir(parents=True, exist_ok=True)
+        batch_json_dir.mkdir(parents=True, exist_ok=True)
+
+        if plots_root.exists():
+            for source in plots_root.rglob("*"):
+                if not source.is_file():
+                    continue
+                rel = source.relative_to(plots_root).as_posix().replace("/", "__")
+                target = batch_plots_dir / f"{config_name}__{rel}"
+                shutil.copy2(source, target)
+
+        if json_root.exists():
+            for source in json_root.rglob("*"):
+                if not source.is_file():
+                    continue
+                rel = source.relative_to(json_root).as_posix().replace("/", "__")
+                target = batch_json_dir / f"{config_name}__{rel}"
+                shutil.copy2(source, target)
+
     axes_root = experiment_dir / "axes"
     if axes_root.exists():
         for model_dir in axes_root.iterdir():
             if not model_dir.is_dir():
                 continue
             model_name = model_dir.name
-            scores_dir = batch_dir / model_name / "scores"
-            plots_dir = batch_dir / model_name / "plots"
-            scores_dir.mkdir(parents=True, exist_ok=True)
-            plots_dir.mkdir(parents=True, exist_ok=True)
+            batch_json_dir = batch_dir / model_name / "json"
+            batch_plots_dir = batch_dir / model_name / "plots"
+            batch_json_dir.mkdir(parents=True, exist_ok=True)
+            batch_plots_dir.mkdir(parents=True, exist_ok=True)
 
             for source in model_dir.iterdir():
                 if not source.is_file():
                     continue
                 if source.suffix.lower() == ".png":
-                    target = plots_dir / f"{config_name}__{source.name}"
+                    target = batch_plots_dir / f"{config_name}__{source.name}"
                 else:
-                    target = scores_dir / f"{config_name}__{source.name}"
+                    target = batch_json_dir / f"{config_name}__{source.name}"
+                shutil.copy2(source, target)
+
+    supervised_root = experiment_dir / "supervised"
+    if supervised_root.exists():
+        for model_dir in supervised_root.iterdir():
+            if not model_dir.is_dir():
+                continue
+            model_name = model_dir.name
+            batch_supervised_dir = batch_dir / model_name / "supervised"
+            batch_supervised_dir.mkdir(parents=True, exist_ok=True)
+
+            for source in model_dir.rglob("*"):
+                if not source.is_file():
+                    continue
+                rel = source.relative_to(model_dir).as_posix().replace("/", "__")
+                target = batch_supervised_dir / f"{config_name}__{rel}"
                 shutil.copy2(source, target)
 
 
@@ -96,6 +147,11 @@ def main() -> int:
             "write new axis outputs there."
         ),
     )
+    parser.add_argument(
+        "--center-and-whiten",
+        action="store_true",
+        help="Enable global centering+whitening for all plots in this run.",
+    )
     args = parser.parse_args()
 
     if args.config is not None:
@@ -103,6 +159,7 @@ def main() -> int:
         runner = ExperimentRunner(
             args.config,
             reuse_results_dir=args.reuse_results_dir,
+            center_and_whiten_override=args.center_and_whiten,
         )
         output_dir = runner.run()
         print(f"Experiment completed: {output_dir}")
@@ -130,6 +187,7 @@ def main() -> int:
             config_path,
             output_root_override=batch_work_dir,
             experiment_name_override=config_path.stem,
+            center_and_whiten_override=args.center_and_whiten,
         )
         output_dir = runner.run()
         _collect_batch_outputs(config_path, output_dir, batch_dir)

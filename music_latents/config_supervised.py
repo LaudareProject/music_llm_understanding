@@ -44,6 +44,10 @@ def normalize_supervised(raw: Any) -> Optional[Dict[str, Any]]:
     if not isinstance(top_k, int) or top_k <= 0:
         raise ConfigError("supervised.top_k must be a positive integer.")
 
+    normalize = raw.get("normalize", False)
+    if not isinstance(normalize, bool):
+        raise ConfigError("supervised.normalize must be a boolean.")
+
     return {
         "task": task,
         "features": list(features),
@@ -51,4 +55,5 @@ def normalize_supervised(raw: Any) -> Optional[Dict[str, Any]]:
         "alpha": float(alpha),
         "max_iter": max_iter,
         "top_k": top_k,
+        "normalize": normalize,
     }

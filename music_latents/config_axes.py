@@ -57,17 +57,22 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
     if not isinstance(raw, dict):
         raise ConfigError("'axes_options' must be a mapping if provided.")
 
+    center_and_whiten = raw.get("center_and_whiten", False)
     translate = raw.get("translate", True)
     orthonormalize = raw.get("orthonormalize", False)
-    normalize_vectors = raw.get("normalize_vectors", True)
+    normalize_vectors = raw.get("normalize_vectors", False)
     origin_strategy = raw.get("origin_strategy", "mean")
     pca = raw.get("pca", False)
     lda_groups = raw.get("lda_groups", False)
     averaged_only = raw.get("averaged_only", False)
     group_filter = raw.get("group_filter", "all")
-    mds = raw.get("mds", False)
-    cosine_references = raw.get("cosine_references")
 
+    if not isinstance(center_and_whiten, bool):
+        raise ConfigError("axes_options.center_and_whiten must be a boolean.")
+    if center_and_whiten:
+        raise ConfigError(
+            "axes_options.center_and_whiten cannot be true in config; use CLI --center-and-whiten."
+        )
     if not isinstance(translate, bool):
         raise ConfigError("axes_options.translate must be a boolean.")
     if not isinstance(orthonormalize, bool):
@@ -86,26 +91,9 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         raise ConfigError(
             "axes_options.group_filter must be one of: all, average, median."
         )
-    if cosine_references is not None:
-        if (
-            not isinstance(cosine_references, list)
-            or len(cosine_references) != 2
-            or any(
-                not isinstance(reference, str) or not reference
-                for reference in cosine_references
-            )
-        ):
-            raise ConfigError(
-                "axes_options.cosine_references must be a list with exactly two non-empty strings."
-            )
-    if not isinstance(mds, bool):
-        raise ConfigError("axes_options.mds must be a boolean.")
-    if pca and mds:
-        raise ConfigError("axes_options cannot enable both PCA and MDS.")
-    if mds and cosine_references is not None:
-        raise ConfigError("axes_options cannot enable both MDS and cosine references.")
 
     return AxesOptions(
+        center_and_whiten=center_and_whiten,
         translate=translate,
         orthonormalize=orthonormalize,
         normalize_vectors=normalize_vectors,
@@ -114,8 +102,6 @@ def normalize_axes_options(raw: Any) -> AxesOptions:
         lda_groups=lda_groups,
         averaged_only=averaged_only,
         group_filter=group_filter,
-        cosine_references=cosine_references,
-        mds=mds,
     )
 
 
@@ -127,7 +113,14 @@ def normalize_plots(
     if raw is None:
         if not axis_names:
             return {}
-        return {"default": PlotSpec(axes=list(axis_names), options=default_options)}
+        return {
+            "default": PlotSpec(
+                mode="axes",
+                axes=list(axis_names),
+                cosine_references=None,
+                options=default_options,
+            )
+        }
 
     if isinstance(raw, list):
         if len(raw) != 1 or not isinstance(raw[0], dict):
@@ -144,37 +137,94 @@ def normalize_plots(
             raise ConfigError("Each plot name must be a non-empty string.")
 
         plot_axes: Any
+        plot_mode = "axes"
+        cosine_references = None
         plot_options = default_options
         if isinstance(plot_raw, list):
             plot_axes = plot_raw
         elif isinstance(plot_raw, dict):
-            plot_axes = plot_raw.get("axes")
-            if plot_axes is None:
-                raise ConfigError(f"Plot '{plot_name}' is missing 'axes'.")
             plot_options = normalize_axes_options(plot_raw.get("options", {}))
+            plot_axes = plot_raw.get("axes")
+            cosine_raw = plot_raw.get("cosine")
+            mds_raw = plot_raw.get("mds")
+
+            mode_count = 0
+            if plot_axes is not None:
+                mode_count += 1
+            if cosine_raw is not None:
+                mode_count += 1
+            if bool(mds_raw):
+                mode_count += 1
+            if mode_count != 1:
+                raise ConfigError(
+                    f"Plot '{plot_name}' must define exactly one mode: axes, cosine, or mds."
+                )
+
+            if bool(mds_raw):
+                if mds_raw is not True:
+                    raise ConfigError(f"Plot '{plot_name}' mds must be true when set.")
+                plot_mode = "mds"
+                if (
+                    plot_options.pca
+                    or plot_options.orthonormalize
+                    or plot_options.lda_groups
+                ):
+                    raise ConfigError(
+                        f"Plot '{plot_name}' cannot combine mds with pca, orthonormalize, or lda_groups."
+                    )
+                plot_axes = []
+            elif cosine_raw is not None:
+                plot_mode = "cosine"
+                if (
+                    not isinstance(cosine_raw, list)
+                    or len(cosine_raw) != 2
+                    or any(
+                        not isinstance(reference, str) or not reference
+                        for reference in cosine_raw
+                    )
+                ):
+                    raise ConfigError(
+                        f"Plot '{plot_name}' cosine must be a list with exactly two non-empty strings."
+                    )
+                cosine_references = list(cosine_raw)
+                plot_axes = []
+            else:
+                plot_mode = "axes"
+                if plot_axes is None:
+                    raise ConfigError(f"Plot '{plot_name}' is missing 'axes'.")
         else:
             raise ConfigError(
                 f"Plot '{plot_name}' must be a list of axis names or a mapping."
             )
 
-        if not isinstance(plot_axes, list) or not plot_axes:
-            raise ConfigError(f"Plot '{plot_name}' must list at least one axis.")
+        if plot_mode == "axes":
+            if not isinstance(plot_axes, list) or not plot_axes:
+                raise ConfigError(f"Plot '{plot_name}' must list at least one axis.")
+        else:
+            if not isinstance(plot_axes, list):
+                raise ConfigError(f"Plot '{plot_name}' has invalid mode payload.")
 
         normalized_axes: List[str] = []
-        for axis_name in plot_axes:
-            if not isinstance(axis_name, str) or not axis_name:
-                raise ConfigError(f"Plot '{plot_name}' axis names must be strings.")
-            if axis_name not in known_axes and not is_pca_component_axis_name(
-                axis_name
-            ):
-                raise ConfigError(
-                    f"Plot '{plot_name}' references unknown axis '{axis_name}'."
-                )
-            normalized_axes.append(axis_name)
+        if plot_mode == "axes":
+            for axis_name in plot_axes:
+                if not isinstance(axis_name, str) or not axis_name:
+                    raise ConfigError(f"Plot '{plot_name}' axis names must be strings.")
+                if axis_name not in known_axes and not is_pca_component_axis_name(
+                    axis_name
+                ):
+                    raise ConfigError(
+                        f"Plot '{plot_name}' references unknown axis '{axis_name}'."
+                    )
+                normalized_axes.append(axis_name)
 
         if len(normalized_axes) != len(set(normalized_axes)):
             raise ConfigError(f"Plot '{plot_name}' has duplicate axis names.")
-        plots[plot_name] = PlotSpec(axes=normalized_axes, options=plot_options)
+        plots[plot_name] = PlotSpec(
+            mode=plot_mode,
+            axes=normalized_axes,
+            cosine_references=cosine_references,
+            options=plot_options,
+        )
 
     return plots
 

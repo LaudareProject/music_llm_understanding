@@ -63,60 +63,42 @@ axes:
   query_b: ds
   method: explicit
 plots:
-  note_circle:
-    axes:
+  note_circle_axes:
+    axes: &id001
     - C_vs_Gb
     - A_vs_Eb
     options:
       orthonormalize: false
       pca: false
-      cosine_references:
-      - c
-      - a
-  note_circle_orthonormal:
-    axes:
-    - C_vs_Gb
-    - A_vs_Eb
+  note_circle_axes_orthonormal:
+    axes: *id001
     options:
       orthonormalize: true
-      origin_strategy: mean
       pca: false
-      cosine_references:
-      - c
-      - a
+      origin_strategy: mean
+  note_circle_axes_pca:
+    axes: *id001
+    options:
+      orthonormalize: false
+      pca: true
+  note_circle_axes_orthonormal_pca:
+    axes: *id001
+    options:
+      orthonormalize: true
+      pca: true
+      origin_strategy: mean
+  note_circle_cosine:
+    cosine: &id002
+    - c
+    - a
+    options:
+      orthonormalize: false
+      pca: false
+  note_circle_cosine_pca:
+    cosine: *id002
+    options:
+      orthonormalize: false
+      pca: true
   note_circle_mds:
-    axes:
-    - C_vs_Gb
-    - A_vs_Eb
-    options:
-      orthonormalize: false
-      mds: true
-  note_circle_orthonormal_mds:
-    axes:
-    - C_vs_Gb
-    - A_vs_Eb
-    options:
-      orthonormalize: true
-      origin_strategy: mean
-      mds: true
-  note_circle_pca:
-    axes:
-    - C_vs_Gb
-    - A_vs_Eb
-    options:
-      orthonormalize: false
-      pca: true
-      cosine_references:
-      - c
-      - a
-  note_circle_orthonormal_pca:
-    axes:
-    - C_vs_Gb
-    - A_vs_Eb
-    options:
-      orthonormalize: true
-      origin_strategy: mean
-      pca: true
-      cosine_references:
-      - c
-      - a
+    mds: true
+    options: {}

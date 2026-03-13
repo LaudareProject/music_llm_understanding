@@ -187,74 +187,88 @@ axes:
   query_b: triad_ds_minor
   method: explicit
 plots:
-  tritone_grid_t0_o0_n0:
-    axes:
+  tritone_grid_t0_o0_n0_axes:
+    axes: &id001
     - Cmaj_vs_Gbmaj
     - Amaj_vs_Ebmaj
     options:
       orthonormalize: false
       pca: false
-      cosine_references:
-      - triad_c_major
-      - triad_a_major
+  tritone_grid_t0_o0_n0_axes_orthonormal:
+    axes: *id001
+    options:
+      orthonormalize: true
+      pca: false
+      origin_strategy: mean
+  tritone_grid_t0_o0_n0_axes_pca:
+    axes: *id001
+    options:
+      orthonormalize: false
+      pca: true
+  tritone_grid_t0_o0_n0_axes_orthonormal_pca:
+    axes: *id001
+    options:
+      orthonormalize: true
+      pca: true
+      origin_strategy: mean
+  tritone_grid_t0_o0_n0_cosine:
+    cosine: &id002
+    - triad_c_major
+    - triad_a_major
+    options:
+      orthonormalize: false
+      pca: false
+  tritone_grid_t0_o0_n0_cosine_pca:
+    cosine: *id002
+    options:
+      orthonormalize: false
+      pca: true
   tritone_grid_t0_o0_n0_mds:
-    axes:
+    mds: true
+    options: {}
+  tritone_grid_t0_o0_n1_axes:
+    axes: &id003
     - Cmaj_vs_Gbmaj
     - Amaj_vs_Ebmaj
     options:
-      orthonormalize: false
-      mds: true
-  tritone_grid_t0_o0_n1:
-    axes:
-    - Cmaj_vs_Gbmaj
-    - Amaj_vs_Ebmaj
-    options:
-      orthonormalize: true
       normalize_vectors: true
-      origin_strategy: mean
+      orthonormalize: false
       pca: false
-      cosine_references:
-      - triad_c_major
-      - triad_a_major
-  tritone_grid_t0_o0_n1_mds:
-    axes:
-    - Cmaj_vs_Gbmaj
-    - Amaj_vs_Ebmaj
+  tritone_grid_t0_o0_n1_axes_orthonormal:
+    axes: *id003
     options:
-      orthonormalize: true
       normalize_vectors: true
+      orthonormalize: true
+      pca: false
       origin_strategy: mean
-      mds: true
-  tritone_grid_t0_o0_n0_pca:
-    axes:
-    - Cmaj_vs_Gbmaj
-    - Amaj_vs_Ebmaj
+  tritone_grid_t0_o0_n1_axes_pca:
+    axes: *id003
     options:
+      normalize_vectors: true
       orthonormalize: false
       pca: true
-      cosine_references:
-      - triad_c_major
-      - triad_a_major
-  tritone_grid_t0_o0_n0_orthonormal_pca:
-    axes:
-    - Cmaj_vs_Gbmaj
-    - Amaj_vs_Ebmaj
+  tritone_grid_t0_o0_n1_axes_orthonormal_pca:
+    axes: *id003
     options:
-      orthonormalize: true
-      origin_strategy: mean
-      pca: true
-      cosine_references:
-      - triad_c_major
-      - triad_a_major
-  tritone_grid_t0_o0_n1_pca:
-    axes:
-    - Cmaj_vs_Gbmaj
-    - Amaj_vs_Ebmaj
-    options:
-      orthonormalize: true
       normalize_vectors: true
-      origin_strategy: mean
+      orthonormalize: true
       pca: true
-      cosine_references:
-      - triad_c_major
-      - triad_a_major
+      origin_strategy: mean
+  tritone_grid_t0_o0_n1_cosine:
+    cosine: &id004
+    - triad_c_major
+    - triad_a_major
+    options:
+      normalize_vectors: true
+      orthonormalize: false
+      pca: false
+  tritone_grid_t0_o0_n1_cosine_pca:
+    cosine: *id004
+    options:
+      normalize_vectors: true
+      orthonormalize: false
+      pca: true
+  tritone_grid_t0_o0_n1_mds:
+    mds: true
+    options:
+      normalize_vectors: true

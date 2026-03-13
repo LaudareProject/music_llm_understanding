@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime
 import hashlib
 import json
@@ -20,17 +21,31 @@ class RunnerCoreMixin:
         reuse_results_dir: Path | None = None,
         output_root_override: Path | None = None,
         experiment_name_override: str | None = None,
+        center_and_whiten_override: bool | None = None,
     ) -> None:
         self.config_path = config_path
         self.config = load_experiment_config(config_path)
+        if center_and_whiten_override is not None:
+            self.config = self._override_center_and_whiten(
+                self.config,
+                center_and_whiten=center_and_whiten_override,
+            )
         self.reuse_results_dir = reuse_results_dir
         self.output_root_override = output_root_override
         self.experiment_name_override = experiment_name_override
+        self.center_and_whiten_override = center_and_whiten_override
         self.embedding_cache_dir = (Path.cwd() / "embedding_cache").resolve()
         self.embedding_cache_dir.mkdir(parents=True, exist_ok=True)
 
-
-
+    def _override_center_and_whiten(self, config, center_and_whiten: bool):
+        updated_plots = {}
+        for plot_name, plot_spec in config.plots.items():
+            updated_options = replace(
+                plot_spec.options,
+                center_and_whiten=center_and_whiten,
+            )
+            updated_plots[plot_name] = replace(plot_spec, options=updated_options)
+        return replace(config, plots=updated_plots)
 
     def run(self) -> Path:
         model_trims = self._resolve_model_trims()
@@ -109,7 +124,7 @@ class RunnerCoreMixin:
                 model_client = model_clients[model_name]
                 cached = self._load_embedding_cache(
                     model_name=model_name,
-                    input_string=query.value,
+                    input_string=str(query.value),
                 )
                 if cached is None:
                     result = model_client.encode_midi(input_info.midi_path)
@@ -117,7 +132,7 @@ class RunnerCoreMixin:
                     raw_metadata = dict(result.metadata)
                     self._save_embedding_cache(
                         model_name=model_name,
-                        input_string=query.value,
+                        input_string=str(query.value),
                         latent=raw_latent,
                         metadata=raw_metadata,
                     )
@@ -160,9 +175,6 @@ class RunnerCoreMixin:
             self._save_supervised_outputs(output_dir, embeddings_by_model)
         return output_dir
 
-
-
-
     def _resolve_reuse_dir(self, reuse_results_dir: Path) -> Path:
         if reuse_results_dir.is_absolute():
             output_dir = reuse_results_dir.resolve()
@@ -182,9 +194,6 @@ class RunnerCoreMixin:
             "Reuse results directory not found. Checked: "
             f"{cwd_candidate} and {config_candidate}"
         )
-
-
-
 
     def _load_existing_embeddings(
         self,
@@ -215,16 +224,10 @@ class RunnerCoreMixin:
 
         return embeddings_by_model
 
-
-
-
     def _iter_model_names(self):
         if self.config.settings.models:
             return self.config.settings.models
         return list(self.config.models.keys())
-
-
-
 
     def _create_output_dir(self) -> Path:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -237,17 +240,11 @@ class RunnerCoreMixin:
         output_dir.mkdir(parents=True, exist_ok=True)
         return output_dir
 
-
-
-
     def _save_config_copy(self, output_dir: Path) -> None:
         config_copy = output_dir / "config.yaml"
         config_copy.write_text(
             self.config_path.read_text(encoding="utf-8"), encoding="utf-8"
         )
-
-
-
 
     def _save_model_result(
         self,
@@ -263,8 +260,6 @@ class RunnerCoreMixin:
         metadata_path = model_dir / "metadata.json"
         self._save_json(metadata_path, metadata)
 
-
-
     def _resolve_model_trims(self) -> Dict[str, int | None]:
         trims: Dict[str, int | None] = {}
         for model_name in self._iter_model_names():
@@ -279,9 +274,6 @@ class RunnerCoreMixin:
                 )
             trims[model_name] = trim
         return trims
-
-
-
 
     def _prepare_result_for_storage(
         self,
@@ -300,9 +292,6 @@ class RunnerCoreMixin:
             prepared_metadata["trim"] = trim
         return prepared_latent, prepared_metadata
 
-
-
-
     def _trim_latent(
         self, latent: np.ndarray, trim: int, model_name: str
     ) -> np.ndarray:
@@ -314,16 +303,10 @@ class RunnerCoreMixin:
             )
         return latent[..., :trim]
 
-
-
-
     def _save_json(self, path: Path, payload: Dict[str, Any]) -> None:
         path.write_text(
             json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8"
         )
-
-
-
 
     def _flatten_latent(self, latent: np.ndarray) -> np.ndarray:
         array = np.asarray(latent)
@@ -333,9 +316,6 @@ class RunnerCoreMixin:
         if array.ndim > 1:
             array = array.reshape(-1)
         return array.astype(np.float64)
-
-
-
 
     def _embedding_cache_paths(
         self,
@@ -350,9 +330,6 @@ class RunnerCoreMixin:
         metadata_path = entry_dir / "metadata.json"
         key_path = entry_dir / "input_key.txt"
         return latent_path, metadata_path, key_path
-
-
-
 
     def _load_embedding_cache(
         self,
@@ -383,9 +360,6 @@ class RunnerCoreMixin:
 
         return np.asarray(latent), metadata_raw
 
-
-
-
     def _save_embedding_cache(
         self,
         model_name: str,
@@ -404,9 +378,6 @@ class RunnerCoreMixin:
             json.dumps(metadata, indent=2, ensure_ascii=True), encoding="utf-8"
         )
         key_path.write_text(input_string, encoding="utf-8")
-
-
-
 
     def _save_latent_plot(self, model_dir: Path, latent: np.ndarray) -> None:
         try:
@@ -444,8 +415,6 @@ class RunnerCoreMixin:
         fig.savefig(plot_path, dpi=self._plot_dpi)
         plt.close(fig)
 
-
-
     def _apply_aggregate_groups(
         self,
         embeddings_by_model: Dict[str, Dict[str, np.ndarray]],
@@ -479,9 +448,6 @@ class RunnerCoreMixin:
 
         return result
 
-
-
-
     def _bootstrap_average(
         self,
         vectors: list[np.ndarray],
@@ -505,12 +471,8 @@ class RunnerCoreMixin:
 
         return estimate / float(self._bootstrap_samples)
 
-
-
-
     def _median(self, vectors: list[np.ndarray]) -> np.ndarray:
         if len(vectors) == 1:
             return vectors[0]
         stacked = np.stack(vectors, axis=0)
         return np.median(stacked, axis=0).astype(np.float64)
-

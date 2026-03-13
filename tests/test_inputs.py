@@ -15,6 +15,7 @@ def test_prepare_midi_input_custom_uses_music21(tmp_path: Path) -> None:
         query_id="q_custom",
         name="Custom",
         color=None,
+        target=None,
         input_kind="custom",
         value="C4-E4-G4",
     )
@@ -59,6 +60,7 @@ def test_prepare_midi_input_musicxml_falls_back_to_music21_when_humdrum_fails(
         query_id="q_xml",
         name="XML",
         color=None,
+        target=None,
         input_kind="musicxml_path",
         value="x.musicxml",
     )
@@ -71,4 +73,20 @@ def test_prepare_midi_input_musicxml_falls_back_to_music21_when_humdrum_fails(
     query_dir = tmp_path / "qx"
     info = prepare_midi_input(query=query, base_dir=tmp_path, query_dir=query_dir)
     assert info.input_kind == "musicxml_path"
+    assert info.midi_path.exists()
+
+
+def test_prepare_midi_input_value_uses_music21(tmp_path: Path) -> None:
+    query = QuerySpec(
+        query_id="q_value",
+        name="Value",
+        color=None,
+        target=None,
+        input_kind="value",
+        value=60,
+    )
+
+    query_dir = tmp_path / "qv"
+    info = prepare_midi_input(query=query, base_dir=tmp_path, query_dir=query_dir)
+    assert info.input_kind == "value"
     assert info.midi_path.exists()

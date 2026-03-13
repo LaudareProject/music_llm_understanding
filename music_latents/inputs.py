@@ -50,6 +50,19 @@ def prepare_midi_input(query: QuerySpec, base_dir: Path, query_dir: Path) -> Inp
             midi_path=midi_path,
         )
 
+    if query.input_kind == "value":
+        value_path = input_dir / "input.value"
+        value_path.write_text(f"{int(query.value)}\n", encoding="utf-8")
+        midi_path = input_dir / "input.mid"
+        score = _value_to_music21(int(query.value))
+        _write_music21_midi(score, midi_path)
+        return InputInfo(
+            input_kind=query.input_kind,
+            source="value",
+            stored_path=value_path,
+            midi_path=midi_path,
+        )
+
     source_path = _resolve_path(base_dir, query.value)
     if not source_path.exists():
         raise FileNotFoundError(f"Input file not found: {source_path}")
@@ -158,6 +171,28 @@ def _custom_to_music21(value: str):
             part.append(chord.Chord(pitches, quarterLength=1.0))
         else:
             part.append(note.Note(_normalize_pitch_name(token), quarterLength=1.0))
+
+    score = stream.Score()
+    score.insert(0, part)
+    return score
+
+
+def _value_to_music21(value: int):
+    try:
+        from music21 import note, stream
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "music21 is required to parse numeric value inputs."
+        ) from exc
+
+    if value < 1 or value > 120:
+        raise ValueError("Numeric value input must be in [1, 120].")
+
+    part = stream.Part()
+    midi_note = note.Note()
+    midi_note.pitch.midi = int(value)
+    midi_note.quarterLength = 1.0
+    part.append(midi_note)
 
     score = stream.Score()
     score.insert(0, part)

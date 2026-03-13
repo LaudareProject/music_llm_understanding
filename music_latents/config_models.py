@@ -20,7 +20,7 @@ class QuerySpec:
     color: Optional[str]
     target: Optional[Any]
     input_kind: str
-    value: str
+    value: Any
 
 
 @dataclass(frozen=True)
@@ -34,6 +34,7 @@ class AxisSpec:
 
 @dataclass(frozen=True)
 class AxesOptions:
+    center_and_whiten: bool
     translate: bool
     orthonormalize: bool
     normalize_vectors: bool
@@ -42,13 +43,13 @@ class AxesOptions:
     lda_groups: bool
     averaged_only: bool
     group_filter: str
-    cosine_references: Optional[List[str]]
-    mds: bool
 
 
 @dataclass(frozen=True)
 class PlotSpec:
+    mode: str
     axes: List[str]
+    cosine_references: Optional[List[str]]
     options: AxesOptions
 
 

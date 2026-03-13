@@ -1,273 +1,285 @@
 experiment:
-  name: "Test"
-  output_root: "../outputs"
+  name: Test
+  output_root: ../outputs
   models:
-    - "aria_embedding"
-    - "phrase_vae"
-
+  - aria_embedding
+  - phrase_vae
 models:
   aria_embedding:
-    type: "aria_embedding"
-    repo_id: "loubb/aria-medium-embedding"
-    checkpoint_filename: "model.safetensors"
-    model_config_name: "medium-emb"
-    device: "cpu"
+    type: aria_embedding
+    repo_id: loubb/aria-medium-embedding
+    checkpoint_filename: model.safetensors
+    model_config_name: medium-emb
+    device: cpu
   phrase_vae:
-    type: "phrase_vae"
-    repo_id: "LongshenOu/phrase-vae"
-    device: "cpu"
+    type: phrase_vae
+    repo_id: LongshenOu/phrase-vae
+    device: cpu
     trim: 16
-
 queries:
-  - id: "c1"
-    name: "C1"
-    custom: "C1"
-  - id: "cs1"
-    name: "C#1"
-    custom: "C#1"
-  - id: "d1"
-    name: "D1"
-    custom: "D1"
-  - id: "ds1"
-    name: "D#1"
-    custom: "D#1"
-  - id: "e1"
-    name: "E1"
-    custom: "E1"
-  - id: "f1"
-    name: "F1"
-    custom: "F1"
-  - id: "fs1"
-    name: "F#1"
-    custom: "F#1"
-  - id: "g1"
-    name: "G1"
-    custom: "G1"
-  - id: "gs1"
-    name: "G#1"
-    custom: "G#1"
-  - id: "a1"
-    name: "A1"
-    custom: "A1"
-  - id: "as1"
-    name: "A#1"
-    custom: "A#1"
-  - id: "b1"
-    name: "B1"
-    custom: "B1"
-  - id: "c2"
-    name: "C2"
-    custom: "C2"
-  - id: "cs2"
-    name: "C#2"
-    custom: "C#2"
-  - id: "d2"
-    name: "D2"
-    custom: "D2"
-  - id: "ds2"
-    name: "D#2"
-    custom: "D#2"
-  - id: "e2"
-    name: "E2"
-    custom: "E2"
-  - id: "f2"
-    name: "F2"
-    custom: "F2"
-  - id: "fs2"
-    name: "F#2"
-    custom: "F#2"
-  - id: "g2"
-    name: "G2"
-    custom: "G2"
-  - id: "gs2"
-    name: "G#2"
-    custom: "G#2"
-  - id: "a2"
-    name: "A2"
-    custom: "A2"
-  - id: "as2"
-    name: "A#2"
-    custom: "A#2"
-  - id: "b2"
-    name: "B2"
-    custom: "B2"
-  - id: "c3"
-    name: "C3"
-    custom: "C3"
-  - id: "cs3"
-    name: "C#3"
-    custom: "C#3"
-  - id: "d3"
-    name: "D3"
-    custom: "D3"
-  - id: "ds3"
-    name: "D#3"
-    custom: "D#3"
-  - id: "e3"
-    name: "E3"
-    custom: "E3"
-  - id: "f3"
-    name: "F3"
-    custom: "F3"
-  - id: "fs3"
-    name: "F#3"
-    custom: "F#3"
-  - id: "g3"
-    name: "G3"
-    custom: "G3"
-  - id: "gs3"
-    name: "G#3"
-    custom: "G#3"
-  - id: "a3"
-    name: "A3"
-    custom: "A3"
-  - id: "as3"
-    name: "A#3"
-    custom: "A#3"
-  - id: "b3"
-    name: "B3"
-    custom: "B3"
-  - id: "c4"
-    name: "C4"
-    custom: "C4"
-  - id: "cs4"
-    name: "C#4"
-    custom: "C#4"
-  - id: "d4"
-    name: "D4"
-    custom: "D4"
-  - id: "ds4"
-    name: "D#4"
-    custom: "D#4"
-  - id: "e4"
-    name: "E4"
-    custom: "E4"
-  - id: "f4"
-    name: "F4"
-    custom: "F4"
-  - id: "fs4"
-    name: "F#4"
-    custom: "F#4"
-  - id: "g4"
-    name: "G4"
-    custom: "G4"
-  - id: "gs4"
-    name: "G#4"
-    custom: "G#4"
-  - id: "a4"
-    name: "A4"
-    custom: "A4"
-  - id: "as4"
-    name: "A#4"
-    custom: "A#4"
-  - id: "b4"
-    name: "B4"
-    custom: "B4"
-  - id: "c5"
-    name: "C5"
-    custom: "C5"
-  - id: "cs5"
-    name: "C#5"
-    custom: "C#5"
-  - id: "d5"
-    name: "D5"
-    custom: "D5"
-  - id: "ds5"
-    name: "D#5"
-    custom: "D#5"
-  - id: "e5"
-    name: "E5"
-    custom: "E5"
-  - id: "f5"
-    name: "F5"
-    custom: "F5"
-  - id: "fs5"
-    name: "F#5"
-    custom: "F#5"
-  - id: "g5"
-    name: "G5"
-    custom: "G5"
-  - id: "gs5"
-    name: "G#5"
-    custom: "G#5"
-  - id: "a5"
-    name: "A5"
-    custom: "A5"
-  - id: "as5"
-    name: "A#5"
-    custom: "A#5"
-  - id: "b5"
-    name: "B5"
-    custom: "B5"
-  - id: "c6"
-    name: "C6"
-    custom: "C6"
-  - id: "cs6"
-    name: "C#6"
-    custom: "C#6"
-  - id: "d6"
-    name: "D6"
-    custom: "D6"
-  - id: "ds6"
-    name: "D#6"
-    custom: "D#6"
-  - id: "e6"
-    name: "E6"
-    custom: "E6"
-  - id: "f6"
-    name: "F6"
-    custom: "F6"
-  - id: "fs6"
-    name: "F#6"
-    custom: "F#6"
-  - id: "g6"
-    name: "G6"
-    custom: "G6"
-  - id: "gs6"
-    name: "G#6"
-    custom: "G#6"
-  - id: "a6"
-    name: "A6"
-    custom: "A6"
-  - id: "as6"
-    name: "A#6"
-    custom: "A#6"
-  - id: "b6"
-    name: "B6"
-    custom: "B6"
-
+- id: c1
+  name: C1
+  custom: C1
+- id: cs1
+  name: C#1
+  custom: C#1
+- id: d1
+  name: D1
+  custom: D1
+- id: ds1
+  name: D#1
+  custom: D#1
+- id: e1
+  name: E1
+  custom: E1
+- id: f1
+  name: F1
+  custom: F1
+- id: fs1
+  name: F#1
+  custom: F#1
+- id: g1
+  name: G1
+  custom: G1
+- id: gs1
+  name: G#1
+  custom: G#1
+- id: a1
+  name: A1
+  custom: A1
+- id: as1
+  name: A#1
+  custom: A#1
+- id: b1
+  name: B1
+  custom: B1
+- id: c2
+  name: C2
+  custom: C2
+- id: cs2
+  name: C#2
+  custom: C#2
+- id: d2
+  name: D2
+  custom: D2
+- id: ds2
+  name: D#2
+  custom: D#2
+- id: e2
+  name: E2
+  custom: E2
+- id: f2
+  name: F2
+  custom: F2
+- id: fs2
+  name: F#2
+  custom: F#2
+- id: g2
+  name: G2
+  custom: G2
+- id: gs2
+  name: G#2
+  custom: G#2
+- id: a2
+  name: A2
+  custom: A2
+- id: as2
+  name: A#2
+  custom: A#2
+- id: b2
+  name: B2
+  custom: B2
+- id: c3
+  name: C3
+  custom: C3
+- id: cs3
+  name: C#3
+  custom: C#3
+- id: d3
+  name: D3
+  custom: D3
+- id: ds3
+  name: D#3
+  custom: D#3
+- id: e3
+  name: E3
+  custom: E3
+- id: f3
+  name: F3
+  custom: F3
+- id: fs3
+  name: F#3
+  custom: F#3
+- id: g3
+  name: G3
+  custom: G3
+- id: gs3
+  name: G#3
+  custom: G#3
+- id: a3
+  name: A3
+  custom: A3
+- id: as3
+  name: A#3
+  custom: A#3
+- id: b3
+  name: B3
+  custom: B3
+- id: c4
+  name: C4
+  custom: C4
+- id: cs4
+  name: C#4
+  custom: C#4
+- id: d4
+  name: D4
+  custom: D4
+- id: ds4
+  name: D#4
+  custom: D#4
+- id: e4
+  name: E4
+  custom: E4
+- id: f4
+  name: F4
+  custom: F4
+- id: fs4
+  name: F#4
+  custom: F#4
+- id: g4
+  name: G4
+  custom: G4
+- id: gs4
+  name: G#4
+  custom: G#4
+- id: a4
+  name: A4
+  custom: A4
+- id: as4
+  name: A#4
+  custom: A#4
+- id: b4
+  name: B4
+  custom: B4
+- id: c5
+  name: C5
+  custom: C5
+- id: cs5
+  name: C#5
+  custom: C#5
+- id: d5
+  name: D5
+  custom: D5
+- id: ds5
+  name: D#5
+  custom: D#5
+- id: e5
+  name: E5
+  custom: E5
+- id: f5
+  name: F5
+  custom: F5
+- id: fs5
+  name: F#5
+  custom: F#5
+- id: g5
+  name: G5
+  custom: G5
+- id: gs5
+  name: G#5
+  custom: G#5
+- id: a5
+  name: A5
+  custom: A5
+- id: as5
+  name: A#5
+  custom: A#5
+- id: b5
+  name: B5
+  custom: B5
+- id: c6
+  name: C6
+  custom: C6
+- id: cs6
+  name: C#6
+  custom: C#6
+- id: d6
+  name: D6
+  custom: D6
+- id: ds6
+  name: D#6
+  custom: D#6
+- id: e6
+  name: E6
+  custom: E6
+- id: f6
+  name: F6
+  custom: F6
+- id: fs6
+  name: F#6
+  custom: F#6
+- id: g6
+  name: G6
+  custom: G6
+- id: gs6
+  name: G#6
+  custom: G#6
+- id: a6
+  name: A6
+  custom: A6
+- id: as6
+  name: A#6
+  custom: A#6
+- id: b6
+  name: B6
+  custom: B6
 axes:
-  - name: "C1_vs_B6"
-    query_a: "c1"
-    query_b: "b6"
-    method: "explicit"
-
+- name: C1_vs_B6
+  query_a: c1
+  query_b: b6
+  method: explicit
 plots:
-  c1_b6:
-    axes:
-      - "C1_vs_B6"
+  c1_b6_axes:
+    axes: &id001
+    - C1_vs_B6
+    options:
+      center_and_whiten: false
+      orthonormalize: false
+      pca: false
+      normalize_vectors: false
+  c1_b6_axes_orthonormal:
+    axes: *id001
+    options:
+      center_and_whiten: false
+      orthonormalize: true
+      pca: false
+      normalize_vectors: false
+  c1_b6_axes_pca:
+    axes: *id001
+    options:
+      center_and_whiten: false
+      orthonormalize: false
+      pca: true
+      normalize_vectors: false
+  c1_b6_axes_orthonormal_pca:
+    axes: *id001
+    options:
+      center_and_whiten: false
+      orthonormalize: true
+      pca: true
+      normalize_vectors: false
+  c1_b6_cosine:
+    cosine: &id002
+    - c1
+    - a1
     options:
       orthonormalize: false
       pca: false
-      cosine_references: ["c1", "a1"]
+  c1_b6_cosine_pca:
+    cosine: *id002
+    options:
+      orthonormalize: false
+      pca: true
   c1_b6_mds:
-    axes:
-      - "C1_vs_B6"
-    options:
-      orthonormalize: false
-      mds: true
-  c1_b6_pca:
-    axes:
-      - "C1_vs_B6"
-    options:
-      orthonormalize: false
-      pca: true
-      cosine_references: ["c1", "a1"]
-  c1_b6_orthonormal_pca:
-    axes:
-      - "C1_vs_B6"
-    options:
-      orthonormalize: true
-      origin_strategy: "mean"
-      pca: true
-      cosine_references: ["c1", "a1"]
+    mds: true
+    options: {}

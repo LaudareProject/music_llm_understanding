@@ -152,6 +152,24 @@ def main() -> int:
         action="store_true",
         help="Enable global centering+whitening for all plots in this run.",
     )
+    parser.add_argument(
+        "--zero-embeddings-from-report",
+        type=Path,
+        default=None,
+        help=(
+            "Path to supervised_report.json whose embedding_<index> features "
+            "should be zeroed in this run."
+        ),
+    )
+    parser.add_argument(
+        "--avoid-zero-embeddings-from-report",
+        type=Path,
+        default=None,
+        help=(
+            "Path to supervised_report.json whose embedding_<index> features "
+            "must be excluded from zeroing."
+        ),
+    )
     args = parser.parse_args()
 
     if args.config is not None:
@@ -160,6 +178,8 @@ def main() -> int:
             args.config,
             reuse_results_dir=args.reuse_results_dir,
             center_and_whiten_override=args.center_and_whiten,
+            zero_embeddings_from_report=args.zero_embeddings_from_report,
+            avoid_zero_embeddings_from_report=args.avoid_zero_embeddings_from_report,
         )
         output_dir = runner.run()
         print(f"Experiment completed: {output_dir}")
@@ -188,6 +208,8 @@ def main() -> int:
             output_root_override=batch_work_dir,
             experiment_name_override=config_path.stem,
             center_and_whiten_override=args.center_and_whiten,
+            zero_embeddings_from_report=args.zero_embeddings_from_report,
+            avoid_zero_embeddings_from_report=args.avoid_zero_embeddings_from_report,
         )
         output_dir = runner.run()
         _collect_batch_outputs(config_path, output_dir, batch_dir)

@@ -243,28 +243,24 @@ plots:
     axes: &id001
     - C1_vs_B6
     options:
-      center_and_whiten: false
       orthonormalize: false
       pca: false
       normalize_vectors: false
   c1_b6_axes_orthonormal:
     axes: *id001
     options:
-      center_and_whiten: false
       orthonormalize: true
       pca: false
       normalize_vectors: false
   c1_b6_axes_pca:
     axes: *id001
     options:
-      center_and_whiten: false
       orthonormalize: false
       pca: true
       normalize_vectors: false
   c1_b6_axes_orthonormal_pca:
     axes: *id001
     options:
-      center_and_whiten: false
       orthonormalize: true
       pca: true
       normalize_vectors: false

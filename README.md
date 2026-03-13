@@ -137,6 +137,25 @@ Outputs are written to:
 - `supervised/<model>/supervised_report.json`
 - `supervised/<model>/feature_importance.png`
 
+You can zero selected embedding dimensions for another run using a regression
+report from a previous supervised experiment:
+
+```bash
+uv run python scripts/run_experiment.py configs/example.yaml \
+  --zero-embeddings-from-report path/to/supervised_report.json
+```
+
+The runner reads `top_feature_importances` and zeroes any feature named
+`embedding_<index>`.
+
+You can also subtract indices coming from another report:
+
+```bash
+uv run python scripts/run_experiment.py configs/example.yaml \
+  --zero-embeddings-from-report path/to/report_x.json \
+  --avoid-zero-embeddings-from-report path/to/report_y.json
+```
+
 ## Troubleshooting
 
 ### Linux i386 runtime compatibility for Humdrum binaries

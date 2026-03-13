@@ -108,6 +108,102 @@ plots:
     assert colors == {"q1": "red", "q2": "blue"}
 
 
+def test_experiment_runner_can_enable_center_and_whiten_with_override(
+    tmp_path: Path,
+) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_center_override.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_center_override"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    runner = ExperimentRunner(config_path, center_and_whiten_override=True)
+    output_dir = runner.run()
+
+    axes_path = output_dir / "dummy_model" / "json" / "standard" / "axes_plot1.json"
+    payload = json.loads(axes_path.read_text(encoding="utf-8"))
+    assert payload["options"]["center_and_whiten"] is True
+
+
+def test_experiment_runner_rejects_center_and_whiten_in_config(tmp_path: Path) -> None:
+    midi_path = tmp_path / "input.mid"
+    midi_path.write_bytes(b"dummy-midi")
+    midi_path_two = tmp_path / "input_two.mid"
+    midi_path_two.write_bytes(b"dummy-midi-2")
+
+    config_path = tmp_path / "config_center_bad.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_center_bad"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Query One"
+    midi_path: "input.mid"
+  - id: "q2"
+    name: "Query Two"
+    midi_path: "input_two.mid"
+
+axes:
+  - name: "q1_vs_q2"
+    query_a: "q1"
+    query_b: "q2"
+    method: "explicit"
+
+plots:
+  plot1:
+    axes:
+      - "q1_vs_q2"
+    options:
+      center_and_whiten: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError):
+        ExperimentRunner(config_path)
+
+
 def test_experiment_runner_creates_mds_outputs(tmp_path: Path) -> None:
     pytest.importorskip("sklearn")
     midi_path = tmp_path / "input.mid"
@@ -983,3 +1079,168 @@ def test_descriptive_features_extractor() -> None:
     assert np.isclose(by_name["median"], 0.0)
     assert np.isclose(by_name["positive_fraction"], 0.4)
     assert np.isclose(by_name["negative_fraction"], 0.4)
+
+
+def test_zero_embeddings_from_regression_report(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+
+    report_path = tmp_path / "supervised_report.json"
+    report_path.write_text(
+        json.dumps(
+            {
+                "top_feature_importances": [
+                    {"feature": "embedding_0", "importance": 1.0},
+                    {"feature": "embedding_5", "importance": 0.8},
+                    {"feature": "norm", "importance": 0.2},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    config_path = tmp_path / "config_zero_embeddings.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_zero_embeddings"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(
+        config_path,
+        zero_embeddings_from_report=report_path,
+    ).run()
+    latent_path = output_dir / "queries" / "q1" / "dummy_model" / "latent.npy"
+    metadata_path = output_dir / "queries" / "q1" / "dummy_model" / "metadata.json"
+
+    latent = np.squeeze(np.load(latent_path)).reshape(-1)
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    assert latent[0] == 0.0
+    assert latent[5] == 0.0
+    assert metadata["zeroed_embedding_indices"] == [0, 5]
+
+
+def test_zero_embeddings_with_avoid_report(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+
+    include_report_path = tmp_path / "include_report.json"
+    include_report_path.write_text(
+        json.dumps(
+            {
+                "top_feature_importances": [
+                    {"feature": "embedding_0", "importance": 1.0},
+                    {"feature": "embedding_5", "importance": 0.8},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    avoid_report_path = tmp_path / "avoid_report.json"
+    avoid_report_path.write_text(
+        json.dumps(
+            {
+                "top_feature_importances": [
+                    {"feature": "embedding_5", "importance": 1.0},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    config_path = tmp_path / "config_zero_embeddings_avoid.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_zero_embeddings_avoid"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(
+        config_path,
+        zero_embeddings_from_report=include_report_path,
+        avoid_zero_embeddings_from_report=avoid_report_path,
+    ).run()
+    latent_path = output_dir / "queries" / "q1" / "dummy_model" / "latent.npy"
+    metadata_path = output_dir / "queries" / "q1" / "dummy_model" / "metadata.json"
+
+    latent = np.squeeze(np.load(latent_path)).reshape(-1)
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    assert latent[0] == 0.0
+    assert latent[5] != 0.0
+    assert metadata["zeroed_embedding_indices"] == [0]
+
+
+def test_avoid_zero_embeddings_requires_include_report(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+
+    avoid_report_path = tmp_path / "avoid_report.json"
+    avoid_report_path.write_text(
+        json.dumps(
+            {
+                "top_feature_importances": [
+                    {"feature": "embedding_1", "importance": 1.0},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    config_path = tmp_path / "config_zero_embeddings_requires_include.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_zero_embeddings_requires_include"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="requires --zero-embeddings-from-report"):
+        ExperimentRunner(
+            config_path,
+            avoid_zero_embeddings_from_report=avoid_report_path,
+        )

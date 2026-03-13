@@ -5,6 +5,7 @@ from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any, Dict
 
 import numpy as np
@@ -22,6 +23,8 @@ class RunnerCoreMixin:
         output_root_override: Path | None = None,
         experiment_name_override: str | None = None,
         center_and_whiten_override: bool | None = None,
+        zero_embeddings_from_report: Path | None = None,
+        avoid_zero_embeddings_from_report: Path | None = None,
     ) -> None:
         self.config_path = config_path
         self.config = load_experiment_config(config_path)
@@ -34,8 +37,96 @@ class RunnerCoreMixin:
         self.output_root_override = output_root_override
         self.experiment_name_override = experiment_name_override
         self.center_and_whiten_override = center_and_whiten_override
+        self.zero_embeddings_from_report = zero_embeddings_from_report
+        self.avoid_zero_embeddings_from_report = avoid_zero_embeddings_from_report
         self.embedding_cache_dir = (Path.cwd() / "embedding_cache").resolve()
         self.embedding_cache_dir.mkdir(parents=True, exist_ok=True)
+        (
+            self.embedding_zero_indices,
+            self.embedding_zero_report_path,
+            self.embedding_zero_avoid_report_path,
+        ) = self._load_embedding_zero_indices(
+            include_report_path=zero_embeddings_from_report,
+            avoid_report_path=avoid_zero_embeddings_from_report,
+        )
+
+    def _resolve_optional_path(self, path: Path | None) -> Path | None:
+        if path is None:
+            return None
+        if path.is_absolute():
+            return path.resolve()
+
+        cwd_candidate = (Path.cwd() / path).resolve()
+        if cwd_candidate.exists():
+            return cwd_candidate
+
+        return (self.config.base_dir / path).resolve()
+
+    def _extract_embedding_indices_from_report(
+        self,
+        report_path: Path,
+    ) -> tuple[set[int], Path]:
+        resolved = self._resolve_optional_path(report_path)
+        assert resolved is not None
+        if not resolved.exists() or not resolved.is_file():
+            raise FileNotFoundError(f"Regression report not found: {resolved}")
+
+        payload_raw = json.loads(resolved.read_text(encoding="utf-8"))
+        if not isinstance(payload_raw, dict):
+            raise ValueError("Regression report JSON must be a mapping.")
+
+        importances = payload_raw.get("top_feature_importances")
+        if not isinstance(importances, list):
+            raise ValueError(
+                "Regression report must contain 'top_feature_importances' as a list."
+            )
+
+        indices: set[int] = set()
+        pattern = re.compile(r"^embedding_(\d+)$")
+        for item in importances:
+            if not isinstance(item, dict):
+                continue
+            feature = item.get("feature")
+            if not isinstance(feature, str):
+                continue
+            match = pattern.fullmatch(feature)
+            if match is None:
+                continue
+            indices.add(int(match.group(1)))
+
+        if not indices:
+            raise ValueError(
+                "No embedding indices found in regression report top_feature_importances."
+            )
+
+        return indices, resolved
+
+    def _load_embedding_zero_indices(
+        self,
+        include_report_path: Path | None,
+        avoid_report_path: Path | None,
+    ) -> tuple[list[int], Path | None, Path | None]:
+        if include_report_path is None and avoid_report_path is None:
+            return [], None, None
+        if include_report_path is None and avoid_report_path is not None:
+            raise ValueError(
+                "--avoid-zero-embeddings-from-report requires --zero-embeddings-from-report."
+            )
+
+        assert include_report_path is not None
+        include_indices, include_resolved = self._extract_embedding_indices_from_report(
+            include_report_path
+        )
+
+        avoid_resolved: Path | None = None
+        final_indices = set(include_indices)
+        if avoid_report_path is not None:
+            avoid_indices, avoid_resolved = self._extract_embedding_indices_from_report(
+                avoid_report_path
+            )
+            final_indices = include_indices - avoid_indices
+
+        return sorted(final_indices), include_resolved, avoid_resolved
 
     def _override_center_and_whiten(self, config, center_and_whiten: bool):
         updated_plots = {}
@@ -218,6 +309,7 @@ class RunnerCoreMixin:
                 trim = model_trims.get(model_name)
                 if trim is not None:
                     latent = self._trim_latent(latent, trim, model_name)
+                latent = self._zero_selected_embedding_indices(latent)
                 embeddings_by_model[model_name][query.query_id] = self._flatten_latent(
                     latent
                 )
@@ -285,12 +377,33 @@ class RunnerCoreMixin:
         if trim is not None:
             model_name = str(metadata.get("model_name", "model"))
             prepared_latent = self._trim_latent(prepared_latent, trim, model_name)
+        prepared_latent = self._zero_selected_embedding_indices(prepared_latent)
 
         prepared_metadata = dict(metadata)
         prepared_metadata["latent_shape"] = list(prepared_latent.shape)
         if trim is not None:
             prepared_metadata["trim"] = trim
+        if self.embedding_zero_indices:
+            prepared_metadata["zeroed_embedding_indices"] = self.embedding_zero_indices
+            if self.embedding_zero_report_path is not None:
+                prepared_metadata["zeroed_embedding_indices_source"] = str(
+                    self.embedding_zero_report_path
+                )
+            if self.embedding_zero_avoid_report_path is not None:
+                prepared_metadata["zeroed_embedding_indices_avoid_source"] = str(
+                    self.embedding_zero_avoid_report_path
+                )
         return prepared_latent, prepared_metadata
+
+    def _zero_selected_embedding_indices(self, latent: np.ndarray) -> np.ndarray:
+        if not self.embedding_zero_indices:
+            return np.asarray(latent)
+        array = np.asarray(latent).copy()
+        flat = array.reshape(-1)
+        for idx in self.embedding_zero_indices:
+            if 0 <= idx < flat.shape[0]:
+                flat[idx] = 0.0
+        return array
 
     def _trim_latent(
         self, latent: np.ndarray, trim: int, model_name: str

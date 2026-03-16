@@ -1003,6 +1003,7 @@ supervised:
     assert "loo_score" in payload
     assert payload["loo_score"] == payload["training_score"]
     assert payload["feature_importance_target_share"] == 0.5
+    assert payload["feature_importance_method"] == "loo_mean_abs_coefficient"
     assert 0.0 <= payload["feature_importance_selected_share"] <= 1.0
     assert payload["n_samples"] == 4
     assert payload["top_feature_importances"]
@@ -1065,6 +1066,53 @@ def test_supervised_cv_fold_policy() -> None:
     assert splits_large == 51
 
 
+def test_supervised_classification_uses_alpha_as_inverse_c() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    model = runner._build_supervised_estimator(
+        task="classification",
+        l1_ratio=0.25,
+        alpha=4.0,
+        max_iter=1234,
+    )
+    assert np.isclose(float(model.C), 0.25)
+    assert np.isclose(float(model.l1_ratio), 0.25)
+    assert int(model.max_iter) == 1234
+
+
+def test_supervised_builder_can_create_linear_svm() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    model = runner._build_supervised_estimator(
+        task="classification",
+        estimator="linear_svm",
+        l1_ratio=0.5,
+        alpha=1.0,
+        C=0.5,
+        class_weight="balanced",
+        max_iter=2000,
+    )
+    assert np.isclose(float(model.C), 0.5)
+    assert model.class_weight == "balanced"
+    assert int(model.max_iter) == 2000
+
+
+def test_supervised_builder_can_create_linear_svr() -> None:
+    runner = ExperimentRunner.__new__(ExperimentRunner)
+    model = runner._build_supervised_estimator(
+        task="regression",
+        estimator="linear_svr",
+        l1_ratio=0.5,
+        alpha=1.0,
+        C=0.1,
+        epsilon=0.05,
+        loss="epsilon_insensitive",
+        max_iter=3000,
+    )
+    assert np.isclose(float(model.C), 0.1)
+    assert np.isclose(float(model.epsilon), 0.05)
+    assert model.loss == "epsilon_insensitive"
+    assert int(model.max_iter) == 3000
+
+
 def test_descriptive_features_extractor() -> None:
     runner = ExperimentRunner.__new__(ExperimentRunner)
     vec = np.array([1.0, -1.0, 2.0, -2.0, 0.0], dtype=np.float64)
@@ -1081,31 +1129,23 @@ def test_descriptive_features_extractor() -> None:
     assert np.isclose(by_name["negative_fraction"], 0.4)
 
 
-def test_zero_embeddings_from_regression_report(tmp_path: Path) -> None:
+def test_orthogonal_projection_from_model_file(tmp_path: Path) -> None:
     midi_a = tmp_path / "a.mid"
     midi_a.write_bytes(b"a")
     midi_b = tmp_path / "b.mid"
     midi_b.write_bytes(b"b")
 
-    report_path = tmp_path / "supervised_report.json"
-    report_path.write_text(
-        json.dumps(
-            {
-                "top_feature_importances": [
-                    {"feature": "embedding_0", "importance": 1.0},
-                    {"feature": "embedding_5", "importance": 0.8},
-                    {"feature": "norm", "importance": 0.2},
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
+    model_path = tmp_path / "supervised_model_projection.npz"
+    weights = np.zeros((2, 16), dtype=np.float64)
+    weights[0, 0] = 1.0
+    weights[1, 5] = 1.0
+    np.savez(model_path, weights_original=weights)
 
-    config_path = tmp_path / "config_zero_embeddings.yaml"
+    config_path = tmp_path / "config_projection.yaml"
     config_path.write_text(
         """
 experiment:
-  name: "unit_test_zero_embeddings"
+  name: "unit_test_orthogonal_projection"
   output_root: "outputs"
 
 models:
@@ -1126,7 +1166,7 @@ queries:
 
     output_dir = ExperimentRunner(
         config_path,
-        zero_embeddings_from_report=report_path,
+        orthogonal_projection_to={"dummy_model": model_path},
     ).run()
     latent_path = output_dir / "queries" / "q1" / "dummy_model" / "latent.npy"
     metadata_path = output_dir / "queries" / "q1" / "dummy_model" / "metadata.json"
@@ -1134,45 +1174,38 @@ queries:
     latent = np.squeeze(np.load(latent_path)).reshape(-1)
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
 
-    assert latent[0] == 0.0
-    assert latent[5] == 0.0
-    assert metadata["zeroed_embedding_indices"] == [0, 5]
+    assert np.isclose(latent[0], 0.0)
+    assert np.isclose(latent[5], 0.0)
+    assert metadata["orthogonal_projection_to"].endswith(
+        "supervised_model_projection.npz"
+    )
 
 
-def test_zero_embeddings_with_avoid_report(tmp_path: Path) -> None:
+def test_leace_erasure_from_model_file(tmp_path: Path) -> None:
     midi_a = tmp_path / "a.mid"
     midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
 
-    include_report_path = tmp_path / "include_report.json"
-    include_report_path.write_text(
-        json.dumps(
-            {
-                "top_feature_importances": [
-                    {"feature": "embedding_0", "importance": 1.0},
-                    {"feature": "embedding_5", "importance": 0.8},
-                ]
-            }
-        ),
-        encoding="utf-8",
+    eraser_path = tmp_path / "leace_eraser.npz"
+    proj_left = np.zeros((16, 2), dtype=np.float64)
+    proj_left[0, 0] = 1.0
+    proj_left[5, 1] = 1.0
+    proj_right = np.zeros((2, 16), dtype=np.float64)
+    proj_right[0, 0] = 1.0
+    proj_right[1, 5] = 1.0
+    np.savez(
+        eraser_path,
+        proj_left=proj_left,
+        proj_right=proj_right,
+        bias=np.zeros(16, dtype=np.float64),
     )
 
-    avoid_report_path = tmp_path / "avoid_report.json"
-    avoid_report_path.write_text(
-        json.dumps(
-            {
-                "top_feature_importances": [
-                    {"feature": "embedding_5", "importance": 1.0},
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    config_path = tmp_path / "config_zero_embeddings_avoid.yaml"
+    config_path = tmp_path / "config_leace.yaml"
     config_path.write_text(
         """
 experiment:
-  name: "unit_test_zero_embeddings_avoid"
+  name: "unit_test_leace_erasure"
   output_root: "outputs"
 
 models:
@@ -1184,14 +1217,16 @@ queries:
   - id: "q1"
     name: "Q1"
     midi_path: "a.mid"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
 """.lstrip(),
         encoding="utf-8",
     )
 
     output_dir = ExperimentRunner(
         config_path,
-        zero_embeddings_from_report=include_report_path,
-        avoid_zero_embeddings_from_report=avoid_report_path,
+        leace_erase_with={"dummy_model": eraser_path},
     ).run()
     latent_path = output_dir / "queries" / "q1" / "dummy_model" / "latent.npy"
     metadata_path = output_dir / "queries" / "q1" / "dummy_model" / "metadata.json"
@@ -1199,48 +1234,121 @@ queries:
     latent = np.squeeze(np.load(latent_path)).reshape(-1)
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
 
-    assert latent[0] == 0.0
-    assert latent[5] != 0.0
-    assert metadata["zeroed_embedding_indices"] == [0]
+    assert np.isclose(latent[0], 0.0)
+    assert np.isclose(latent[5], 0.0)
+    assert metadata["leace_erase_with"].endswith("leace_eraser.npz")
 
 
-def test_avoid_zero_embeddings_requires_include_report(tmp_path: Path) -> None:
+def test_supervised_outputs_save_model_artifacts(tmp_path: Path) -> None:
     midi_a = tmp_path / "a.mid"
     midi_a.write_bytes(b"a")
 
-    avoid_report_path = tmp_path / "avoid_report.json"
-    avoid_report_path.write_text(
-        json.dumps(
-            {
-                "top_feature_importances": [
-                    {"feature": "embedding_1", "importance": 1.0},
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    config_path = tmp_path / "config_zero_embeddings_requires_include.yaml"
+    config_path = tmp_path / "config_supervised_artifacts.yaml"
     config_path.write_text(
         """
 experiment:
-  name: "unit_test_zero_embeddings_requires_include"
+  name: "unit_test_supervised_artifacts"
   output_root: "outputs"
 
 models:
   dummy_model:
     type: "dummy"
+    seed: "test"
 
 queries:
   - id: "q1"
     name: "Q1"
     midi_path: "a.mid"
+    target: "A"
+  - id: "q2"
+    name: "Q2"
+    midi_path: "a.mid"
+    target: "A"
+  - id: "q3"
+    name: "Q3"
+    midi_path: "a.mid"
+    target: "B"
+  - id: "q4"
+    name: "Q4"
+    midi_path: "a.mid"
+    target: "B"
+
+supervised:
+  task: "classification"
+  features: ["embedding"]
 """.lstrip(),
         encoding="utf-8",
     )
 
-    with pytest.raises(ValueError, match="requires --zero-embeddings-from-report"):
-        ExperimentRunner(
-            config_path,
-            avoid_zero_embeddings_from_report=avoid_report_path,
-        )
+    output_dir = ExperimentRunner(config_path).run()
+    model_dir = output_dir / "supervised" / "dummy_model"
+    assert (model_dir / "supervised_model.joblib").exists()
+    projection_path = model_dir / "supervised_model_projection.npz"
+    assert projection_path.exists()
+    payload = np.load(projection_path)
+    assert "weights_original" in payload
+
+
+def test_supervised_can_rerun_on_residualized_inputs(tmp_path: Path) -> None:
+    midi_a = tmp_path / "a.mid"
+    midi_a.write_bytes(b"a")
+    midi_b = tmp_path / "b.mid"
+    midi_b.write_bytes(b"b")
+
+    config_path = tmp_path / "config_supervised_residualized.yaml"
+    config_path.write_text(
+        """
+experiment:
+  name: "unit_test_supervised_residualized"
+  output_root: "outputs"
+
+models:
+  dummy_model:
+    type: "dummy"
+    seed: "test"
+
+queries:
+  - id: "q1"
+    name: "Q1"
+    midi_path: "a.mid"
+    target: 0.1
+  - id: "q2"
+    name: "Q2"
+    midi_path: "b.mid"
+    target: 0.4
+  - id: "q3"
+    name: "Q3"
+    midi_path: "a.mid"
+    target: 0.8
+  - id: "q4"
+    name: "Q4"
+    midi_path: "b.mid"
+    target: 1.1
+
+supervised:
+  task: "regression"
+  features: ["embedding"]
+  rerun_on_residualized_inputs: true
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    output_dir = ExperimentRunner(config_path).run()
+    model_dir = output_dir / "supervised" / "dummy_model"
+    base_report = json.loads(
+        (model_dir / "supervised_report.json").read_text(encoding="utf-8")
+    )
+    residual_dir = model_dir / "residualized"
+    residual_report = json.loads(
+        (residual_dir / "supervised_report.json").read_text(encoding="utf-8")
+    )
+
+    assert base_report["residualized_rerun"] is True
+    assert (
+        residual_report["input_space_transform"]
+        == "x_perp_from_base_supervised_weights"
+    )
+    assert residual_report["n_features"] == base_report["n_features"]
+    assert (residual_dir / "feature_importance.png").exists()
+    assert (residual_dir / "supervised_model.joblib").exists()
+    assert (residual_dir / "supervised_model_projection.npz").exists()

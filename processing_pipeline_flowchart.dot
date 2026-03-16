@@ -7,8 +7,10 @@ digraph ProcessingPipeline {
   start [shape=oval, fillcolor="#e8f3ff", label="Start: ExperimentRunner.run()"];
   mode [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="reuse_results_dir set?"];
   reuse [label="Load cached latents\nfrom existing output dir"];
-  fresh [label="Prepare query input -> encode model ->\nstore latent + metadata"];
+  fresh [label="Prepare query input -> encode model\nfor each query/model"];
+  transforms [label="Per-latent transforms before storage/use:\n(optional) LEACE erasure ->\n(optional) orthogonal projection x⊥ ->\n(optional) trim + metadata stamping"];
   aggregate [label="Apply aggregate groups (if configured):\nbootstrap average + median"];
+  plots_enabled [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="plots configured?"];
 
   model_loop [shape=component, fillcolor="#eef8ee", color="#599159", label="Per model loop"];
   preprocess [label="Global preprocessing:\ncenter + whiten all embeddings\n(sklearn centering + SVD whitening)"];
@@ -38,15 +40,21 @@ digraph ProcessingPipeline {
   links [label="If processing is combined (e.g. orthonormal+pca),\nwrite canonical files in combo folder and\ncreate symlinks in single-processing folders"];
 
   done_plot [shape=oval, fillcolor="#e8f3ff", label="Next plot"];
-  done_model [shape=oval, fillcolor="#e8f3ff", label="Next model"];
+  done_model [shape=oval, fillcolor="#e8f3ff", label="Plot loop done for model"];
+  supervised_enabled [shape=diamond, fillcolor="#fff7e6", color="#c5922b", label="supervised configured?"];
+  supervised_run [label="Run supervised per model:\nfit base model + LOO metrics + artifacts\n(optional) rerun_on_residualized_inputs:\ncompute X⊥ from base weights and rerun\n(write residualized/ subfolder outputs)"];
   end [shape=oval, fillcolor="#e8f3ff", label="End: output dir ready"];
 
   start -> mode;
   mode -> reuse [label="yes"];
   mode -> fresh [label="no"];
-  reuse -> aggregate;
-  fresh -> aggregate;
-  aggregate -> model_loop;
+  reuse -> transforms;
+  fresh -> transforms;
+  transforms -> aggregate;
+  aggregate -> plots_enabled;
+
+  plots_enabled -> model_loop [label="yes"];
+  plots_enabled -> supervised_enabled [label="no"];
   model_loop -> preprocess -> colors -> plot_loop;
 
   plot_loop -> validate;
@@ -68,5 +76,9 @@ digraph ProcessingPipeline {
   done_plot -> plot_loop [label="more plots"];
   done_plot -> done_model [label="plot loop done"];
   done_model -> model_loop [label="more models"];
-  done_model -> end [label="all models done"];
+  done_model -> supervised_enabled [label="all models done"];
+
+  supervised_enabled -> supervised_run [label="yes"];
+  supervised_enabled -> end [label="no"];
+  supervised_run -> end;
 }

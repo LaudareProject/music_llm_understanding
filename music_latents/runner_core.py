@@ -5,8 +5,8 @@ from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
-import re
 from typing import Any, Dict
+import warnings
 
 import numpy as np
 
@@ -23,8 +23,8 @@ class RunnerCoreMixin:
         output_root_override: Path | None = None,
         experiment_name_override: str | None = None,
         center_and_whiten_override: bool | None = None,
-        zero_embeddings_from_report: Path | None = None,
-        avoid_zero_embeddings_from_report: Path | None = None,
+        orthogonal_projection_to: Path | Dict[str, Path] | None = None,
+        leace_erase_with: Path | Dict[str, Path] | None = None,
     ) -> None:
         self.config_path = config_path
         self.config = load_experiment_config(config_path)
@@ -37,17 +37,21 @@ class RunnerCoreMixin:
         self.output_root_override = output_root_override
         self.experiment_name_override = experiment_name_override
         self.center_and_whiten_override = center_and_whiten_override
-        self.zero_embeddings_from_report = zero_embeddings_from_report
-        self.avoid_zero_embeddings_from_report = avoid_zero_embeddings_from_report
+        self.orthogonal_projection_to = orthogonal_projection_to
+        self.leace_erase_with = leace_erase_with
         self.embedding_cache_dir = (Path.cwd() / "embedding_cache").resolve()
         self.embedding_cache_dir.mkdir(parents=True, exist_ok=True)
         (
-            self.embedding_zero_indices,
-            self.embedding_zero_report_path,
-            self.embedding_zero_avoid_report_path,
-        ) = self._load_embedding_zero_indices(
-            include_report_path=zero_embeddings_from_report,
-            avoid_report_path=avoid_zero_embeddings_from_report,
+            self.orthogonal_projection_bases,
+            self.orthogonal_projection_sources,
+        ) = self._load_orthogonal_projection_bases(
+            projection_spec=orthogonal_projection_to,
+        )
+        (
+            self.leace_erasers,
+            self.leace_eraser_sources,
+        ) = self._load_leace_erasers(
+            eraser_spec=leace_erase_with,
         )
 
     def _resolve_optional_path(self, path: Path | None) -> Path | None:
@@ -62,71 +66,124 @@ class RunnerCoreMixin:
 
         return (self.config.base_dir / path).resolve()
 
-    def _extract_embedding_indices_from_report(
+    def _extract_projection_basis_from_model(
         self,
-        report_path: Path,
-    ) -> tuple[set[int], Path]:
-        resolved = self._resolve_optional_path(report_path)
+        model_path: Path,
+    ) -> tuple[np.ndarray, Path]:
+        resolved = self._resolve_optional_path(model_path)
         assert resolved is not None
         if not resolved.exists() or not resolved.is_file():
-            raise FileNotFoundError(f"Regression report not found: {resolved}")
+            raise FileNotFoundError(f"Supervised model file not found: {resolved}")
 
-        payload_raw = json.loads(resolved.read_text(encoding="utf-8"))
-        if not isinstance(payload_raw, dict):
-            raise ValueError("Regression report JSON must be a mapping.")
-
-        importances = payload_raw.get("top_feature_importances")
-        if not isinstance(importances, list):
+        if resolved.suffix.lower() != ".npz":
             raise ValueError(
-                "Regression report must contain 'top_feature_importances' as a list."
+                "--orthogonal-projection-to expects a .npz model file saved by supervised outputs."
             )
 
-        indices: set[int] = set()
-        pattern = re.compile(r"^embedding_(\d+)$")
-        for item in importances:
-            if not isinstance(item, dict):
-                continue
-            feature = item.get("feature")
-            if not isinstance(feature, str):
-                continue
-            match = pattern.fullmatch(feature)
-            if match is None:
-                continue
-            indices.add(int(match.group(1)))
-
-        if not indices:
+        data = np.load(resolved)
+        if "weights_original" not in data:
             raise ValueError(
-                "No embedding indices found in regression report top_feature_importances."
+                "Model file must contain 'weights_original' array for orthogonal projection."
             )
 
-        return indices, resolved
+        weights = np.asarray(data["weights_original"], dtype=np.float64)
+        if weights.ndim == 1:
+            weights = weights.reshape(1, -1)
+        if weights.ndim != 2 or weights.shape[1] == 0:
+            raise ValueError("'weights_original' must have shape (k, d) with d>0.")
 
-    def _load_embedding_zero_indices(
+        basis = weights.T
+        q, _ = np.linalg.qr(basis)
+        if q.ndim != 2 or q.shape[1] == 0:
+            raise ValueError("Could not build projection basis from model weights.")
+
+        return q, resolved
+
+    def _load_orthogonal_projection_bases(
         self,
-        include_report_path: Path | None,
-        avoid_report_path: Path | None,
-    ) -> tuple[list[int], Path | None, Path | None]:
-        if include_report_path is None and avoid_report_path is None:
-            return [], None, None
-        if include_report_path is None and avoid_report_path is not None:
+        projection_spec: Path | Dict[str, Path] | None,
+    ) -> tuple[Dict[str, np.ndarray], Dict[str, Path]]:
+        if projection_spec is None:
+            return {}, {}
+
+        if isinstance(projection_spec, Path):
+            basis, resolved = self._extract_projection_basis_from_model(projection_spec)
+            return {"*": basis}, {"*": resolved}
+
+        bases: Dict[str, np.ndarray] = {}
+        sources: Dict[str, Path] = {}
+        for model_name, model_path in projection_spec.items():
+            basis, resolved = self._extract_projection_basis_from_model(model_path)
+            bases[model_name] = basis
+            sources[model_name] = resolved
+        return bases, sources
+
+    def _extract_leace_eraser_from_file(
+        self,
+        eraser_path: Path,
+    ) -> tuple[Dict[str, np.ndarray | None], Path]:
+        resolved = self._resolve_optional_path(eraser_path)
+        assert resolved is not None
+        if not resolved.exists() or not resolved.is_file():
+            raise FileNotFoundError(f"LEACE eraser file not found: {resolved}")
+        if resolved.suffix.lower() != ".npz":
+            raise ValueError("--leace-erase-with expects a .npz LEACE eraser file.")
+
+        data = np.load(resolved)
+        if "proj_left" not in data or "proj_right" not in data:
             raise ValueError(
-                "--avoid-zero-embeddings-from-report requires --zero-embeddings-from-report."
+                "LEACE eraser file must contain 'proj_left' and 'proj_right' arrays."
             )
 
-        assert include_report_path is not None
-        include_indices, include_resolved = self._extract_embedding_indices_from_report(
-            include_report_path
-        )
-
-        avoid_resolved: Path | None = None
-        final_indices = set(include_indices)
-        if avoid_report_path is not None:
-            avoid_indices, avoid_resolved = self._extract_embedding_indices_from_report(
-                avoid_report_path
+        proj_left = np.asarray(data["proj_left"], dtype=np.float64)
+        proj_right = np.asarray(data["proj_right"], dtype=np.float64)
+        if proj_left.ndim != 2 or proj_right.ndim != 2:
+            raise ValueError("LEACE arrays 'proj_left' and 'proj_right' must be 2D.")
+        if proj_left.shape[1] != proj_right.shape[0]:
+            raise ValueError(
+                "LEACE eraser has inconsistent rank dimensions between "
+                f"proj_left={proj_left.shape} and proj_right={proj_right.shape}."
             )
-            final_indices = include_indices - avoid_indices
+        if proj_left.shape[0] != proj_right.shape[1]:
+            raise ValueError(
+                "LEACE eraser feature dimensions must satisfy "
+                f"proj_left.shape[0] == proj_right.shape[1], got "
+                f"{proj_left.shape[0]} and {proj_right.shape[1]}."
+            )
 
-        return sorted(final_indices), include_resolved, avoid_resolved
+        bias = None
+        if "bias" in data:
+            bias = np.asarray(data["bias"], dtype=np.float64).reshape(-1)
+            if bias.shape[0] != proj_left.shape[0]:
+                raise ValueError(
+                    "LEACE eraser bias dimension does not match feature dimension: "
+                    f"bias={bias.shape[0]}, features={proj_left.shape[0]}."
+                )
+
+        return {
+            "proj_left": proj_left,
+            "proj_right": proj_right,
+            "bias": bias,
+        }, resolved
+
+    def _load_leace_erasers(
+        self,
+        eraser_spec: Path | Dict[str, Path] | None,
+    ) -> tuple[Dict[str, Dict[str, np.ndarray | None]], Dict[str, Path]]:
+        if eraser_spec is None:
+            return {}, {}
+
+        if isinstance(eraser_spec, Path):
+            eraser, resolved = self._extract_leace_eraser_from_file(eraser_spec)
+            return {"*": eraser}, {"*": resolved}
+
+        erasers: Dict[str, Dict[str, np.ndarray | None]] = {}
+        sources: Dict[str, Path] = {}
+        for model_name, eraser_path in eraser_spec.items():
+            eraser, resolved = self._extract_leace_eraser_from_file(eraser_path)
+            erasers[model_name] = eraser
+            sources[model_name] = resolved
+        return erasers, sources
 
     def _override_center_and_whiten(self, config, center_and_whiten: bool):
         updated_plots = {}
@@ -234,6 +291,7 @@ class RunnerCoreMixin:
                     raw_latent,
                     raw_metadata,
                     trim=model_trims.get(model_name),
+                    model_name=model_name,
                 )
                 model_dir = query_dir / model_name
                 model_dir.mkdir(parents=True, exist_ok=True)
@@ -306,10 +364,13 @@ class RunnerCoreMixin:
                     )
 
                 latent = np.load(latent_path)
+                latent = self._apply_leace_erasure(latent, model_name=model_name)
+                latent = self._apply_orthogonal_projection(
+                    latent, model_name=model_name
+                )
                 trim = model_trims.get(model_name)
                 if trim is not None:
                     latent = self._trim_latent(latent, trim, model_name)
-                latent = self._zero_selected_embedding_indices(latent)
                 embeddings_by_model[model_name][query.query_id] = self._flatten_latent(
                     latent
                 )
@@ -372,37 +433,108 @@ class RunnerCoreMixin:
         latent: np.ndarray,
         metadata: Dict[str, Any],
         trim: int | None,
+        model_name: str,
     ) -> tuple[np.ndarray, Dict[str, Any]]:
         prepared_latent = np.asarray(latent)
+        prepared_latent = self._apply_leace_erasure(
+            prepared_latent,
+            model_name=model_name,
+        )
+        prepared_latent = self._apply_orthogonal_projection(
+            prepared_latent,
+            model_name=model_name,
+        )
         if trim is not None:
-            model_name = str(metadata.get("model_name", "model"))
-            prepared_latent = self._trim_latent(prepared_latent, trim, model_name)
-        prepared_latent = self._zero_selected_embedding_indices(prepared_latent)
+            metadata_model_name = str(metadata.get("model_name", model_name))
+            prepared_latent = self._trim_latent(
+                prepared_latent,
+                trim,
+                metadata_model_name,
+            )
 
         prepared_metadata = dict(metadata)
         prepared_metadata["latent_shape"] = list(prepared_latent.shape)
         if trim is not None:
             prepared_metadata["trim"] = trim
-        if self.embedding_zero_indices:
-            prepared_metadata["zeroed_embedding_indices"] = self.embedding_zero_indices
-            if self.embedding_zero_report_path is not None:
-                prepared_metadata["zeroed_embedding_indices_source"] = str(
-                    self.embedding_zero_report_path
-                )
-            if self.embedding_zero_avoid_report_path is not None:
-                prepared_metadata["zeroed_embedding_indices_avoid_source"] = str(
-                    self.embedding_zero_avoid_report_path
-                )
+        projection_source = self._projection_source_for_model(model_name)
+        if projection_source is not None:
+            prepared_metadata["orthogonal_projection_to"] = str(projection_source)
+        leace_source = self._leace_source_for_model(model_name)
+        if leace_source is not None:
+            prepared_metadata["leace_erase_with"] = str(leace_source)
         return prepared_latent, prepared_metadata
 
-    def _zero_selected_embedding_indices(self, latent: np.ndarray) -> np.ndarray:
-        if not self.embedding_zero_indices:
+    def _leace_eraser_for_model(
+        self,
+        model_name: str,
+    ) -> Dict[str, np.ndarray | None] | None:
+        if model_name in self.leace_erasers:
+            return self.leace_erasers[model_name]
+        return self.leace_erasers.get("*")
+
+    def _leace_source_for_model(self, model_name: str) -> Path | None:
+        if model_name in self.leace_eraser_sources:
+            return self.leace_eraser_sources[model_name]
+        return self.leace_eraser_sources.get("*")
+
+    def _apply_leace_erasure(self, latent: np.ndarray, model_name: str) -> np.ndarray:
+        eraser = self._leace_eraser_for_model(model_name)
+        if eraser is None:
+            return np.asarray(latent)
+
+        proj_left = eraser["proj_left"]
+        proj_right = eraser["proj_right"]
+        bias = eraser["bias"]
+        assert proj_left is not None
+        assert proj_right is not None
+
+        array = np.asarray(latent).copy()
+        flat = array.reshape(-1)
+        if flat.shape[0] != proj_left.shape[0]:
+            warnings.warn(
+                "Skipping LEACE erasure for model "
+                f"'{model_name}' due to dimension mismatch: "
+                f"eraser={proj_left.shape[0]}, latent={flat.shape[0]}",
+                RuntimeWarning,
+            )
+            return array
+
+        if bias is None:
+            delta = flat
+        else:
+            delta = flat - bias
+        correction = (delta @ proj_right.T) @ proj_left.T
+        flat -= correction
+        return array
+
+    def _projection_basis_for_model(self, model_name: str) -> np.ndarray | None:
+        if model_name in self.orthogonal_projection_bases:
+            return self.orthogonal_projection_bases[model_name]
+        return self.orthogonal_projection_bases.get("*")
+
+    def _projection_source_for_model(self, model_name: str) -> Path | None:
+        if model_name in self.orthogonal_projection_sources:
+            return self.orthogonal_projection_sources[model_name]
+        return self.orthogonal_projection_sources.get("*")
+
+    def _apply_orthogonal_projection(
+        self, latent: np.ndarray, model_name: str
+    ) -> np.ndarray:
+        basis = self._projection_basis_for_model(model_name)
+        if basis is None:
             return np.asarray(latent)
         array = np.asarray(latent).copy()
         flat = array.reshape(-1)
-        for idx in self.embedding_zero_indices:
-            if 0 <= idx < flat.shape[0]:
-                flat[idx] = 0.0
+        if flat.shape[0] != basis.shape[0]:
+            warnings.warn(
+                "Skipping orthogonal projection for model "
+                f"'{model_name}' due to dimension mismatch: "
+                f"basis={basis.shape[0]}, latent={flat.shape[0]}",
+                RuntimeWarning,
+            )
+            return array
+        projection = basis @ (basis.T @ flat)
+        flat -= projection
         return array
 
     def _trim_latent(

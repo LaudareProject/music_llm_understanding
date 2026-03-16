@@ -34,52 +34,200 @@ class RunnerSupervisedMixin:
                 features=self.config.supervised["features"],
             )
 
-            result = self._fit_supervised_model(
+            supervised_cfg = self.config.supervised
+            base_pass = self._run_supervised_pass(
                 X=matrix,
                 y=y,
                 task=task,
-                l1_ratio=float(self.config.supervised["l1_ratio"]),
-                alpha=float(self.config.supervised["alpha"]),
-                max_iter=int(self.config.supervised["max_iter"]),
-            )
-
-            importances = self._compute_importances_from_pca_model(
-                scaler=result["scaler"],
-                pca=result["pca"],
-                model=result["model"],
                 feature_names=feature_names,
             )
 
-            selected_importances, selected_share = (
-                self._select_importances_for_cumulative_share(
-                    importances=importances,
-                    target_share=0.5,
-                )
+            self._save_json(
+                model_dir / "supervised_report.json",
+                self._build_supervised_report_payload(
+                    task=task,
+                    cv_label=cv_label,
+                    cv_splits=cv_splits,
+                    matrix=matrix,
+                    features=self.config.supervised["features"],
+                    pass_result=base_pass,
+                    extra_payload={
+                        "residualized_rerun": bool(
+                            supervised_cfg.get("rerun_on_residualized_inputs", False)
+                        )
+                    },
+                ),
             )
-
-            payload = {
-                "task": task,
-                "cv_strategy": cv_label,
-                "cv_folds": cv_splits,
-                "n_samples": int(matrix.shape[0]),
-                "n_features": int(matrix.shape[1]),
-                "n_components": int(result["pca"].n_components_),
-                "features": self.config.supervised["features"],
-                "model": result["model_info"],
-                "score_metric": result["score_metric"],
-                "loo_score": float(result["training_score"]),
-                "training_score": float(result["training_score"]),
-                "feature_importance_target_share": 0.5,
-                "feature_importance_selected_share": float(selected_share),
-                "top_feature_importances": selected_importances,
-            }
-            self._save_json(model_dir / "supervised_report.json", payload)
+            self._save_supervised_model_artifacts(
+                model_dir=model_dir,
+                scaler=base_pass["result"]["scaler"],
+                pca=base_pass["result"]["pca"],
+                model=base_pass["result"]["model"],
+                feature_names=feature_names,
+                task=task,
+                model_info=base_pass["result"]["model_info"],
+            )
             self._save_supervised_importance_plot(
                 model_dir=model_dir,
-                importances=selected_importances,
-                training_score=float(result["training_score"]),
-                score_metric=str(result["score_metric"]),
+                importances=base_pass["selected_importances"],
+                training_score=float(base_pass["result"]["training_score"]),
+                score_metric=str(base_pass["result"]["score_metric"]),
             )
+
+            if bool(supervised_cfg.get("rerun_on_residualized_inputs", False)):
+                weights_original = self._compute_original_space_weights(
+                    scaler=base_pass["result"]["scaler"],
+                    pca=base_pass["result"]["pca"],
+                    model=base_pass["result"]["model"],
+                )
+                basis = self._orthonormal_basis_from_weights(weights_original)
+                residual_matrix = self._project_matrix_to_orthogonal_complement(
+                    matrix,
+                    basis,
+                )
+                residual_pass = self._run_supervised_pass(
+                    X=residual_matrix,
+                    y=y,
+                    task=task,
+                    feature_names=feature_names,
+                )
+
+                residual_dir = model_dir / "residualized"
+                residual_dir.mkdir(parents=True, exist_ok=True)
+                self._save_json(
+                    residual_dir / "supervised_report.json",
+                    self._build_supervised_report_payload(
+                        task=task,
+                        cv_label=cv_label,
+                        cv_splits=cv_splits,
+                        matrix=residual_matrix,
+                        features=self.config.supervised["features"],
+                        pass_result=residual_pass,
+                        extra_payload={
+                            "input_space_transform": "x_perp_from_base_supervised_weights",
+                            "projection_basis_rank": int(basis.shape[1]),
+                        },
+                    ),
+                )
+                self._save_supervised_model_artifacts(
+                    model_dir=residual_dir,
+                    scaler=residual_pass["result"]["scaler"],
+                    pca=residual_pass["result"]["pca"],
+                    model=residual_pass["result"]["model"],
+                    feature_names=feature_names,
+                    task=task,
+                    model_info=residual_pass["result"]["model_info"],
+                )
+                self._save_supervised_importance_plot(
+                    model_dir=residual_dir,
+                    importances=residual_pass["selected_importances"],
+                    training_score=float(residual_pass["result"]["training_score"]),
+                    score_metric=str(residual_pass["result"]["score_metric"]),
+                )
+
+    def _run_supervised_pass(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        task: str,
+        feature_names: list[str],
+    ) -> Dict[str, Any]:
+        assert self.config.supervised is not None
+        supervised_cfg = self.config.supervised
+        result = self._fit_supervised_model(
+            X=X,
+            y=y,
+            task=task,
+            estimator=str(supervised_cfg.get("estimator", "")),
+            l1_ratio=float(supervised_cfg["l1_ratio"]),
+            alpha=float(supervised_cfg["alpha"]),
+            C=float(supervised_cfg.get("C", 1.0)),
+            epsilon=float(supervised_cfg.get("epsilon", 0.0)),
+            loss=str(supervised_cfg.get("loss", "epsilon_insensitive")),
+            class_weight=supervised_cfg.get("class_weight"),
+            use_pca=bool(supervised_cfg.get("use_pca", False)),
+            max_iter=int(supervised_cfg["max_iter"]),
+        )
+
+        importances = self._compute_cv_importances_from_pca_models(
+            X=X,
+            y=y,
+            task=task,
+            estimator=str(supervised_cfg.get("estimator", "")),
+            l1_ratio=float(supervised_cfg["l1_ratio"]),
+            alpha=float(supervised_cfg["alpha"]),
+            C=float(supervised_cfg.get("C", 1.0)),
+            epsilon=float(supervised_cfg.get("epsilon", 0.0)),
+            loss=str(supervised_cfg.get("loss", "epsilon_insensitive")),
+            class_weight=supervised_cfg.get("class_weight"),
+            use_pca=bool(supervised_cfg.get("use_pca", False)),
+            max_iter=int(supervised_cfg["max_iter"]),
+            feature_names=feature_names,
+        )
+        selected_importances, selected_share = (
+            self._select_importances_for_cumulative_share(
+                importances=importances,
+                target_share=0.5,
+            )
+        )
+        return {
+            "result": result,
+            "selected_importances": selected_importances,
+            "selected_share": float(selected_share),
+        }
+
+    def _build_supervised_report_payload(
+        self,
+        task: str,
+        cv_label: str,
+        cv_splits: int,
+        matrix: np.ndarray,
+        features: list[str],
+        pass_result: Dict[str, Any],
+        extra_payload: Dict[str, Any] | None = None,
+    ) -> Dict[str, Any]:
+        result = pass_result["result"]
+        payload: Dict[str, Any] = {
+            "task": task,
+            "cv_strategy": cv_label,
+            "cv_folds": cv_splits,
+            "n_samples": int(matrix.shape[0]),
+            "n_features": int(matrix.shape[1]),
+            "n_components": int(result["n_components"]),
+            "features": list(features),
+            "model": result["model_info"],
+            "score_metric": result["score_metric"],
+            "loo_score": float(result["training_score"]),
+            "training_score": float(result["training_score"]),
+            "feature_importance_target_share": 0.5,
+            "feature_importance_selected_share": float(pass_result["selected_share"]),
+            "feature_importance_method": "loo_mean_abs_coefficient",
+            "top_feature_importances": pass_result["selected_importances"],
+        }
+        if extra_payload:
+            payload.update(extra_payload)
+        return payload
+
+    def _orthonormal_basis_from_weights(self, weights: np.ndarray) -> np.ndarray:
+        basis = np.asarray(weights, dtype=np.float64).T
+        q, _ = np.linalg.qr(basis)
+        return q
+
+    def _project_matrix_to_orthogonal_complement(
+        self,
+        matrix: np.ndarray,
+        basis: np.ndarray,
+    ) -> np.ndarray:
+        array = np.asarray(matrix, dtype=np.float64).copy()
+        if array.ndim != 2:
+            raise ValueError("Expected a 2D supervised feature matrix for projection.")
+        if array.shape[1] != basis.shape[0]:
+            raise ValueError(
+                "Cannot project supervised feature matrix to residual space due to "
+                f"dimension mismatch: features={array.shape[1]}, basis={basis.shape[0]}."
+            )
+        projected = array @ basis @ basis.T
+        return array - projected
 
     def _determine_cv_strategy(self, sample_count: int) -> tuple[Any, str, int]:
         if sample_count > 1:
@@ -401,12 +549,17 @@ class RunnerSupervisedMixin:
         X: np.ndarray,
         y: np.ndarray,
         task: str,
+        estimator: str,
         l1_ratio: float,
         alpha: float,
+        C: float,
+        epsilon: float,
+        loss: str,
+        class_weight: Any,
+        use_pca: bool,
         max_iter: int,
     ) -> Dict[str, Any]:
         from sklearn.decomposition import PCA
-        from sklearn.linear_model import ElasticNet, LogisticRegression
         from sklearn.metrics import balanced_accuracy_score, mean_absolute_error
         from sklearn.model_selection import LeaveOneOut
         from sklearn.preprocessing import StandardScaler
@@ -435,24 +588,28 @@ class RunnerSupervisedMixin:
             X_train_scaled = fold_scaler.fit_transform(X_train)
             X_test_scaled = fold_scaler.transform(X_test)
 
-            fold_pca = PCA(n_components=0.95, svd_solver="full")
-            X_train_reduced = fold_pca.fit_transform(X_train_scaled)
-            X_test_reduced = fold_pca.transform(X_test_scaled)
-
-            if task == "regression":
-                fold_model = ElasticNet(
-                    alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter
-                )
+            if use_pca:
+                fold_pca = PCA(n_components=0.95, svd_solver="full")
+                X_train_model = fold_pca.fit_transform(X_train_scaled)
+                X_test_model = fold_pca.transform(X_test_scaled)
             else:
-                fold_model = LogisticRegression(
-                    penalty="elasticnet",
-                    solver="saga",
-                    l1_ratio=l1_ratio,
-                    max_iter=max_iter,
-                )
+                X_train_model = X_train_scaled
+                X_test_model = X_test_scaled
 
-            fold_model.fit(X_train_reduced, y_train)
-            fold_pred = fold_model.predict(X_test_reduced)
+            fold_model = self._build_supervised_estimator(
+                task=task,
+                estimator=estimator,
+                l1_ratio=l1_ratio,
+                alpha=alpha,
+                C=C,
+                epsilon=epsilon,
+                loss=loss,
+                class_weight=class_weight,
+                max_iter=max_iter,
+            )
+
+            fold_model.fit(X_train_model, y_train)
+            fold_pred = fold_model.predict(X_test_model)
             y_true.extend(np.ravel(y_test).tolist())
             y_pred.extend(np.ravel(fold_pred).tolist())
 
@@ -476,25 +633,38 @@ class RunnerSupervisedMixin:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        pca = PCA(n_components=0.95, svd_solver="full")
-        X_reduced = pca.fit_transform(X_scaled)
+        pca = None
+        X_model = X_scaled
+        if use_pca:
+            pca = PCA(n_components=0.95, svd_solver="full")
+            X_model = pca.fit_transform(X_scaled)
 
-        if task == "regression":
-            model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter)
-        else:
-            model = LogisticRegression(
-                penalty="elasticnet",
-                solver="saga",
-                l1_ratio=l1_ratio,
-                max_iter=max_iter,
-            )
+        model = self._build_supervised_estimator(
+            task=task,
+            estimator=estimator,
+            l1_ratio=l1_ratio,
+            alpha=alpha,
+            C=C,
+            epsilon=epsilon,
+            loss=loss,
+            class_weight=class_weight,
+            max_iter=max_iter,
+        )
 
-        model.fit(X_reduced, y)
+        model.fit(X_model, y)
 
         model_info: Dict[str, Any] = {
             "estimator": type(model).__name__,
-            "l1_ratio": l1_ratio,
         }
+        if task == "classification" and estimator == "linear_svm":
+            model_info["C"] = float(C)
+            model_info["class_weight"] = class_weight
+        elif task == "regression" and estimator == "linear_svr":
+            model_info["C"] = float(C)
+            model_info["epsilon"] = float(epsilon)
+            model_info["loss"] = loss
+        else:
+            model_info["l1_ratio"] = l1_ratio
         if hasattr(model, "alpha_"):
             model_info["alpha"] = float(model.alpha_)
         elif hasattr(model, "alpha"):
@@ -504,12 +674,136 @@ class RunnerSupervisedMixin:
 
         return {
             "scaler": scaler,
-            "pca": pca,
             "model": model,
+            "n_components": int(X_model.shape[1]),
+            "pca": pca,
             "training_score": training_score,
             "score_metric": score_metric,
             "model_info": model_info,
         }
+
+    def _build_supervised_estimator(
+        self,
+        task: str,
+        l1_ratio: float,
+        alpha: float,
+        max_iter: int,
+        estimator: str = "",
+        C: float = 1.0,
+        epsilon: float = 0.0,
+        loss: str = "epsilon_insensitive",
+        class_weight: Any = None,
+    ):
+        from sklearn.linear_model import ElasticNet, LogisticRegression
+        from sklearn.svm import LinearSVC, LinearSVR
+
+        if not estimator:
+            estimator = "elasticnet" if task == "regression" else "logistic_regression"
+
+        if task == "regression" and estimator == "elasticnet":
+            return ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=max_iter)
+
+        if task == "regression" and estimator == "linear_svr":
+            return LinearSVR(
+                C=C,
+                epsilon=epsilon,
+                loss=loss,
+                max_iter=max_iter,
+            )
+
+        if task == "classification" and estimator == "linear_svm":
+            return LinearSVC(
+                C=C,
+                class_weight=class_weight,
+                max_iter=max_iter,
+                dual="auto",
+            )
+
+        return LogisticRegression(
+            penalty="elasticnet",
+            solver="saga",
+            l1_ratio=l1_ratio,
+            C=1.0 / float(alpha),
+            max_iter=max_iter,
+        )
+
+    def _compute_cv_importances_from_pca_models(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        task: str,
+        estimator: str,
+        l1_ratio: float,
+        alpha: float,
+        C: float,
+        epsilon: float,
+        loss: str,
+        class_weight: Any,
+        use_pca: bool,
+        max_iter: int,
+        feature_names: list[str],
+    ) -> list[Dict[str, Any]]:
+        from sklearn.model_selection import LeaveOneOut
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.decomposition import PCA
+
+        fold_importances: list[np.ndarray] = []
+        for train_idx, _ in LeaveOneOut().split(X):
+            X_train = X[train_idx]
+            y_train = y[train_idx]
+
+            fold_scaler = StandardScaler()
+            X_train_scaled = fold_scaler.fit_transform(X_train)
+
+            fold_pca = None
+            X_train_model = X_train_scaled
+            if use_pca:
+                fold_pca = PCA(n_components=0.95, svd_solver="full")
+                X_train_model = fold_pca.fit_transform(X_train_scaled)
+
+            fold_model = self._build_supervised_estimator(
+                task=task,
+                estimator=estimator,
+                l1_ratio=l1_ratio,
+                alpha=alpha,
+                C=C,
+                epsilon=epsilon,
+                loss=loss,
+                class_weight=class_weight,
+                max_iter=max_iter,
+            )
+            fold_model.fit(X_train_model, y_train)
+
+            fold_items = self._compute_importances_from_pca_model(
+                scaler=fold_scaler,
+                pca=fold_pca,
+                model=fold_model,
+                feature_names=feature_names,
+            )
+            fold_importances.append(
+                np.asarray(
+                    [abs(float(item["importance"])) for item in fold_items],
+                    dtype=np.float64,
+                )
+            )
+
+        if not fold_importances:
+            return []
+
+        stacked = np.stack(fold_importances, axis=0)
+        mean_importance = np.mean(stacked, axis=0)
+        std_importance = np.std(stacked, axis=0)
+        nonzero_fraction = np.mean(stacked > 1e-12, axis=0)
+
+        return [
+            {
+                "feature": feature_names[idx],
+                "importance": float(mean_importance[idx]),
+                "importance_std": float(std_importance[idx]),
+                "importance_nonzero_fraction": float(nonzero_fraction[idx]),
+            }
+            for idx in range(len(feature_names))
+        ]
 
     def _compute_importances_from_pca_model(
         self,
@@ -522,9 +816,12 @@ class RunnerSupervisedMixin:
         if model_weights.ndim == 1:
             model_weights = model_weights.reshape(1, -1)
 
-        pca_components = np.asarray(pca.components_, dtype=np.float64)
-        weights_scaled = model_weights @ pca_components
-        weights_original = weights_scaled / scaler.scale_.reshape(1, -1)
+        if pca is None:
+            weights_original = model_weights / scaler.scale_.reshape(1, -1)
+        else:
+            pca_components = np.asarray(pca.components_, dtype=np.float64)
+            weights_scaled = model_weights @ pca_components
+            weights_original = weights_scaled / scaler.scale_.reshape(1, -1)
         if weights_original.shape[0] == 1:
             aggregate = weights_original[0]
         else:
@@ -537,6 +834,50 @@ class RunnerSupervisedMixin:
             }
             for idx in range(len(feature_names))
         ]
+
+    def _save_supervised_model_artifacts(
+        self,
+        model_dir: Path,
+        scaler,
+        pca,
+        model,
+        feature_names: list[str],
+        task: str,
+        model_info: Dict[str, Any],
+    ) -> None:
+        import joblib
+
+        model_payload = {
+            "task": task,
+            "model_info": dict(model_info),
+            "feature_names": list(feature_names),
+            "scaler": scaler,
+            "pca": pca,
+            "model": model,
+        }
+        joblib.dump(model_payload, model_dir / "supervised_model.joblib")
+
+        weights_original = self._compute_original_space_weights(
+            scaler=scaler,
+            pca=pca,
+            model=model,
+        )
+        np.savez(
+            model_dir / "supervised_model_projection.npz",
+            weights_original=weights_original,
+        )
+
+    def _compute_original_space_weights(self, scaler, pca, model) -> np.ndarray:
+        model_weights = np.asarray(model.coef_, dtype=np.float64)
+        if model_weights.ndim == 1:
+            model_weights = model_weights.reshape(1, -1)
+
+        if pca is None:
+            return model_weights / scaler.scale_.reshape(1, -1)
+
+        pca_components = np.asarray(pca.components_, dtype=np.float64)
+        weights_scaled = model_weights @ pca_components
+        return weights_scaled / scaler.scale_.reshape(1, -1)
 
     def _select_importances_for_cumulative_share(
         self,

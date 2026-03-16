@@ -5,10 +5,146 @@ from datetime import datetime
 from pathlib import Path
 import shutil
 import sys
+import tempfile
+
+import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from music_latents import ExperimentRunner
+from music_latents.config_models import QuerySpec
+from music_latents.inputs import prepare_midi_input
+from music_latents.models import create_model_client
+
+
+def _build_leace_note_class_samples() -> list[tuple[str, str, int, str]]:
+    pitch_class_names = [
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B",
+    ]
+    samples: list[tuple[str, str, int, str]] = []
+    for midi_value in range(24, 96):
+        pitch_class = pitch_class_names[midi_value % 12]
+        octave = midi_value // 12 - 1
+        name = f"{pitch_class}{octave}"
+        query_id = f"leace_{pitch_class.lower().replace('#', 's')}{octave}"
+        samples.append((query_id, name, midi_value, str(octave)))
+    return samples
+
+
+def _fit_leace_pitch_class_erasers(
+    run_config,
+    config_tag: str,
+) -> dict[str, Path]:
+
+    try:
+        import torch
+        from concept_erasure import LeaceEraser
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "LEACE support requires concept-erasure and torch. Install with: uv add concept-erasure"
+        ) from exc
+
+    model_names = run_config.settings.models or list(run_config.models.keys())
+    samples = _build_leace_note_class_samples()
+    labels = np.asarray([sample[3] for sample in samples], dtype=object)
+
+    classes, inverse = np.unique(labels, return_inverse=True)
+    if classes.shape[0] < 2:
+        raise ValueError("LEACE fitting requires at least two octave classes.")
+
+    model_clients = {}
+    for model_name in model_names:
+        model_cfg = run_config.models[model_name]
+        model_type = model_cfg.get("type")
+        if not model_type:
+            raise ValueError(f"Model '{model_name}' is missing required field 'type'.")
+        model_clients[model_name] = create_model_client(
+            model_type=model_type,
+            name=model_name,
+            config={k: v for k, v in model_cfg.items() if k not in {"type", "trim"}},
+        )
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    eraser_root = (Path("outputs") / ".leace" / timestamp / config_tag).resolve()
+    eraser_root.mkdir(parents=True, exist_ok=True)
+
+    erasers_by_model: dict[str, Path] = {}
+    with tempfile.TemporaryDirectory(prefix="leace_note_class_") as tmp_dir_raw:
+        tmp_dir = Path(tmp_dir_raw)
+        midi_paths: dict[str, Path] = {}
+        for query_id, name, midi_value, _ in samples:
+            query = QuerySpec(
+                query_id=query_id,
+                name=name,
+                color=None,
+                target=None,
+                input_kind="value",
+                value=midi_value,
+            )
+            query_dir = tmp_dir / query_id
+            query_dir.mkdir(parents=True, exist_ok=True)
+            input_info = prepare_midi_input(
+                query=query,
+                base_dir=tmp_dir,
+                query_dir=query_dir,
+            )
+            midi_paths[query_id] = input_info.midi_path
+
+        for model_name in model_names:
+            rows: list[np.ndarray] = []
+            model_client = model_clients[model_name]
+            for query_id, _, _, _ in samples:
+                result = model_client.encode_midi(midi_paths[query_id])
+                rows.append(np.asarray(result.latent, dtype=np.float64).reshape(-1))
+
+            X = np.stack(rows, axis=0)
+            y = np.asarray(inverse, dtype=np.int64)
+            z = np.eye(classes.shape[0], dtype=np.float64)[y]
+
+            x_tensor = torch.tensor(X, dtype=torch.float64)
+            z_tensor = torch.tensor(z, dtype=torch.float64)
+            eraser = LeaceEraser.fit(x_tensor, z_tensor)
+
+            proj_left = np.asarray(
+                eraser.proj_left.detach().cpu().numpy(), dtype=np.float64
+            )
+            proj_right = np.asarray(
+                eraser.proj_right.detach().cpu().numpy(), dtype=np.float64
+            )
+            bias = (
+                None
+                if eraser.bias is None
+                else np.asarray(eraser.bias.detach().cpu().numpy(), dtype=np.float64)
+            )
+
+            eraser_dir = eraser_root / model_name
+            eraser_dir.mkdir(parents=True, exist_ok=True)
+            eraser_path = eraser_dir / "leace_eraser.npz"
+            np.savez(
+                eraser_path,
+                proj_left=proj_left,
+                proj_right=proj_right,
+                bias=bias,
+                classes=classes,
+            )
+            erasers_by_model[model_name] = eraser_path
+
+    print(
+        "LEACE erasers saved: "
+        + ", ".join([f"{name}={path}" for name, path in erasers_by_model.items()])
+    )
+    return erasers_by_model
 
 
 def _collect_default_configs() -> list[Path]:
@@ -153,24 +289,53 @@ def main() -> int:
         help="Enable global centering+whitening for all plots in this run.",
     )
     parser.add_argument(
-        "--zero-embeddings-from-report",
-        type=Path,
+        "--orthogonal-projection-to",
+        nargs="+",
         default=None,
         help=(
-            "Path to supervised_report.json whose embedding_<index> features "
-            "should be zeroed in this run."
+            "Model-specific projection source as MODEL=PATH (repeatable). "
+            "You may also pass a single PATH to apply to all models."
         ),
     )
     parser.add_argument(
-        "--avoid-zero-embeddings-from-report",
-        type=Path,
-        default=None,
+        "--fit-leace-octave",
+        "--fit-leace-note-class",
+        dest="fit_leace_octave",
+        action="store_true",
         help=(
-            "Path to supervised_report.json whose embedding_<index> features "
-            "must be excluded from zeroing."
+            "Fit LEACE erasers using fixed C1..B6 note values with octave targets, "
+            "then apply erasure to run(s)."
         ),
     )
     args = parser.parse_args()
+
+    projection_spec: Path | dict[str, Path] | None = None
+    projection_args: list[str] = list(args.orthogonal_projection_to or [])
+
+    if projection_args:
+        parsed: dict[str, Path] = {}
+        for raw in projection_args:
+            if "=" in raw:
+                model_name, path_raw = raw.split("=", 1)
+                model_name = model_name.strip()
+                path_raw = path_raw.strip()
+                if not model_name:
+                    raise ValueError(
+                        "--orthogonal-projection-to MODEL=PATH requires a non-empty model name."
+                    )
+                if not path_raw:
+                    raise ValueError(
+                        "--orthogonal-projection-to MODEL=PATH requires a non-empty path."
+                    )
+                parsed[model_name] = Path(path_raw)
+            else:
+                if len(projection_args) > 1:
+                    raise ValueError(
+                        "When passing multiple --orthogonal-projection-to values, use MODEL=PATH format for each."
+                    )
+                projection_spec = Path(raw)
+        if projection_spec is None:
+            projection_spec = parsed
 
     if args.config is not None:
         print(f"Running config: {args.config}")
@@ -178,9 +343,18 @@ def main() -> int:
             args.config,
             reuse_results_dir=args.reuse_results_dir,
             center_and_whiten_override=args.center_and_whiten,
-            zero_embeddings_from_report=args.zero_embeddings_from_report,
-            avoid_zero_embeddings_from_report=args.avoid_zero_embeddings_from_report,
+            orthogonal_projection_to=projection_spec,
+            leace_erase_with=None,
         )
+        if args.fit_leace_octave:
+            leace_erasers = _fit_leace_pitch_class_erasers(
+                run_config=runner.config,
+                config_tag=Path(args.config).stem,
+            )
+            (
+                runner.leace_erasers,
+                runner.leace_eraser_sources,
+            ) = runner._load_leace_erasers(leace_erasers)
         output_dir = runner.run()
         print(f"Experiment completed: {output_dir}")
         return 0
@@ -208,9 +382,18 @@ def main() -> int:
             output_root_override=batch_work_dir,
             experiment_name_override=config_path.stem,
             center_and_whiten_override=args.center_and_whiten,
-            zero_embeddings_from_report=args.zero_embeddings_from_report,
-            avoid_zero_embeddings_from_report=args.avoid_zero_embeddings_from_report,
+            orthogonal_projection_to=projection_spec,
+            leace_erase_with=None,
         )
+        if args.fit_leace_octave:
+            leace_erasers = _fit_leace_pitch_class_erasers(
+                run_config=runner.config,
+                config_tag=config_path.stem,
+            )
+            (
+                runner.leace_erasers,
+                runner.leace_eraser_sources,
+            ) = runner._load_leace_erasers(leace_erasers)
         output_dir = runner.run()
         _collect_batch_outputs(config_path, output_dir, batch_dir)
         shutil.rmtree(output_dir)

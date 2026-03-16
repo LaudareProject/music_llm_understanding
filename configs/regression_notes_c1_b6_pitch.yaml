@@ -1,5 +1,5 @@
 experiment:
-  name: "NotesC1B6PitchClassClassification"
+  name: "NotesC1B6PitchRegression"
   output_root: "../outputs"
   models:
     - "aria_embedding"
@@ -16,302 +16,236 @@ models:
     type: "phrase_vae"
     repo_id: "LongshenOu/phrase-vae"
     device: "cpu"
-    trim: 16
 
 queries:
   - id: "c1"
     name: "C1"
     value: 24
-    target: "C"
   - id: "cs1"
     name: "C#1"
     value: 25
-    target: "C#"
   - id: "d1"
     name: "D1"
     value: 26
-    target: "D"
   - id: "ds1"
     name: "D#1"
     value: 27
-    target: "D#"
   - id: "e1"
     name: "E1"
     value: 28
-    target: "E"
   - id: "f1"
     name: "F1"
     value: 29
-    target: "F"
   - id: "fs1"
     name: "F#1"
     value: 30
-    target: "F#"
   - id: "g1"
     name: "G1"
     value: 31
-    target: "G"
   - id: "gs1"
     name: "G#1"
     value: 32
-    target: "G#"
   - id: "a1"
     name: "A1"
     value: 33
-    target: "A"
   - id: "as1"
     name: "A#1"
     value: 34
-    target: "A#"
   - id: "b1"
     name: "B1"
     value: 35
-    target: "B"
   - id: "c2"
     name: "C2"
     value: 36
-    target: "C"
   - id: "cs2"
     name: "C#2"
     value: 37
-    target: "C#"
   - id: "d2"
     name: "D2"
     value: 38
-    target: "D"
   - id: "ds2"
     name: "D#2"
     value: 39
-    target: "D#"
   - id: "e2"
     name: "E2"
     value: 40
-    target: "E"
   - id: "f2"
     name: "F2"
     value: 41
-    target: "F"
   - id: "fs2"
     name: "F#2"
     value: 42
-    target: "F#"
   - id: "g2"
     name: "G2"
     value: 43
-    target: "G"
   - id: "gs2"
     name: "G#2"
     value: 44
-    target: "G#"
   - id: "a2"
     name: "A2"
     value: 45
-    target: "A"
   - id: "as2"
     name: "A#2"
     value: 46
-    target: "A#"
   - id: "b2"
     name: "B2"
     value: 47
-    target: "B"
   - id: "c3"
     name: "C3"
     value: 48
-    target: "C"
   - id: "cs3"
     name: "C#3"
     value: 49
-    target: "C#"
   - id: "d3"
     name: "D3"
     value: 50
-    target: "D"
   - id: "ds3"
     name: "D#3"
     value: 51
-    target: "D#"
   - id: "e3"
     name: "E3"
     value: 52
-    target: "E"
   - id: "f3"
     name: "F3"
     value: 53
-    target: "F"
   - id: "fs3"
     name: "F#3"
     value: 54
-    target: "F#"
   - id: "g3"
     name: "G3"
     value: 55
-    target: "G"
   - id: "gs3"
     name: "G#3"
     value: 56
-    target: "G#"
   - id: "a3"
     name: "A3"
     value: 57
-    target: "A"
   - id: "as3"
     name: "A#3"
     value: 58
-    target: "A#"
   - id: "b3"
     name: "B3"
     value: 59
-    target: "B"
   - id: "c4"
     name: "C4"
     value: 60
-    target: "C"
   - id: "cs4"
     name: "C#4"
     value: 61
-    target: "C#"
   - id: "d4"
     name: "D4"
     value: 62
-    target: "D"
   - id: "ds4"
     name: "D#4"
     value: 63
-    target: "D#"
   - id: "e4"
     name: "E4"
     value: 64
-    target: "E"
   - id: "f4"
     name: "F4"
     value: 65
-    target: "F"
   - id: "fs4"
     name: "F#4"
     value: 66
-    target: "F#"
   - id: "g4"
     name: "G4"
     value: 67
-    target: "G"
   - id: "gs4"
     name: "G#4"
     value: 68
-    target: "G#"
   - id: "a4"
     name: "A4"
     value: 69
-    target: "A"
   - id: "as4"
     name: "A#4"
     value: 70
-    target: "A#"
   - id: "b4"
     name: "B4"
     value: 71
-    target: "B"
   - id: "c5"
     name: "C5"
     value: 72
-    target: "C"
   - id: "cs5"
     name: "C#5"
     value: 73
-    target: "C#"
   - id: "d5"
     name: "D5"
     value: 74
-    target: "D"
   - id: "ds5"
     name: "D#5"
     value: 75
-    target: "D#"
   - id: "e5"
     name: "E5"
     value: 76
-    target: "E"
   - id: "f5"
     name: "F5"
     value: 77
-    target: "F"
   - id: "fs5"
     name: "F#5"
     value: 78
-    target: "F#"
   - id: "g5"
     name: "G5"
     value: 79
-    target: "G"
   - id: "gs5"
     name: "G#5"
     value: 80
-    target: "G#"
   - id: "a5"
     name: "A5"
     value: 81
-    target: "A"
   - id: "as5"
     name: "A#5"
     value: 82
-    target: "A#"
   - id: "b5"
     name: "B5"
     value: 83
-    target: "B"
   - id: "c6"
     name: "C6"
     value: 84
-    target: "C"
   - id: "cs6"
     name: "C#6"
     value: 85
-    target: "C#"
   - id: "d6"
     name: "D6"
     value: 86
-    target: "D"
   - id: "ds6"
     name: "D#6"
     value: 87
-    target: "D#"
   - id: "e6"
     name: "E6"
     value: 88
-    target: "E"
   - id: "f6"
     name: "F6"
     value: 89
-    target: "F"
   - id: "fs6"
     name: "F#6"
     value: 90
-    target: "F#"
   - id: "g6"
     name: "G6"
     value: 91
-    target: "G"
   - id: "gs6"
     name: "G#6"
     value: 92
-    target: "G#"
   - id: "a6"
     name: "A6"
     value: 93
-    target: "A"
   - id: "as6"
     name: "A#6"
     value: 94
-    target: "A#"
   - id: "b6"
     name: "B6"
     value: 95
-    target: "B"
 
 supervised:
-  task: "classification"
-  features: ["embedding"]
+  task: "regression"
+  estimator: "linear_svr"
+  use_pca: true
+  normalize: true
+  features: ["embedding"] #, "norm", "polar", "descriptive"]
   l1_ratio: 0.5
   alpha: 1.0
-  max_iter: 5000
+  C: 0.1
+  epsilon: 0.05
+  loss: "epsilon_insensitive"
+  max_iter: 100000
   top_k: 50
+  rerun_on_residualized_inputs: true

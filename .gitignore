@@ -1,11 +1,10 @@
-music_latents/__pycache__
-music_latents/models/__pycache__
-tests/__pycache__
 outputs/
-scripts/__pycache__
+*.pyc
+__pycache__
 EWLD
 ASAP
 EWLD.zip
 bin
 embedding_cache/
 processing_pipeline_flowchart.pdf
+cache/

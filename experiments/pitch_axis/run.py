@@ -1,5 +1,5 @@
 from datetime import datetime
-import json
+import os
 from pathlib import Path
 import sys
 
@@ -28,7 +28,7 @@ from experiments.common.embed_aria import encode_midi
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
-CACHE_DIR = OUTPUT_ROOT / "cache"
+CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
 
 COMBOS = [
     {"name": "baseline", "whiten": False, "lda": False, "pca": False},
@@ -40,6 +40,21 @@ COMBOS = [
     # {"name": "lda+pca", "whiten": False, "lda": True, "pca": True},
     # {"name": "whiten+lda+pca", "whiten": True, "lda": True, "pca": True},
 ]
+
+
+def parse_feature_cols_env():
+    raw = os.environ.get("FEATURE_SELECTION_COLS", "").strip()
+    if not raw:
+        return None
+    cols = [int(token.strip()) for token in raw.split(",") if token.strip()]
+    return cols if cols else None
+
+
+def feature_selection_space_env():
+    value = os.environ.get("FEATURE_SELECTION_SPACE", "transformed").strip().lower()
+    if value not in {"transformed", "raw"}:
+        raise ValueError(f"Invalid FEATURE_SELECTION_SPACE: {value}")
+    return value
 
 
 def timestamp_dir():
@@ -73,6 +88,17 @@ def load_or_compute_embedding(query_id, midi_path):
 
 
 def main():
+    forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
+    feature_cols = parse_feature_cols_env()
+    feature_space = feature_selection_space_env()
+    combos = COMBOS
+    if forced_combo_name:
+        combos = [combo for combo in COMBOS if combo["name"] == forced_combo_name]
+        if not combos:
+            raise ValueError(
+                f"Unknown combo in FEATURE_SELECTION_COMBO: {forced_combo_name}"
+            )
+
     rows = read_tsv(TSV_PATH)
     output_dir = timestamp_dir()
     midi_dir = output_dir / "midi"
@@ -110,17 +136,42 @@ def main():
     groups = [row["name"] for row in eval_rows]
 
     print("[3/5] evaluating combos")
+    if forced_combo_name:
+        print(f"  forced combo: {forced_combo_name}")
+    if feature_cols is not None:
+        print(f"  using selected {feature_space} cols: {len(feature_cols)}")
     metric_rows = []
     combo_scores = []
     best_payload = None
     best_score = None
     best_combo_name = None
-    for combo in COMBOS:
+    for combo in combos:
         combo_name = combo["name"]
         print(f"  - {combo_name}")
+        combo_input = matrix
+        if feature_cols is not None and feature_space == "raw":
+            if combo_input.shape[1] == 0:
+                raise ValueError("Raw matrix has zero columns")
+            max_col = max(feature_cols)
+            if max_col >= combo_input.shape[1]:
+                raise ValueError(
+                    "FEATURE_SELECTION_COLS contains out-of-range index "
+                    f"{max_col} for raw dim {combo_input.shape[1]}"
+                )
+            combo_input = combo_input[:, feature_cols]
         transformed = apply_combo(
-            matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
+            combo_input, labels, combo["whiten"], combo["lda"], combo["pca"]
         )
+        if feature_cols is not None and feature_space == "transformed":
+            if transformed.shape[1] == 0:
+                raise ValueError("Transformed matrix has zero columns")
+            max_col = max(feature_cols)
+            if max_col >= transformed.shape[1]:
+                raise ValueError(
+                    "FEATURE_SELECTION_COLS contains out-of-range index "
+                    f"{max_col} for transformed dim {transformed.shape[1]}"
+                )
+            transformed = transformed[:, feature_cols]
         raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
         mappings = {
             "raw": raw_projection,
@@ -241,7 +292,7 @@ def main():
     ]
     metric_map = {(row["combo"], row["mapping"]): row for row in metric_rows}
     body = []
-    for combo in COMBOS:
+    for combo in combos:
         combo_name = combo["name"]
         raw_metrics = metric_map[(combo_name, "raw")]
         linear_metrics = metric_map[(combo_name, "linear")]
@@ -318,13 +369,6 @@ def main():
         f"Projection per note | {best_combo_name}",
         "Note",
     )
-    (output_dir / "best_combo.json").write_text(
-        json.dumps(
-            {"best_combo": best_combo_name, "combo_scores": combo_scores}, indent=2
-        ),
-        encoding="utf-8",
-    )
-
     print("[5/5] done")
     print(output_dir)
 

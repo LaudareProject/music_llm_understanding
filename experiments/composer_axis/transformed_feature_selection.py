@@ -5,7 +5,13 @@ import subprocess
 import sys
 
 import numpy as np
-from sklearn.feature_selection import f_regression, mutual_info_regression, r_regression
+from sklearn.feature_selection import (
+    RFE,
+    f_regression,
+    mutual_info_regression,
+    r_regression,
+)
+from sklearn.linear_model import LinearRegression
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -18,7 +24,6 @@ from experiments.common.math1d import (
     fit_log_linear,
     l1,
     project_1d,
-    random_l1_baseline,
     spearman,
 )
 from experiments.common.feature_select import (
@@ -115,13 +120,10 @@ def score_one_dataset(
         "exp_linear": fit_exp_linear,
     }[mapping_name]
     predicted = fit_fn(raw_proj, real)
-    baseline = random_l1_baseline(real)
-    if baseline <= 0:
+    value = l1(real, predicted)
+    if np.isnan(value):
         return None
-    ratio = l1(real, predicted) / baseline
-    if np.isnan(ratio):
-        return None
-    return -ratio
+    return -value
 
 
 def combo_score(transformed, rows, query_to_index, mapping_name):
@@ -150,7 +152,7 @@ def find_best_combo(matrix, labels, rows, query_to_index):
         transformed = apply_combo(
             matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
         )
-        for mapping_name in ["raw", "linear", "log_linear", "exp_linear"]:
+        for mapping_name in ["linear", "log_linear", "exp_linear"]:
             sc = combo_score(transformed, rows, query_to_index, mapping_name)
             if sc > best_score:
                 best_score = sc
@@ -199,6 +201,7 @@ def sklearn_selector_comparison(feature_matrix, score_fn, rows, query_to_index):
 
     x_eval = feature_matrix[np.asarray(eval_idx, dtype=int)]
     y_eval = np.asarray(real, dtype=np.float64)
+    n_features = feature_matrix.shape[1]
     out = []
 
     f_scores, _ = f_regression(x_eval, y_eval)
@@ -242,6 +245,36 @@ def sklearn_selector_comparison(feature_matrix, score_fn, rows, query_to_index):
             "best_n_features": len(mi_cols),
             "best_cols": mi_cols,
             "k_curve": mi_curve,
+        }
+    )
+
+    rfe_best_score = float("-inf")
+    rfe_best_cols = None
+    rfe_curve = []
+    print(f"    - rfe_linear_regression: evaluating k=1..{n_features}")
+    for k in tqdm(range(1, n_features + 1), desc="RFE", unit="k", leave=False):
+        selector = RFE(estimator=LinearRegression(), n_features_to_select=k)
+        selector.fit(x_eval, y_eval)
+        cols = list(np.where(selector.support_)[0].astype(int))
+        score = float(score_fn(cols))
+        rfe_curve.append({"k": k, "score": score, "cols": cols[:]})
+        if score > rfe_best_score:
+            rfe_best_score = score
+            rfe_best_cols = cols[:]
+            print(
+                f"      rfe_linear_regression: new best at k={k} score={rfe_best_score:.6f}"
+            )
+    print(
+        "    - rfe_linear_regression: done | "
+        f"best_score={rfe_best_score:.6f} best_k={len(rfe_best_cols)}"
+    )
+    out.append(
+        {
+            "method": "rfe_linear_regression",
+            "best_score": rfe_best_score,
+            "best_n_features": len(rfe_best_cols),
+            "best_cols": rfe_best_cols,
+            "k_curve": rfe_curve,
         }
     )
 

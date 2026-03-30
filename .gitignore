@@ -4,6 +4,7 @@ tests/__pycache__
 outputs/
 scripts/__pycache__
 EWLD
+ASAP
 EWLD.zip
 bin
 embedding_cache/

@@ -143,7 +143,7 @@ def main():
         ],
         axis=0,
     )
-    labels = [f"octave_{int(row['midi_note']) // 12 - 1}" for row in rows]
+    labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
     np.save(output_dir / "embeddings.npy", matrix)
 

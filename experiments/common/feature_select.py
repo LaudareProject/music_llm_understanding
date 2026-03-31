@@ -68,7 +68,7 @@ def best_k_from_ranked(ranked_cols, score_fn, on_improvement=None):
     best_score = float("-inf")
     best_cols = None
     curve = []
-    for k in range(1, len(ranked_cols) + 1):
+    for k in range(1, (len(ranked_cols) + 1)//2, 4):
         cols = ranked_cols[:k]
         score = float(score_fn(cols))
         curve.append({"k": k, "score": score, "cols": cols[:]})

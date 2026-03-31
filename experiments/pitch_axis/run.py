@@ -245,7 +245,7 @@ def main():
                         ]
                     )
                 ),
-                "baseline_l1_mean": float(
+                "random": float(
                     np.mean(
                         [
                             payload[name]["random"]
@@ -298,7 +298,7 @@ def main():
                 "combo": row["combo"],
                 "raw_spearman_abs_mean": f"{row['raw_spearman_abs_mean']:.10f}",
                 "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}",
-                "random": f"{row['baseline_l1_mean']:.10f}",
+                "random": f"{row['random']:.10f}",
             }
             for row in combo_scores
         ],

@@ -242,35 +242,35 @@ def sklearn_selector_comparison(feature_matrix, score_fn, rows, query_to_index):
         }
     )
 
-    rfe_best_score = float("-inf")
-    rfe_best_cols = None
-    rfe_curve = []
-    print(f"    - rfe_linear_regression: evaluating k=1..{n_features}")
-    for k in tqdm(range(1, n_features + 1), desc="RFE", unit="k", leave=False):
-        selector = RFE(estimator=LinearRegression(), n_features_to_select=k)
-        selector.fit(x_eval, y_eval)
-        cols = list(np.where(selector.support_)[0].astype(int))
-        score = float(score_fn(cols))
-        rfe_curve.append({"k": k, "score": score, "cols": cols[:]})
-        if score > rfe_best_score:
-            rfe_best_score = score
-            rfe_best_cols = cols[:]
-            print(
-                f"      rfe_linear_regression: new best at k={k} score={rfe_best_score:.6f}"
-            )
-    print(
-        "    - rfe_linear_regression: done | "
-        f"best_score={rfe_best_score:.6f} best_k={len(rfe_best_cols)}"
-    )
-    out.append(
-        {
-            "method": "rfe_linear_regression",
-            "best_score": rfe_best_score,
-            "best_n_features": len(rfe_best_cols),
-            "best_cols": rfe_best_cols,
-            "k_curve": rfe_curve,
-        }
-    )
+    # rfe_best_score = float("-inf")
+    # rfe_best_cols = None
+    # rfe_curve = []
+    # print(f"    - rfe_linear_regression: evaluating k=1..{n_features}")
+    # for k in tqdm(range(1, (n_features + 1) // 2, 4), desc="RFE", unit="k", leave=False):
+    #     selector = RFE(estimator=LinearRegression(), n_features_to_select=k)
+    #     selector.fit(x_eval, y_eval)
+    #     cols = list(np.where(selector.support_)[0].astype(int))
+    #     score = float(score_fn(cols))
+    #     rfe_curve.append({"k": k, "score": score, "cols": cols[:]})
+    #     if score > rfe_best_score:
+    #         rfe_best_score = score
+    #         rfe_best_cols = cols[:]
+    #         print(
+    #             f"      rfe_linear_regression: new best at k={k} score={rfe_best_score:.6f}"
+    #         )
+    # print(
+    #     "    - rfe_linear_regression: done | "
+    #     f"best_score={rfe_best_score:.6f} best_k={len(rfe_best_cols)}"
+    # )
+    # out.append(
+    #     {
+    #         "method": "rfe_linear_regression",
+    #         "best_score": rfe_best_score,
+    #         "best_n_features": len(rfe_best_cols),
+    #         "best_cols": rfe_best_cols,
+    #         "k_curve": rfe_curve,
+    #     }
+    # )
 
     return out
 
@@ -306,7 +306,7 @@ def run_feature_selection(selection_space="transformed"):
     labels = [row["composer"] for row in rows]
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
-    print("[3/6] finding best combo+mapping and running backward elimination")
+    print("[3/6] finding best combo+mapping")
     best_combo_name, best_mapping_name, best_score, best_transformed = find_best_combo(
         matrix, labels, rows, query_to_index
     )

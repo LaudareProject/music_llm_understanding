@@ -136,28 +136,28 @@ def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
     groups = [row["composer"] for row in eval_rows]
     out = {}
     baseline_l1 = random_l1_baseline(real)
-        for mapping_name, predicted in mappings.items():
-            predicted = np.asarray(predicted, dtype=np.float64)
-            w = _hann_weights(predicted, birth_years, death_years)
-            if mapping_name == "raw":
-                mapped_l1 = float("nan")
-            else:
-                mapped_l1 = l1(real, predicted)
-            out[mapping_name] = {
-                "real": real,
-                "predicted": predicted,
-                "groups": groups,
-                "pearson": pearson(real, predicted),
+    for mapping_name, predicted in mappings.items():
+        predicted = np.asarray(predicted, dtype=np.float64)
+        w = _hann_weights(predicted, birth_years, death_years)
+        if mapping_name == "raw":
+            mapped_l1 = float("nan")
+        else:
+            mapped_l1 = l1(real, predicted)
+        out[mapping_name] = {
+            "real": real,
+            "predicted": predicted,
+            "groups": groups,
+            "pearson": pearson(real, predicted),
             "spearman": spearman(real, predicted),
-                "hann_pearson": weighted_pearson(real, predicted, w),
-                "hann_spearman": weighted_spearman(real, predicted, w),
-                "hann_score": hann_density(predicted, birth_years, death_years),
-                "l1": mapped_l1,
-                "random": baseline_l1,
-                "sample_count": len(eval_rows),
-                "query_ids": [row["query_id"] for row in eval_rows],
-            }
-        return out
+            "hann_pearson": weighted_pearson(real, predicted, w),
+            "hann_spearman": weighted_spearman(real, predicted, w),
+            "hann_score": hann_density(predicted, birth_years, death_years),
+            "l1": mapped_l1,
+            "random": baseline_l1,
+            "sample_count": len(eval_rows),
+            "query_ids": [row["query_id"] for row in eval_rows],
+        }
+    return out
 
 
 def main():
@@ -287,6 +287,11 @@ def main():
                 if mapping_name != "raw" and not np.isnan(metrics["l1"]):
                     mapped_l1_ratios.append(metrics["l1"])
         score = combo_selection_score(payload)
+        random_values = [
+            payload[dataset]["raw"]["random"]
+            for dataset in ["asap", "music21", "ewld", "overall"]
+            if payload[dataset] is not None
+        ]
         combo_scores.append(
             {
                 "combo": combo_name,
@@ -296,15 +301,9 @@ def main():
                 "mapped_l1_mean": float(np.mean(mapped_l1_ratios))
                 if mapped_l1_ratios
                 else float("nan"),
-                "baseline_l1_mean": float(
-                    np.mean(
-                        [
-                            payload[dataset]["random"]
-                            for dataset in ["asap", "music21", "ewld", "overall"]
-                            if payload[dataset] is not None
-                        ]
-                    )
-                ),
+                "random": float(np.mean(random_values))
+                if random_values
+                else float("nan"),
             }
         )
         if best_score is None or score > best_score:
@@ -368,8 +367,8 @@ def main():
                 "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}"
                 if not np.isnan(row["mapped_l1_mean"])
                 else "nan",
-                "random": f"{row['baseline_l1_mean']:.10f}"
-                if not np.isnan(row["baseline_l1_mean"])
+                "random": f"{row['random']:.10f}"
+                if not np.isnan(row["random"])
                 else "nan",
             }
             for row in combo_scores
@@ -453,9 +452,7 @@ def main():
                 f"pearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
             )
             if mapping != "raw":
-                title += (
-                    f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
-                )
+                title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
             save_scatter(
                 output_dir / f"scatter_{dataset}_{mapping}.png",
                 metrics["real"],

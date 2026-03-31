@@ -50,16 +50,24 @@ COMBOS = [
 ]
 
 
-def write_note_midi(midi_path, midi_note):
+def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
     midi = mido.MidiFile()
     track = mido.MidiTrack()
     midi.tracks.append(track)
     track.append(mido.Message("program_change", program=0, channel=0, time=0))
     track.append(
-        mido.Message("note_on", note=int(midi_note), velocity=64, channel=0, time=0)
+        mido.Message(
+            "note_on", note=int(midi_note), velocity=int(velocity), channel=0, time=0
+        )
     )
     track.append(
-        mido.Message("note_off", note=int(midi_note), velocity=64, channel=0, time=480)
+        mido.Message(
+            "note_off",
+            note=int(midi_note),
+            velocity=int(velocity),
+            channel=0,
+            time=int(duration_ticks),
+        )
     )
     midi.save(str(midi_path))
 
@@ -263,7 +271,12 @@ def run_feature_selection(selection_space="transformed"):
     midi_paths = {}
     for row in rows:
         midi_path = midi_dir / f"{row['query_id']}.mid"
-        write_note_midi(midi_path, int(row["midi_note"]))
+        write_note_midi(
+            midi_path,
+            int(row["midi_note"]),
+            int(row["duration_ticks"]),
+            int(row["velocity"]),
+        )
         midi_paths[row["query_id"]] = midi_path
 
     print("[2/6] loading embeddings")

@@ -11,6 +11,14 @@ OUTPUT_TSV = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 
 
 PITCH_CLASS_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+LENGTHS = [
+    (60, "eighth"),
+    (30, "sixteenth"),
+    (960, "two_quarters"),
+    (1440, "three_quarters"),
+    (1920, "whole"),
+]
+VELOCITIES = [25, 50, 75, 100, 127]
 
 
 def note_name(midi_note):
@@ -23,20 +31,30 @@ def main():
     rows = []
     for midi_note in range(24, 96):
         name = note_name(midi_note)
-        axis_side = "."
-        if midi_note == 24:
-            axis_side = "a"
-        if midi_note == 95:
-            axis_side = "b"
-        rows.append(
-            {
-                "query_id": f"note_{name.lower().replace('#', 's')}",
-                "midi_note": midi_note,
-                "name": name,
-                "axis_side": axis_side,
-            }
-        )
-    write_tsv(OUTPUT_TSV, rows, ["query_id", "midi_note", "name", "axis_side"])
+        for duration_ticks, duration_name in LENGTHS:
+            for velocity in VELOCITIES:
+                axis_side = "."
+                if midi_note == 24 and duration_ticks == 60 and velocity == 25:
+                    axis_side = "a"
+                if midi_note == 95 and duration_ticks == 1920 and velocity == 127:
+                    axis_side = "b"
+                rows.append(
+                    {
+                        "query_id": (
+                            f"note_{name.lower().replace('#', 's')}_{duration_name}_v{velocity}"
+                        ),
+                        "midi_note": midi_note,
+                        "duration_ticks": duration_ticks,
+                        "velocity": velocity,
+                        "name": name,
+                        "axis_side": axis_side,
+                    }
+                )
+    write_tsv(
+        OUTPUT_TSV,
+        rows,
+        ["query_id", "midi_note", "duration_ticks", "velocity", "name", "axis_side"],
+    )
     print(f"wrote {OUTPUT_TSV}")
 
 

@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 from pathlib import Path
 import sys
@@ -10,6 +9,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.folder_handling import create_folder
 from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
 from experiments.common.math1d import (
     apply_combo,
@@ -57,12 +57,6 @@ def feature_selection_space_env():
     return value
 
 
-def timestamp_dir():
-    out_dir = OUTPUT_ROOT / datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    return out_dir
-
-
 def write_note_midi(midi_path, midi_note):
     midi = mido.MidiFile()
     track = mido.MidiTrack()
@@ -87,6 +81,15 @@ def load_or_compute_embedding(query_id, midi_path):
     return embedding
 
 
+def combo_selection_score(payload):
+    scores = []
+    for mapping_name in ["linear", "log_linear", "exp_linear"]:
+        value = payload[mapping_name]["l1"]
+        if not np.isnan(value):
+            scores.append(-value)
+    return max(scores) if scores else float("-inf")
+
+
 def main():
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     feature_cols = parse_feature_cols_env()
@@ -100,7 +103,14 @@ def main():
             )
 
     rows = read_tsv(TSV_PATH)
-    output_dir = timestamp_dir()
+    output_dir = create_folder(
+        OUTPUT_ROOT,
+        {
+            "feature_selection_space": feature_space,
+            "feature_selection_combo": forced_combo_name or None,
+            "feature_selection_cols": feature_cols,
+        },
+    )
     midi_dir = output_dir / "midi"
     midi_dir.mkdir(parents=True, exist_ok=True)
 
@@ -184,12 +194,8 @@ def main():
         for mapping_name, predicted in mappings.items():
             if mapping_name == "raw":
                 mapped_l1 = float("nan")
-                mapped_ratio = float("nan")
             else:
                 mapped_l1 = l1(real, predicted)
-                mapped_ratio = (
-                    mapped_l1 / baseline_l1 if baseline_l1 > 0 else float("nan")
-                )
             payload[mapping_name] = {
                 "real": real,
                 "predicted": np.asarray(predicted, dtype=np.float64),
@@ -197,8 +203,7 @@ def main():
                 "pearson": pearson(real, predicted),
                 "spearman": spearman(real, predicted),
                 "l1": mapped_l1,
-                "random_l1": baseline_l1,
-                "l1_ratio": mapped_ratio,
+                "random": baseline_l1,
                 "sample_count": len(eval_rows),
                 "query_ids": [row["query_id"] for row in eval_rows],
             }
@@ -209,22 +214,29 @@ def main():
                     "pearson": payload[mapping_name]["pearson"],
                     "spearman": payload[mapping_name]["spearman"],
                     "l1": payload[mapping_name]["l1"],
-                    "random_l1": payload[mapping_name]["random_l1"],
-                    "l1_ratio": payload[mapping_name]["l1_ratio"],
+                    "random": payload[mapping_name]["random"],
                     "sample_count": payload[mapping_name]["sample_count"],
                 }
             )
-        score = abs(payload["raw"]["spearman"])
+        score = combo_selection_score(payload)
         combo_scores.append(
             {
                 "combo": combo_name,
-                "raw_spearman_abs_mean": score,
-                "mapped_l1_ratio_mean": float(
+                "raw_spearman_abs_mean": abs(payload["raw"]["spearman"]),
+                "mapped_l1_mean": float(
                     np.mean(
                         [
-                            payload[name]["l1_ratio"]
+                            payload[name]["l1"]
                             for name in ["linear", "log_linear", "exp_linear"]
-                            if not np.isnan(payload[name]["l1_ratio"])
+                            if not np.isnan(payload[name]["l1"])
+                        ]
+                    )
+                ),
+                "baseline_l1_mean": float(
+                    np.mean(
+                        [
+                            payload[name]["random"]
+                            for name in ["linear", "log_linear", "exp_linear"]
                         ]
                     )
                 ),
@@ -249,11 +261,8 @@ def main():
                 if not np.isnan(row["spearman"])
                 else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
-                "random_l1": f"{row['random_l1']:.10f}"
-                if not np.isnan(row["random_l1"])
-                else "nan",
-                "l1_ratio": f"{row['l1_ratio']:.10f}"
-                if not np.isnan(row["l1_ratio"])
+                "random": f"{row['random']:.10f}"
+                if not np.isnan(row["random"])
                 else "nan",
                 "sample_count": row["sample_count"],
             }
@@ -265,8 +274,7 @@ def main():
             "pearson",
             "spearman",
             "l1",
-            "random_l1",
-            "l1_ratio",
+            "random",
             "sample_count",
         ],
     )
@@ -276,19 +284,21 @@ def main():
             {
                 "combo": row["combo"],
                 "raw_spearman_abs_mean": f"{row['raw_spearman_abs_mean']:.10f}",
-                "mapped_l1_ratio_mean": f"{row['mapped_l1_ratio_mean']:.10f}",
+                "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}",
+                "random": f"{row['baseline_l1_mean']:.10f}",
             }
             for row in combo_scores
         ],
-        ["combo", "raw_spearman_abs_mean", "mapped_l1_ratio_mean"],
+        ["combo", "raw_spearman_abs_mean", "mapped_l1_mean", "random"],
     )
     headers = [
         "combo",
         "raw_spearman",
         "raw_pearson",
-        "linear_l1_ratio",
-        "log_linear_l1_ratio",
-        "exp_linear_l1_ratio",
+        "linear_l1",
+        "log_linear_l1",
+        "exp_linear_l1",
+        "random",
     ]
     metric_map = {(row["combo"], row["mapping"]): row for row in metric_rows}
     body = []
@@ -306,15 +316,12 @@ def main():
             "nan"
             if np.isnan(raw_metrics["pearson"])
             else f"{raw_metrics['pearson']:.3f}",
+            "nan" if np.isnan(linear_metrics["l1"]) else f"{linear_metrics['l1']:.3f}",
+            "nan" if np.isnan(log_metrics["l1"]) else f"{log_metrics['l1']:.3f}",
+            "nan" if np.isnan(exp_metrics["l1"]) else f"{exp_metrics['l1']:.3f}",
             "nan"
-            if np.isnan(linear_metrics["l1_ratio"])
-            else f"{linear_metrics['l1_ratio']:.3f}",
-            "nan"
-            if np.isnan(log_metrics["l1_ratio"])
-            else f"{log_metrics['l1_ratio']:.3f}",
-            "nan"
-            if np.isnan(exp_metrics["l1_ratio"])
-            else f"{exp_metrics['l1_ratio']:.3f}",
+            if np.isnan(raw_metrics["random"])
+            else f"{raw_metrics['random']:.3f}",
         ]
         body.append(line)
     save_table_png(
@@ -329,7 +336,7 @@ def main():
             f"pearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
         )
         if mapping_name != "raw":
-            title += f"\nl1={metrics['l1']:.2f}, random_l1={metrics['random_l1']:.2f}"
+            title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
         save_scatter(
             output_dir / f"scatter_pitch_{mapping_name}.png",
             metrics["real"],

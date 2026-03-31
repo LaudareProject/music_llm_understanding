@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 from pathlib import Path
 import subprocess
@@ -18,6 +17,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
     apply_combo,
     fit_exp_linear,
@@ -48,12 +48,6 @@ COMBOS = [
     {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
     {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
 ]
-
-
-def timestamp_dir(prefix):
-    out_dir = OUTPUT_ROOT / (prefix + datetime.now().strftime("%Y%m%d_%H%M%S"))
-    out_dir.mkdir(parents=True, exist_ok=True)
-    return out_dir
 
 
 def write_note_midi(midi_path, midi_note):
@@ -261,12 +255,7 @@ def run_feature_selection(selection_space="transformed"):
     if selection_space not in {"transformed", "raw"}:
         raise ValueError(f"Unknown selection space: {selection_space}")
     rows = read_tsv(TSV_PATH)
-    prefix = (
-        "feature_selection_"
-        if selection_space == "transformed"
-        else "raw_feature_selection_"
-    )
-    output_dir = timestamp_dir(prefix)
+    output_dir = create_folder(OUTPUT_ROOT, {"selection_space": selection_space})
     midi_dir = output_dir / "midi"
     midi_dir.mkdir(parents=True, exist_ok=True)
 
@@ -348,18 +337,18 @@ def run_feature_selection(selection_space="transformed"):
     print(
         f"  starting score ({best_mapping_name}): {initial_score:.6f}  [{selection_matrix.shape[1]} features]"
     )
-    history, final_cols, final_score = backward_eliminate_columns(
-        score_fn,
-        selection_matrix.shape[1],
-        use_tqdm=False,
-        on_improvement=lambda step, removed, before, after, remaining: print(
-            f"  step {step}: removed col {removed}  score {before:.6f} -> {after:.6f}  [{remaining} remaining]"
-        ),
-        on_stop=lambda step, before, best_candidate: print(
-            "  stopping: no removal improves score "
-            f"(best candidate: {best_candidate:.6f})"
-        ),
-    )
+    # history, final_cols, final_score = backward_eliminate_columns(
+    #     score_fn,
+    #     selection_matrix.shape[1],
+    #     use_tqdm=False,
+    #     on_improvement=lambda step, removed, before, after, remaining: print(
+    #         f"  step {step}: removed col {removed}  score {before:.6f} -> {after:.6f}  [{remaining} remaining]"
+    #     ),
+    #     on_stop=lambda step, before, best_candidate: print(
+    #         "  stopping: no removal improves score "
+    #         f"(best candidate: {best_candidate:.6f})"
+    #     ),
+    # )
 
     print("[4/6] comparing sklearn selectors")
     sklearn_comparisons = sklearn_selector_comparison(
@@ -370,38 +359,38 @@ def run_feature_selection(selection_space="transformed"):
     )
 
     print("[5/6] writing outputs")
-    tsv_rows = []
-    for entry in history:
-        tsv_rows.append(
-            {
-                "step": entry["step"],
-                "removed_col": entry["removed_col"],
-                "score_before": f"{entry['score_before']:.10f}",
-                "score_after": f"{entry['score_after']:.10f}",
-                "n_remaining": entry["n_remaining"],
-                "remaining_cols": ",".join(str(c) for c in entry["remaining_cols"]),
-            }
-        )
-    write_tsv(
-        output_dir / "feature_selection.tsv",
-        tsv_rows,
-        [
-            "step",
-            "removed_col",
-            "score_before",
-            "score_after",
-            "n_remaining",
-            "remaining_cols",
-        ],
-    )
+    # tsv_rows = []
+    # for entry in history:
+    #     tsv_rows.append(
+    #         {
+    #             "step": entry["step"],
+    #             "removed_col": entry["removed_col"],
+    #             "score_before": f"{entry['score_before']:.10f}",
+    #             "score_after": f"{entry['score_after']:.10f}",
+    #             "n_remaining": entry["n_remaining"],
+    #             "remaining_cols": ",".join(str(c) for c in entry["remaining_cols"]),
+    #         }
+    #     )
+    # write_tsv(
+    #     output_dir / "feature_selection.tsv",
+    #     tsv_rows,
+    #     [
+    #         "step",
+    #         "removed_col",
+    #         "score_before",
+    #         "score_after",
+    #         "n_remaining",
+    #         "remaining_cols",
+    #     ],
+    # )
 
     comparison_rows = [
-        {
-            "method": "backward_elimination",
-            "best_score": f"{final_score:.10f}",
-            "best_n_features": len(final_cols),
-            "best_cols": ",".join(str(c) for c in final_cols),
-        }
+        # {
+        #     "method": "backward_elimination",
+        #     "best_score": f"{final_score:.10f}",
+        #     "best_n_features": len(final_cols),
+        #     "best_cols": ",".join(str(c) for c in final_cols),
+        # }
     ]
     for item in sklearn_comparisons:
         comparison_rows.append(
@@ -418,20 +407,23 @@ def run_feature_selection(selection_space="transformed"):
         ["method", "best_score", "best_n_features", "best_cols"],
     )
 
-    method_sets = [
-        {
-            "method": "backward_elimination",
-            "best_score": float(final_score),
-            "best_cols": final_cols[:],
-        }
-    ] + [
-        {
-            "method": item["method"],
-            "best_score": float(item["best_score"]),
-            "best_cols": item["best_cols"][:],
-        }
-        for item in sklearn_comparisons
-    ]
+    method_sets = (
+        [
+            # {
+            #     "method": "backward_elimination",
+            #     "best_score": float(final_score),
+            #     "best_cols": final_cols[:],
+            # }
+        ]
+        + [
+            {
+                "method": item["method"],
+                "best_score": float(item["best_score"]),
+                "best_cols": item["best_cols"][:],
+            }
+            for item in sklearn_comparisons
+        ]
+    )
 
     overlap_rows = pairwise_overlap_rows(method_sets)
     write_tsv(
@@ -462,6 +454,7 @@ def run_feature_selection(selection_space="transformed"):
     env["FEATURE_SELECTION_COLS"] = ",".join(
         str(col) for col in best_method["best_cols"]
     )
+    env["RUN_ORIGIN"] = "feature_selection"
     subprocess.run(
         [str(sys.executable), str(REPO_ROOT / "experiments" / "pitch_axis" / "run.py")],
         check=True,
@@ -469,6 +462,8 @@ def run_feature_selection(selection_space="transformed"):
         env=env,
     )
 
+    final_cols = best_method["best_cols"]
+    final_score = best_method["best_score"]
     print(f"  initial features: {selection_matrix.shape[1]}")
     print(f"  final features:   {len(final_cols)}  {final_cols}")
     print(f"  final score:      {final_score:.6f}")

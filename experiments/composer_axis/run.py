@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 from pathlib import Path
 import sys
@@ -9,6 +8,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.folder_handling import create_folder
 from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
 from experiments.common.math1d import (
     apply_combo,
@@ -62,12 +62,6 @@ def feature_selection_space_env():
     return value
 
 
-def timestamp_dir():
-    out_dir = OUTPUT_ROOT / datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    return out_dir
-
-
 def prepare_midi(row, midi_dir):
     source_path = (REPO_ROOT / row["path"]).resolve()
     midi_path = midi_dir / f"{row['query_id']}.mid"
@@ -90,6 +84,20 @@ def load_or_compute_embedding(query_id, midi_path):
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     np.save(cache_path, embedding)
     return embedding
+
+
+def combo_selection_score(payload):
+    scores = []
+    for mapping_name in ["linear", "log_linear", "exp_linear"]:
+        l1_values = [
+            payload[dataset][mapping_name]["l1"]
+            for dataset in ["asap", "music21", "ewld", "overall"]
+            if payload[dataset] is not None
+            and not np.isnan(payload[dataset][mapping_name]["l1"])
+        ]
+        if l1_values:
+            scores.append(-float(np.mean(l1_values)))
+    return max(scores) if scores else float("-inf")
 
 
 def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
@@ -128,31 +136,28 @@ def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
     groups = [row["composer"] for row in eval_rows]
     out = {}
     baseline_l1 = random_l1_baseline(real)
-    for mapping_name, predicted in mappings.items():
-        predicted = np.asarray(predicted, dtype=np.float64)
-        w = _hann_weights(predicted, birth_years, death_years)
-        if mapping_name == "raw":
-            mapped_l1 = float("nan")
-            mapped_ratio = float("nan")
-        else:
-            mapped_l1 = l1(real, predicted)
-            mapped_ratio = mapped_l1 / baseline_l1 if baseline_l1 > 0 else float("nan")
-        out[mapping_name] = {
-            "real": real,
-            "predicted": predicted,
-            "groups": groups,
-            "pearson": pearson(real, predicted),
+        for mapping_name, predicted in mappings.items():
+            predicted = np.asarray(predicted, dtype=np.float64)
+            w = _hann_weights(predicted, birth_years, death_years)
+            if mapping_name == "raw":
+                mapped_l1 = float("nan")
+            else:
+                mapped_l1 = l1(real, predicted)
+            out[mapping_name] = {
+                "real": real,
+                "predicted": predicted,
+                "groups": groups,
+                "pearson": pearson(real, predicted),
             "spearman": spearman(real, predicted),
-            "hann_pearson": weighted_pearson(real, predicted, w),
-            "hann_spearman": weighted_spearman(real, predicted, w),
-            "hann_score": hann_density(predicted, birth_years, death_years),
-            "l1": mapped_l1,
-            "random_l1": baseline_l1,
-            "l1_ratio": mapped_ratio,
-            "sample_count": len(eval_rows),
-            "query_ids": [row["query_id"] for row in eval_rows],
-        }
-    return out
+                "hann_pearson": weighted_pearson(real, predicted, w),
+                "hann_spearman": weighted_spearman(real, predicted, w),
+                "hann_score": hann_density(predicted, birth_years, death_years),
+                "l1": mapped_l1,
+                "random": baseline_l1,
+                "sample_count": len(eval_rows),
+                "query_ids": [row["query_id"] for row in eval_rows],
+            }
+        return out
 
 
 def main():
@@ -168,7 +173,14 @@ def main():
             )
 
     rows = read_tsv(TSV_PATH)
-    output_dir = timestamp_dir()
+    output_dir = create_folder(
+        OUTPUT_ROOT,
+        {
+            "feature_selection_space": feature_space,
+            "feature_selection_combo": forced_combo_name or None,
+            "feature_selection_cols": feature_cols,
+        },
+    )
     midi_dir = output_dir / "midi"
     midi_dir.mkdir(parents=True, exist_ok=True)
 
@@ -266,23 +278,33 @@ def main():
                         "hann_spearman": metrics["hann_spearman"],
                         "hann_score": metrics["hann_score"],
                         "l1": metrics["l1"],
-                        "random_l1": metrics["random_l1"],
-                        "l1_ratio": metrics["l1_ratio"],
+                        "random": metrics["random"],
                         "sample_count": metrics["sample_count"],
                     }
                 )
                 if mapping_name == "raw" and not np.isnan(metrics["spearman"]):
                     raw_scores.append(abs(metrics["spearman"]))
-                if mapping_name != "raw" and not np.isnan(metrics["l1_ratio"]):
-                    mapped_l1_ratios.append(metrics["l1_ratio"])
-        score = float(np.mean(raw_scores)) if raw_scores else float("-inf")
+                if mapping_name != "raw" and not np.isnan(metrics["l1"]):
+                    mapped_l1_ratios.append(metrics["l1"])
+        score = combo_selection_score(payload)
         combo_scores.append(
             {
                 "combo": combo_name,
-                "raw_spearman_abs_mean": score,
-                "mapped_l1_ratio_mean": float(np.mean(mapped_l1_ratios))
+                "raw_spearman_abs_mean": float(np.mean(raw_scores))
+                if raw_scores
+                else float("-inf"),
+                "mapped_l1_mean": float(np.mean(mapped_l1_ratios))
                 if mapped_l1_ratios
                 else float("nan"),
+                "baseline_l1_mean": float(
+                    np.mean(
+                        [
+                            payload[dataset]["random"]
+                            for dataset in ["asap", "music21", "ewld", "overall"]
+                            if payload[dataset] is not None
+                        ]
+                    )
+                ),
             }
         )
         if best_score is None or score > best_score:
@@ -314,11 +336,8 @@ def main():
                 if not np.isnan(row["hann_score"])
                 else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
-                "random_l1": f"{row['random_l1']:.10f}"
-                if not np.isnan(row["random_l1"])
-                else "nan",
-                "l1_ratio": f"{row['l1_ratio']:.10f}"
-                if not np.isnan(row["l1_ratio"])
+                "random": f"{row['random']:.10f}"
+                if not np.isnan(row["random"])
                 else "nan",
                 "sample_count": row["sample_count"],
             }
@@ -334,8 +353,7 @@ def main():
             "hann_spearman",
             "hann_score",
             "l1",
-            "random_l1",
-            "l1_ratio",
+            "random",
             "sample_count",
         ],
     )
@@ -347,13 +365,16 @@ def main():
                 "raw_spearman_abs_mean": f"{row['raw_spearman_abs_mean']:.10f}"
                 if not np.isnan(row["raw_spearman_abs_mean"])
                 else "nan",
-                "mapped_l1_ratio_mean": f"{row['mapped_l1_ratio_mean']:.10f}"
-                if not np.isnan(row["mapped_l1_ratio_mean"])
+                "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}"
+                if not np.isnan(row["mapped_l1_mean"])
+                else "nan",
+                "random": f"{row['baseline_l1_mean']:.10f}"
+                if not np.isnan(row["baseline_l1_mean"])
                 else "nan",
             }
             for row in combo_scores
         ],
-        ["combo", "raw_spearman_abs_mean", "mapped_l1_ratio_mean"],
+        ["combo", "raw_spearman_abs_mean", "mapped_l1_mean", "random"],
     )
 
     spearman_map = {
@@ -433,7 +454,7 @@ def main():
             )
             if mapping != "raw":
                 title += (
-                    f"\nl1={metrics['l1']:.2f}, random_l1={metrics['random_l1']:.2f}"
+                    f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
                 )
             save_scatter(
                 output_dir / f"scatter_{dataset}_{mapping}.png",

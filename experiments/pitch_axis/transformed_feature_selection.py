@@ -41,12 +41,14 @@ OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
 
 COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
+    {"name": "baseline", "whiten": False, "lda": False, "pca": False, "pls": False},
+    {"name": "whiten", "whiten": True, "lda": False, "pca": False, "pls": False},
+    {"name": "lda", "whiten": False, "lda": True, "pca": False, "pls": False},
+    {"name": "pca", "whiten": False, "lda": False, "pca": True, "pls": False},
+    {"name": "pls", "whiten": False, "lda": False, "pca": False, "pls": True},
+    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False, "pls": False},
+    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True, "pls": False},
+    {"name": "whiten+pls", "whiten": True, "lda": False, "pca": False, "pls": True},
 ]
 
 
@@ -105,7 +107,9 @@ def evaluate_combo(
     return score_projection(raw_proj, real, mapping_name)
 
 
-def find_best_combo(matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real):
+def find_best_combo(
+    matrix, labels, pls_target, anchor_a_idx, anchor_b_idx, eval_idx, real
+):
     """Return (best_combo_name, best_mapping_name, best_score, best_transformed)."""
     best_score = float("-inf")
     best_combo_name = None
@@ -113,7 +117,13 @@ def find_best_combo(matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real):
     best_transformed = None
     for combo in COMBOS:
         transformed = apply_combo(
-            matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
+            matrix,
+            labels,
+            combo["whiten"],
+            combo["lda"],
+            combo["pca"],
+            combo["pls"],
+            pls_target,
         )
         raw_proj = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
         for mapping_name in ["linear", "log_linear", "exp_linear"]:
@@ -289,6 +299,7 @@ def run_feature_selection(selection_space="transformed"):
         axis=0,
     )
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
+    pls_target = np.asarray([float(row["midi_note"]) for row in rows], dtype=np.float64)
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
     anchor_a_idx = [
@@ -303,7 +314,7 @@ def run_feature_selection(selection_space="transformed"):
 
     print("[3/6] finding best combo+mapping")
     best_combo_name, best_mapping_name, best_score, best_transformed = find_best_combo(
-        matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real
+        matrix, labels, pls_target, anchor_a_idx, anchor_b_idx, eval_idx, real
     )
     print(
         f"  best combo: {best_combo_name}  mapping: {best_mapping_name}  score: {best_score:.6f}"
@@ -336,6 +347,8 @@ def run_feature_selection(selection_space="transformed"):
                 combo_cfg["whiten"],
                 combo_cfg["lda"],
                 combo_cfg["pca"],
+                combo_cfg["pls"],
+                pls_target,
             )
             return evaluate_combo(
                 transformed_subset,

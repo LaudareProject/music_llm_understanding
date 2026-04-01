@@ -44,7 +44,38 @@ def lda_reduce(matrix, labels):
     return out
 
 
-def apply_combo(matrix, labels, whiten_enabled, lda_enabled, pca_enabled):
+def pls_reduce(matrix, target):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    target = np.asarray(target, dtype=np.float64)
+    if target.shape[0] != matrix.shape[0]:
+        return matrix
+    if target.shape[0] < 2:
+        return matrix
+    if np.std(target) <= 1e-12:
+        return matrix
+    from sklearn.cross_decomposition import PLSRegression
+
+    y = target.reshape(-1, 1)
+    n_components = min(matrix.shape[0] - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    model = PLSRegression(n_components=n_components)
+    out = model.fit_transform(matrix, y)[0]
+    out = np.asarray(out, dtype=np.float64)
+    if out.ndim == 1:
+        out = out.reshape(-1, 1)
+    return out
+
+
+def apply_combo(
+    matrix,
+    labels,
+    whiten_enabled,
+    lda_enabled,
+    pca_enabled,
+    pls_enabled,
+    pls_target=None,
+):
     out = np.asarray(matrix, dtype=np.float64)
     if whiten_enabled:
         out = whiten(out)
@@ -52,10 +83,13 @@ def apply_combo(matrix, labels, whiten_enabled, lda_enabled, pca_enabled):
         out = lda_reduce(out, labels)
     if pca_enabled:
         out = pca_reduce(out, 0.9)
+    if pls_enabled:
+        target = labels if pls_target is None else pls_target
+        out = pls_reduce(out, target)
     return out
 
 
-def project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx):
+def project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx, target=None):
     """
     Compute cosine similarity dot(u, v) / (||u|| ||v||), where u is each evaluated row centered
     by mean(rows `anchor_a_idx`) and v is the axis from mean(rows `anchor_a_idx`) to mean(rows
@@ -65,12 +99,59 @@ def project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx):
     matrix = np.asarray(matrix, dtype=np.float64)
     mean_a = np.mean(matrix[np.asarray(anchor_a_idx, dtype=int)], axis=0)
     mean_b = np.mean(matrix[np.asarray(anchor_b_idx, dtype=int)], axis=0)
-    direction = mean_b - mean_a
-    centered = matrix[np.asarray(eval_idx, dtype=int)] - mean_a
+    if target is not None:
+        regression = fit_linear_model(matrix, target)
+        if regression is None:
+            direction = mean_b - mean_a
+            centered = matrix[np.asarray(eval_idx, dtype=int)] - mean_a
+        else:
+            normal = np.asarray(regression.coef_, dtype=np.float64).ravel()
+            intercept = float(
+                np.asarray(regression.intercept_, dtype=np.float64).ravel()[0]
+            )
+            normal_norm_sq = float(normal @ normal)
+            if normal_norm_sq <= 1e-12:
+                direction = mean_b - mean_a
+                centered = matrix[np.asarray(eval_idx, dtype=int)] - mean_a
+            else:
+
+                def project_to_plane(point):
+                    return (
+                        point - ((normal @ point + intercept) / normal_norm_sq) * normal
+                    )
+
+                mean_a = project_to_plane(mean_a)
+                mean_b = project_to_plane(mean_b)
+                direction = mean_b - mean_a
+                centered = (
+                    np.asarray(
+                        [
+                            project_to_plane(point)
+                            for point in matrix[np.asarray(eval_idx, dtype=int)]
+                        ],
+                        dtype=np.float64,
+                    )
+                    - mean_a
+                )
+    else:
+        direction = mean_b - mean_a
+        centered = matrix[np.asarray(eval_idx, dtype=int)] - mean_a
     numerator = centered @ direction
     direction_norm = max(float(np.linalg.norm(direction)), 1e-12)
     centered_norms = np.maximum(np.linalg.norm(centered, axis=1), 1e-12)
     return numerator / (centered_norms * direction_norm)
+
+
+def fit_linear_model(x, y):
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    if x.ndim == 1:
+        x = x.reshape(-1, 1)
+    from sklearn.linear_model import LinearRegression
+
+    model = LinearRegression()
+    model.fit(x, y)
+    return model
 
 
 def fit_linear(x, y):
@@ -79,10 +160,7 @@ def fit_linear(x, y):
     y = np.asarray(y, dtype=np.float64)
     if x.shape[0] < 2 or np.std(x) <= 1e-12:
         return np.full_like(x, np.mean(y) if y.size else 0.0)
-    from sklearn.linear_model import LinearRegression
-
-    model = LinearRegression()
-    model.fit(x.reshape(-1, 1), y)
+    model = fit_linear_model(x, y)
     return model.predict(x.reshape(-1, 1))
 
 

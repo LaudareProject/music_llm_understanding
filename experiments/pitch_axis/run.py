@@ -31,14 +31,16 @@ OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
 
 COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
-    # {"name": "lda+pca", "whiten": False, "lda": True, "pca": True},
-    # {"name": "whiten+lda+pca", "whiten": True, "lda": True, "pca": True},
+    {"name": "baseline", "whiten": False, "lda": False, "pca": False, "pls": False},
+    {"name": "whiten", "whiten": True, "lda": False, "pca": False, "pls": False},
+    {"name": "lda", "whiten": False, "lda": True, "pca": False, "pls": False},
+    {"name": "pca", "whiten": False, "lda": False, "pca": True, "pls": False},
+    {"name": "pls", "whiten": False, "lda": False, "pca": False, "pls": True},
+    {"name": "lda+pls", "whiten": False, "lda": True, "pca": False, "pls": True},
+    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False, "pls": False},
+    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True, "pls": False},
+    {"name": "whiten+pls", "whiten": True, "lda": False, "pca": False, "pls": True},
+    {"name": "whiten+lda+pls", "whiten": True, "lda": True, "pca": False, "pls": True},
 ]
 
 
@@ -54,6 +56,13 @@ def feature_selection_space_env():
     value = os.environ.get("FEATURE_SELECTION_SPACE", "transformed").strip().lower()
     if value not in {"transformed", "raw"}:
         raise ValueError(f"Invalid FEATURE_SELECTION_SPACE: {value}")
+    return value
+
+
+def projection_mode_env():
+    value = os.environ.get("PROJECTION_MODE", "anchors").strip().lower()
+    if value not in {"anchors", "regression"}:
+        raise ValueError(f"Invalid PROJECTION_MODE: {value}")
     return value
 
 
@@ -111,12 +120,14 @@ def main():
             )
 
     rows = read_tsv(TSV_PATH)
+    projection_mode = projection_mode_env()
     output_dir = create_folder(
         OUTPUT_ROOT,
         {
             "feature_selection_space": feature_space,
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
+            "projection_mode": projection_mode,
         },
     )
     midi_dir = output_dir / "midi"
@@ -144,6 +155,7 @@ def main():
         axis=0,
     )
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
+    pls_target = np.asarray([float(row["midi_note"]) for row in rows], dtype=np.float64)
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
     np.save(output_dir / "embeddings.npy", matrix)
 
@@ -183,7 +195,13 @@ def main():
                 )
             combo_input = combo_input[:, feature_cols]
         transformed = apply_combo(
-            combo_input, labels, combo["whiten"], combo["lda"], combo["pca"]
+            combo_input,
+            labels,
+            combo["whiten"],
+            combo["lda"],
+            combo["pca"],
+            combo["pls"],
+            pls_target,
         )
         if feature_cols is not None and feature_space == "transformed":
             if transformed.shape[1] == 0:
@@ -195,7 +213,13 @@ def main():
                     f"{max_col} for transformed dim {transformed.shape[1]}"
                 )
             transformed = transformed[:, feature_cols]
-        raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
+        raw_projection = project_1d(
+            transformed,
+            anchor_a_idx,
+            anchor_b_idx,
+            eval_idx,
+            pls_target if projection_mode == "regression" else None,
+        )
         mappings = {
             "raw": raw_projection,
             "linear": fit_linear(raw_projection, real),

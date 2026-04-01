@@ -42,12 +42,14 @@ CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 BIN_DIR = REPO_ROOT / "bin"
 
 COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
+    {"name": "baseline", "whiten": False, "lda": False, "pca": False, "pls": False},
+    {"name": "whiten", "whiten": True, "lda": False, "pca": False, "pls": False},
+    {"name": "lda", "whiten": False, "lda": True, "pca": False, "pls": False},
+    {"name": "pca", "whiten": False, "lda": False, "pca": True, "pls": False},
+    {"name": "pls", "whiten": False, "lda": False, "pca": False, "pls": True},
+    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False, "pls": False},
+    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True, "pls": False},
+    {"name": "whiten+pls", "whiten": True, "lda": False, "pca": False, "pls": True},
 ]
 
 DATASETS = ["asap", "music21", "ewld", "overall"]
@@ -136,7 +138,7 @@ def combo_score(transformed, rows, query_to_index, mapping_name):
     return float(np.mean(scores)) if scores else float("-inf")
 
 
-def find_best_combo(matrix, labels, rows, query_to_index):
+def find_best_combo(matrix, labels, pls_target, rows, query_to_index):
     """Return (best_combo_name, best_mapping_name, best_score, best_transformed)."""
     best_score = float("-inf")
     best_combo_name = None
@@ -144,7 +146,13 @@ def find_best_combo(matrix, labels, rows, query_to_index):
     best_transformed = None
     for combo in COMBOS:
         transformed = apply_combo(
-            matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
+            matrix,
+            labels,
+            combo["whiten"],
+            combo["lda"],
+            combo["pca"],
+            combo["pls"],
+            pls_target,
         )
         for mapping_name in ["linear", "log_linear", "exp_linear"]:
             sc = combo_score(transformed, rows, query_to_index, mapping_name)
@@ -304,11 +312,14 @@ def run_feature_selection(selection_space="transformed"):
         embeddings.append(load_or_compute_embedding(query_id, midi_paths.get(query_id)))
     matrix = np.stack(embeddings, axis=0)
     labels = [row["composer"] for row in rows]
+    pls_target = np.asarray(
+        [float(row["midpoint_year"]) for row in rows], dtype=np.float64
+    )
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
     print("[3/6] finding best combo+mapping")
     best_combo_name, best_mapping_name, best_score, best_transformed = find_best_combo(
-        matrix, labels, rows, query_to_index
+        matrix, labels, pls_target, rows, query_to_index
     )
     print(
         f"  best combo: {best_combo_name}  mapping: {best_mapping_name}  score: {best_score:.6f}"
@@ -335,6 +346,8 @@ def run_feature_selection(selection_space="transformed"):
                 combo_cfg["whiten"],
                 combo_cfg["lda"],
                 combo_cfg["pca"],
+                combo_cfg["pls"],
+                pls_target,
             )
             return combo_score(
                 transformed_subset, rows, query_to_index, best_mapping_name

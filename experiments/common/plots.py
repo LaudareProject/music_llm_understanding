@@ -15,11 +15,25 @@ def _palette(labels):
     return {label: colors[i] for i, label in enumerate(unique)}
 
 
-def save_scatter(path, x, y, groups, title, xlabel, ylabel):
+def save_scatter(
+    path,
+    x,
+    y,
+    groups,
+    title,
+    xlabel,
+    ylabel,
+    ref_line: bool = False,
+    anchors_a: list[float] | None = None,
+    anchors_b: list[float] | None = None,
+):
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    anchors_a = [] if anchors_a is None else anchors_a
+    anchors_b = [] if anchors_b is None else anchors_b
 
     path.parent.mkdir(parents=True, exist_ok=True)
     x = np.asarray(x, dtype=np.float64)
@@ -31,12 +45,44 @@ def save_scatter(path, x, y, groups, title, xlabel, ylabel):
     for group in sorted(set(groups)):
         idx = [i for i, value in enumerate(groups) if value == group]
         ax.scatter(x[idx], y[idx], s=26, alpha=0.8, color=color_map[group], label=group)
+
+    if anchors_a is not None:
+        ax.scatter(
+            anchors_a,
+            anchors_a,
+            alpha=0.7,
+            color="black",
+            marker="X",
+            label="Anchors A",
+        )
+    if anchors_b is not None:
+        ax.scatter(
+            anchors_b,
+            anchors_b,
+            alpha=0.7,
+            color="black",
+            marker="D",
+            label="Anchors B",
+        )
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.grid(True, linestyle="--", alpha=0.35)
     if len(set(groups)) <= 12:
         ax.legend(loc="best", fontsize=7)
+
+    if ref_line:
+        # Add a reference line y = x for easier comparison, dashed, red
+        min_val = min(np.min(x), np.min(y))
+        max_val = max(np.max(x), np.max(y))
+        ax.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            linestyle="--",
+            color="red",
+            alpha=0.7,
+        )
+
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)

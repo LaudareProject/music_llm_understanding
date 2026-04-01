@@ -1,22 +1,26 @@
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
 
+from experiments.composer_axis.anchor_selection_strategies import (
+    random_after_and_before_median,
+)
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.embed_aria import encode_midi
 from experiments.common.folder_handling import create_folder
-from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
+from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.math1d import (
+    _hann_weights,
     apply_combo,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
     hann_density,
-    _hann_weights,
     l1,
     pearson,
     project_1d,
@@ -25,9 +29,8 @@ from experiments.common.math1d import (
     weighted_pearson,
     weighted_spearman,
 )
-from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
-from experiments.common.embed_aria import encode_midi
-
+from experiments.common.plots import save_projection_strip, save_scatter, save_table_png
+from experiments.common.tsv import read_tsv, write_tsv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
@@ -116,13 +119,23 @@ def evaluate_dataset(
         relevant_rows = rows
     else:
         relevant_rows = [row for row in rows if row["dataset"] == name]
-    anchor_a_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "a"
-    ]
-    anchor_b_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "b"
-    ]
-    eval_rows = [row for row in relevant_rows if row[anchor_column] not in {"a", "b"}]
+
+    # filter out rows of ewld where year is below 1900
+    if name == "ewld":
+        relevant_rows = [
+            row for row in relevant_rows if float(row["midpoint_year"]) >= 1900
+        ]
+
+    anchor_a_ids, anchor_b_ids, eval_rows = random_after_and_before_median(
+        relevant_rows, n=10
+    )
+    # anchor_a_ids, anchor_b_ids, eval_rows = use_anchor_column(
+    #     relevant_rows, anchor_column
+    # )
+    # anchor_a_ids, anchor_b_ids, eval_rows = n_best_pairs_year_separation(
+    #     relevant_rows, year_sep=100, n=10
+    # )
+
     if len(eval_rows) < 2:
         return None
     anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
@@ -146,6 +159,20 @@ def evaluate_dataset(
     )
     death_years = np.asarray(
         [float(row["death_year"]) for row in eval_rows], dtype=np.float64
+    )
+    anchors_a_years = np.asarray(
+        [
+            float(row["midpoint_year"])
+            for row in relevant_rows
+            if row["query_id"] in anchor_a_ids
+        ],
+    )
+    anchors_b_years = np.asarray(
+        [
+            float(row["midpoint_year"])
+            for row in relevant_rows
+            if row["query_id"] in anchor_b_ids
+        ],
     )
     mappings = {
         "raw": raw_projection,
@@ -176,6 +203,8 @@ def evaluate_dataset(
             "random": baseline_l1,
             "sample_count": len(eval_rows),
             "query_ids": [row["query_id"] for row in eval_rows],
+            "anchors_a": anchors_a_years,
+            "anchors_b": anchors_b_years,
         }
     return out
 
@@ -502,6 +531,9 @@ def main():
                 title,
                 "Real value (composer midpoint year)",
                 "Projected value" if mapping == "raw" else "Mapped projected value",
+                ref_line=mapping != "raw",
+                anchors_a=metrics["anchors_a"] if mapping != "raw" else None,
+                anchors_b=metrics["anchors_b"] if mapping != "raw" else None,
             )
             for query_id, real_value, predicted_value, group in zip(
                 metrics["query_ids"],

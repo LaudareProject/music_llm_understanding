@@ -8,3 +8,4 @@ bin
 embedding_cache/
 processing_pipeline_flowchart.pdf
 cache/
+.mypy_cache/

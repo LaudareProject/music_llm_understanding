@@ -349,3 +349,4 @@ def main(anchor_selection_method="anchor_column"):
     )
     print("[5/5] done")
     print(output_dir)
+    return output_dir

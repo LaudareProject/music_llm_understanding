@@ -160,3 +160,82 @@ def save_table_png(path, headers, rows, title):
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)
+
+
+def save_heatmap(path, row_labels, col_labels, values, title, cmap="viridis"):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    values = np.asarray(values, dtype=np.float64)
+    fig, ax = plt.subplots(
+        figsize=(max(6.0, len(col_labels) * 1.1), max(3.5, len(row_labels) * 0.7 + 1.5))
+    )
+    masked = np.ma.masked_invalid(values)
+    image = ax.imshow(masked, aspect="auto", cmap=cmap)
+    ax.set_xticks(np.arange(len(col_labels)))
+    ax.set_yticks(np.arange(len(row_labels)))
+    ax.set_xticklabels(col_labels, rotation=45, ha="right")
+    ax.set_yticklabels(row_labels)
+    ax.set_title(title)
+    for i in range(values.shape[0]):
+        for j in range(values.shape[1]):
+            value = values[i, j]
+            label = "nan" if np.isnan(value) else f"{value:.3f}"
+            ax.text(j, i, label, ha="center", va="center", color="black", fontsize=8)
+    fig.colorbar(image, ax=ax, shrink=0.85)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)
+
+
+def save_image_matrix(
+    path, image_paths, row_labels, col_labels, title, cell_texts=None
+):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.image as mpimg
+    import matplotlib.pyplot as plt
+
+    n_rows = len(row_labels)
+    n_cols = len(col_labels)
+    fig, axes = plt.subplots(
+        n_rows,
+        n_cols,
+        figsize=(max(4.5, n_cols * 4.0), max(3.5, n_rows * 3.2)),
+        squeeze=False,
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for i, row_label in enumerate(row_labels):
+        for j, col_label in enumerate(col_labels):
+            ax = axes[i][j]
+            image_path = image_paths[i][j]
+            if image_path is not None and image_path.exists():
+                ax.imshow(mpimg.imread(image_path))
+            else:
+                ax.text(0.5, 0.5, "missing", ha="center", va="center", fontsize=12)
+            if cell_texts is not None and cell_texts[i][j]:
+                ax.text(
+                    0.02,
+                    0.02,
+                    cell_texts[i][j],
+                    transform=ax.transAxes,
+                    ha="left",
+                    va="bottom",
+                    fontsize=8,
+                    color="black",
+                    bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none"},
+                )
+            ax.set_xticks([])
+            ax.set_yticks([])
+            if i == 0:
+                ax.set_title(col_label, fontsize=10)
+            if j == 0:
+                ax.set_ylabel(row_label, fontsize=10)
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)

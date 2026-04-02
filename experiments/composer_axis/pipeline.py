@@ -459,6 +459,7 @@ def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
+            "use_hann_selection": use_hann_selection,
         },
     )
     rows, midi_paths = prepare_rows(output_dir)
@@ -513,3 +514,4 @@ def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
     )
     print("[5/5] done")
     print(output_dir)
+    return output_dir

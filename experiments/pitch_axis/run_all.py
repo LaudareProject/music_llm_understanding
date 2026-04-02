@@ -65,7 +65,10 @@ def row_l1(row):
 
 
 def cell_label(row):
-    return f"rho={to_float(row['spearman']):.3f}\nl1={to_float(row['l1']):.3f}"
+    return (
+        f"rho={to_float(row['spearman']):.3f}+/-{to_float(row.get('spearman_ci95', 'nan')):.3f}"
+        f"\nl1={to_float(row['l1']):.3f}+/-{to_float(row.get('l1_ci95', 'nan')):.3f}"
+    )
 
 
 def best_value(rows, metric_name, maximize):
@@ -175,7 +178,11 @@ def dataset_transformation_image_matrix(mode_results):
             texts[0].append("")
             continue
         _, mode, row = best
-        images[0].append(mode["output_dir"] / f"scatter_pitch_{row['mapping']}.png")
+        images[0].append(
+            mode["output_dir"]
+            / "scatters_by_combo"
+            / f"scatter_pitch__{combo}__{row['mapping']}.png"
+        )
         texts[0].append(cell_label(row))
     return columns, images, texts
 

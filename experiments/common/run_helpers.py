@@ -64,15 +64,23 @@ def select_feature_columns(matrix, feature_cols, label):
 def save_metric_table(
     output_path, combos, rows, key_fields, column_specs, metric_name, title
 ):
-    value_map = {
-        tuple(row[field] for field in key_fields): row[metric_name] for row in rows
-    }
+    value_map = {tuple(row[field] for field in key_fields): row for row in rows}
     body = []
     for combo in combos:
         line = [combo["name"]]
         for _, key in column_specs:
-            value = value_map.get((combo["name"],) + key, float("nan"))
-            line.append("nan" if np.isnan(value) else f"{value:.3f}")
+            row = value_map.get((combo["name"],) + key)
+            if row is None:
+                line.append("nan")
+                continue
+            value = row[metric_name]
+            ci_value = row.get(f"{metric_name}_ci95", float("nan"))
+            if np.isnan(value):
+                line.append("nan")
+            elif np.isnan(ci_value):
+                line.append(f"{value:.3f}")
+            else:
+                line.append(f"{value:.3f} +/- {ci_value:.3f}")
         body.append(line)
     headers = ["combo"] + [label for label, _ in column_specs]
     save_table_png(output_path, headers, body, title)

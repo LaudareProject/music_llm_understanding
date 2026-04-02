@@ -39,24 +39,24 @@ RUN_SPECS = [
         "hann": False,
         "label": "pairs",
     },
-    {
-        "script": "run_hann.py",
-        "anchor": "anchor_column",
-        "hann": True,
-        "label": "column+hann",
-    },
-    {
-        "script": "run_random_median_hann.py",
-        "anchor": "random_median",
-        "hann": True,
-        "label": "random+hann",
-    },
-    {
-        "script": "run_best_pairs_hann.py",
-        "anchor": "best_pairs",
-        "hann": True,
-        "label": "pairs+hann",
-    },
+    # {
+    #     "script": "run_hann.py",
+    #     "anchor": "anchor_column",
+    #     "hann": True,
+    #     "label": "column+hann",
+    # },
+    # {
+    #     "script": "run_random_median_hann.py",
+    #     "anchor": "random_median",
+    #     "hann": True,
+    #     "label": "random+hann",
+    # },
+    # {
+    #     "script": "run_best_pairs_hann.py",
+    #     "anchor": "best_pairs",
+    #     "hann": True,
+    #     "label": "pairs+hann",
+    # },
 ]
 
 
@@ -121,7 +121,10 @@ def row_l1(row):
 
 
 def cell_label(row):
-    return f"rho={to_float(row['spearman']):.3f}\nl1={to_float(row['l1']):.3f}"
+    return (
+        f"rho={to_float(row['spearman']):.3f}+/-{to_float(row.get('spearman_ci95', 'nan')):.3f}"
+        f"\nl1={to_float(row['l1']):.3f}+/-{to_float(row.get('l1_ci95', 'nan')):.3f}"
+    )
 
 
 def best_value(rows, metric_name, maximize):
@@ -273,7 +276,9 @@ def dataset_transformation_image_matrix(mode_results):
                 continue
             _, mode, row = best
             row_images.append(
-                mode["output_dir"] / f"scatter_{dataset}_{row['mapping']}.png"
+                mode["output_dir"]
+                / "scatters_by_combo"
+                / f"scatter_{dataset}__{combo}__{row['mapping']}.png"
             )
             row_texts.append(cell_label(row))
         images.append(row_images)

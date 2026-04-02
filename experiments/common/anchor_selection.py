@@ -20,7 +20,7 @@ def _target_values(relevant_rows, target_key):
     )
 
 
-def random_after_and_before_median(relevant_rows, target_key, n=5, seed=42):
+def random_after_and_before_median(relevant_rows, target_key, n=0.15, seed=42):
     n_anchors = n if isinstance(n, int) else int(len(relevant_rows) * n)
     midpoint_median = np.median(_target_values(relevant_rows, target_key))
     anchor_a_ids = [
@@ -47,7 +47,7 @@ def random_after_and_before_median(relevant_rows, target_key, n=5, seed=42):
 
 
 def n_best_pairs_target_separation(
-    relevant_rows, target_key, separation=100, n=5, include_anchors_in_eval=False
+    relevant_rows, target_key, separation=100, n=10, include_anchors_in_eval=False
 ):
     pairs = []
     for i in range(len(relevant_rows)):
@@ -87,7 +87,7 @@ def select_anchors(
     anchor_column,
     method,
     target_key,
-    random_n=10,
+    random_n=0.15,
     best_pairs_n=10,
     best_pairs_separation=100,
 ):

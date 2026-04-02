@@ -239,3 +239,28 @@ def save_image_matrix(
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)
+
+
+def save_grouped_bar_chart(path, categories, series, title, ylabel):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    categories = list(categories)
+    xs = np.arange(len(categories), dtype=np.float64)
+    width = 0.38
+    offsets = np.linspace(-width / 2.0, width / 2.0, num=max(len(series), 1))
+    fig, ax = plt.subplots(figsize=(max(8.0, len(categories) * 0.7), 4.8))
+    for offset, (label, values, color) in zip(offsets, series):
+        ax.bar(xs + offset, values, width=width, label=label, color=color, alpha=0.85)
+    ax.set_xticks(xs)
+    ax.set_xticklabels(categories, rotation=45, ha="right")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(True, axis="y", linestyle="--", alpha=0.35)
+    ax.legend(loc="best", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)

@@ -10,6 +10,7 @@ from experiments.common.folder_handling import create_folder
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.math1d import (
     _hann_weights,
+    cross_validated_mapping_summary,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
@@ -22,7 +23,7 @@ from experiments.common.math1d import (
     weighted_pearson,
     weighted_spearman,
 )
-from experiments.common.plots import save_scatter
+from experiments.common.plots import save_grouped_bar_chart, save_scatter
 from experiments.common.run_helpers import (
     feature_selection_space_env,
     parse_feature_cols_env,
@@ -165,30 +166,59 @@ def evaluate_dataset(matrix, rows, query_to_index, dataset, anchor_selection_met
         ],
         dtype=np.float64,
     )
-    predictions = {
-        "raw": raw_projection,
-        "linear": fit_linear(raw_projection, real),
-        "log_linear": fit_log_linear(raw_projection, real),
-        "exp_linear": fit_exp_linear(raw_projection, real),
-    }
     baseline_l1 = random_l1_baseline(real)
     groups = [row["composer"] for row in eval_rows]
+    cv_groups = np.asarray(groups)
     payload = {}
-    for mapping_name, predicted in predictions.items():
-        predicted = np.asarray(predicted, dtype=np.float64)
-        weights = _hann_weights(predicted, birth_years, death_years)
+    for mapping_name in MAPPINGS:
+        summary = cross_validated_mapping_summary(
+            raw_projection,
+            real,
+            cv_groups,
+            mapping_name,
+            extra_metric_fns={
+                "hann_pearson": lambda test_idx, predicted: weighted_pearson(
+                    real[test_idx],
+                    predicted,
+                    _hann_weights(
+                        predicted, birth_years[test_idx], death_years[test_idx]
+                    ),
+                ),
+                "hann_spearman": lambda test_idx, predicted: weighted_spearman(
+                    real[test_idx],
+                    predicted,
+                    _hann_weights(
+                        predicted, birth_years[test_idx], death_years[test_idx]
+                    ),
+                ),
+                "hann_score": lambda test_idx, predicted: hann_density(
+                    predicted,
+                    birth_years[test_idx],
+                    death_years[test_idx],
+                ),
+            },
+        )
+        predicted = np.asarray(summary["predicted"], dtype=np.float64)
         payload[mapping_name] = {
             "real": real,
-            "predicted": predicted,
+            "predicted": np.asarray(summary["lolo_predicted"], dtype=np.float64),
+            "averaged_model_predicted": predicted,
             "groups": groups,
-            "pearson": pearson(real, predicted),
-            "spearman": spearman(real, predicted),
-            "hann_pearson": weighted_pearson(real, predicted, weights),
-            "hann_spearman": weighted_spearman(real, predicted, weights),
-            "hann_score": hann_density(predicted, birth_years, death_years),
-            "l1": float("nan") if mapping_name == "raw" else l1(real, predicted),
+            "pearson": summary["pearson"],
+            "pearson_ci95": summary["pearson_ci95"],
+            "spearman": summary["spearman"],
+            "spearman_ci95": summary["spearman_ci95"],
+            "hann_pearson": summary["hann_pearson"],
+            "hann_pearson_ci95": summary["hann_pearson_ci95"],
+            "hann_spearman": summary["hann_spearman"],
+            "hann_spearman_ci95": summary["hann_spearman_ci95"],
+            "hann_score": summary["hann_score"],
+            "hann_score_ci95": summary["hann_score_ci95"],
+            "l1": summary["l1"],
+            "l1_ci95": summary["l1_ci95"],
             "random": baseline_l1,
             "sample_count": len(eval_rows),
+            "fold_count": summary["fold_count"],
             "query_ids": [row["query_id"] for row in eval_rows],
             "anchors_a": anchors_a,
             "anchors_b": anchors_b,
@@ -209,13 +239,20 @@ def metric_rows_for_combo(combo_name, payload):
                     "dataset": dataset,
                     "mapping": mapping_name,
                     "pearson": metrics["pearson"],
+                    "pearson_ci95": metrics["pearson_ci95"],
                     "spearman": metrics["spearman"],
+                    "spearman_ci95": metrics["spearman_ci95"],
                     "hann_pearson": metrics["hann_pearson"],
+                    "hann_pearson_ci95": metrics["hann_pearson_ci95"],
                     "hann_spearman": metrics["hann_spearman"],
+                    "hann_spearman_ci95": metrics["hann_spearman_ci95"],
                     "hann_score": metrics["hann_score"],
+                    "hann_score_ci95": metrics["hann_score_ci95"],
                     "l1": metrics["l1"],
+                    "l1_ci95": metrics["l1_ci95"],
                     "random": metrics["random"],
                     "sample_count": metrics["sample_count"],
+                    "fold_count": metrics["fold_count"],
                 }
             )
     return rows
@@ -252,9 +289,60 @@ def combo_score_row(combo_name, payload):
     }
 
 
+def save_year_source_histograms(output_dir, rows):
+    for dataset in [dataset for dataset in DATASETS if dataset != "overall"]:
+        dataset_rows = [row for row in rows if row["dataset"] == dataset]
+        composers = sorted({row["composer"] for row in dataset_rows})
+        scraped_counts = []
+        lifespan_counts = []
+        for composer in composers:
+            composer_rows = [row for row in dataset_rows if row["composer"] == composer]
+            scraped_counts.append(
+                sum(
+                    row["year_source"].startswith(("imslp_", "wikipedia_", "rism_"))
+                    for row in composer_rows
+                )
+            )
+            lifespan_counts.append(
+                sum(row["year_source"] == "lifespan_midpoint" for row in composer_rows)
+            )
+        save_grouped_bar_chart(
+            output_dir / f"year_source_histogram_{dataset}.png",
+            composers,
+            [
+                ("scraped", scraped_counts, "#4c78a8"),
+                ("lifespan_midpoint", lifespan_counts, "#f58518"),
+            ],
+            f"{dataset} year sources by composer",
+            "Count",
+        )
+
+
+def scatter_title(dataset, combo_name, mapping_name, metrics):
+    title = (
+        f"{dataset} | {mapping_name} | {combo_name}\n"
+        f"pearson={metrics['pearson']:.3f}+/-{metrics['pearson_ci95']:.3f}, "
+        f"spearman={metrics['spearman']:.3f}+/-{metrics['spearman_ci95']:.3f}"
+    )
+    if mapping_name != "raw":
+        title += (
+            f"\nl1={metrics['l1']:.2f}+/-{metrics['l1_ci95']:.2f}, "
+            f"random={metrics['random']:.2f}, "
+            f"hann={metrics['hann_score']:.3f}+/-{metrics['hann_score_ci95']:.3f}"
+        )
+    return title
+
+
 def write_outputs(
-    output_dir, combos, metric_rows, combo_scores, payloads_by_combo, use_hann_selection
+    output_dir,
+    rows,
+    combos,
+    metric_rows,
+    combo_scores,
+    payloads_by_combo,
+    use_hann_selection,
 ):
+    save_year_source_histograms(output_dir, rows)
     write_tsv(
         output_dir / "metrics.tsv",
         [
@@ -265,23 +353,42 @@ def write_outputs(
                 "pearson": f"{row['pearson']:.10f}"
                 if not np.isnan(row["pearson"])
                 else "nan",
+                "pearson_ci95": f"{row['pearson_ci95']:.10f}"
+                if not np.isnan(row["pearson_ci95"])
+                else "nan",
                 "spearman": f"{row['spearman']:.10f}"
                 if not np.isnan(row["spearman"])
+                else "nan",
+                "spearman_ci95": f"{row['spearman_ci95']:.10f}"
+                if not np.isnan(row["spearman_ci95"])
                 else "nan",
                 "hann_pearson": f"{row['hann_pearson']:.10f}"
                 if not np.isnan(row["hann_pearson"])
                 else "nan",
+                "hann_pearson_ci95": f"{row['hann_pearson_ci95']:.10f}"
+                if not np.isnan(row["hann_pearson_ci95"])
+                else "nan",
                 "hann_spearman": f"{row['hann_spearman']:.10f}"
                 if not np.isnan(row["hann_spearman"])
+                else "nan",
+                "hann_spearman_ci95": f"{row['hann_spearman_ci95']:.10f}"
+                if not np.isnan(row["hann_spearman_ci95"])
                 else "nan",
                 "hann_score": f"{row['hann_score']:.10f}"
                 if not np.isnan(row["hann_score"])
                 else "nan",
+                "hann_score_ci95": f"{row['hann_score_ci95']:.10f}"
+                if not np.isnan(row["hann_score_ci95"])
+                else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
+                "l1_ci95": f"{row['l1_ci95']:.10f}"
+                if not np.isnan(row["l1_ci95"])
+                else "nan",
                 "random": f"{row['random']:.10f}"
                 if not np.isnan(row["random"])
                 else "nan",
                 "sample_count": row["sample_count"],
+                "fold_count": row["fold_count"],
             }
             for row in metric_rows
         ],
@@ -290,13 +397,20 @@ def write_outputs(
             "dataset",
             "mapping",
             "pearson",
+            "pearson_ci95",
             "spearman",
+            "spearman_ci95",
             "hann_pearson",
+            "hann_pearson_ci95",
             "hann_spearman",
+            "hann_spearman_ci95",
             "hann_score",
+            "hann_score_ci95",
             "l1",
+            "l1_ci95",
             "random",
             "sample_count",
+            "fold_count",
         ],
     )
     write_tsv(
@@ -387,6 +501,29 @@ def write_outputs(
         "Composer chronology Hann overlap score",
     )
 
+    scatter_dir = output_dir / "scatters_by_combo"
+    for combo_name, payload in payloads_by_combo.items():
+        for dataset in DATASETS:
+            if payload[dataset] is None:
+                continue
+            for mapping_name in MAPPINGS:
+                metrics = payload[dataset][mapping_name]
+                save_scatter(
+                    scatter_dir
+                    / f"scatter_{dataset}__{combo_name}__{mapping_name}.png",
+                    metrics["real"],
+                    metrics["predicted"],
+                    metrics["groups"],
+                    scatter_title(dataset, combo_name, mapping_name, metrics),
+                    "Real value (composer midpoint year)",
+                    "Projected value"
+                    if mapping_name == "raw"
+                    else "Mapped projected value",
+                    ref_line=mapping_name != "raw",
+                    anchors_a=metrics["anchors_a"] if mapping_name != "raw" else None,
+                    anchors_b=metrics["anchors_b"] if mapping_name != "raw" else None,
+                )
+
     best_by_dataset = {}
     for dataset in DATASETS:
         candidates = [
@@ -406,15 +543,12 @@ def write_outputs(
     for dataset, best in best_by_dataset.items():
         for mapping_name in MAPPINGS:
             metrics = best["payload"][mapping_name]
-            title = f"{dataset} | {mapping_name} | {best['combo']}\npearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
-            if mapping_name != "raw":
-                title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}, hann={metrics['hann_score']:.3f}"
             save_scatter(
                 output_dir / f"scatter_{dataset}_{mapping_name}.png",
                 metrics["real"],
                 metrics["predicted"],
                 metrics["groups"],
-                title,
+                scatter_title(dataset, best["combo"], mapping_name, metrics),
                 "Real value (composer midpoint year)",
                 "Projected value"
                 if mapping_name == "raw"
@@ -506,6 +640,7 @@ def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
     print("[4/5] writing outputs")
     write_outputs(
         output_dir,
+        rows,
         combos,
         metric_rows,
         combo_scores,

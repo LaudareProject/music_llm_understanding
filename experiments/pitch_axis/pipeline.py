@@ -9,6 +9,7 @@ from experiments.common.anchor_selection import select_anchors
 from experiments.common.embed_aria import encode_midi
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
+    cross_validated_mapping_summary,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
@@ -112,6 +113,7 @@ def build_payload(transformed, rows, query_to_index, anchor_selection_method):
     real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
     raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
     groups = [row["name"] for row in eval_rows]
+    cv_groups = np.asarray([row["midi_note"] for row in eval_rows])
     anchors_a = np.asarray(
         [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_a_ids],
         dtype=np.float64,
@@ -120,29 +122,31 @@ def build_payload(transformed, rows, query_to_index, anchor_selection_method):
         [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_b_ids],
         dtype=np.float64,
     )
-    predictions = {
-        "raw": raw_projection,
-        "linear": fit_linear(raw_projection, real),
-        "log_linear": fit_log_linear(raw_projection, real),
-        "exp_linear": fit_exp_linear(raw_projection, real),
-    }
     baseline_l1 = random_l1_baseline(real)
-    return {
-        mapping_name: {
+    payload = {}
+    for mapping_name in MAPPINGS:
+        summary = cross_validated_mapping_summary(
+            raw_projection, real, cv_groups, mapping_name
+        )
+        payload[mapping_name] = {
             "real": real,
-            "predicted": np.asarray(predicted, dtype=np.float64),
+            "predicted": summary["lolo_predicted"],
+            "averaged_model_predicted": summary["predicted"],
             "groups": groups,
-            "pearson": pearson(real, predicted),
-            "spearman": spearman(real, predicted),
-            "l1": float("nan") if mapping_name == "raw" else l1(real, predicted),
+            "pearson": summary["pearson"],
+            "pearson_ci95": summary["pearson_ci95"],
+            "spearman": summary["spearman"],
+            "spearman_ci95": summary["spearman_ci95"],
+            "l1": summary["l1"],
+            "l1_ci95": summary["l1_ci95"],
             "random": baseline_l1,
             "sample_count": len(eval_rows),
+            "fold_count": summary["fold_count"],
             "query_ids": [row["query_id"] for row in eval_rows],
             "anchors_a": anchors_a,
             "anchors_b": anchors_b,
         }
-        for mapping_name, predicted in predictions.items()
-    }
+    return payload
 
 
 def metric_rows_for_combo(combo_name, payload):
@@ -151,10 +155,14 @@ def metric_rows_for_combo(combo_name, payload):
             "combo": combo_name,
             "mapping": mapping_name,
             "pearson": payload[mapping_name]["pearson"],
+            "pearson_ci95": payload[mapping_name]["pearson_ci95"],
             "spearman": payload[mapping_name]["spearman"],
+            "spearman_ci95": payload[mapping_name]["spearman_ci95"],
             "l1": payload[mapping_name]["l1"],
+            "l1_ci95": payload[mapping_name]["l1_ci95"],
             "random": payload[mapping_name]["random"],
             "sample_count": payload[mapping_name]["sample_count"],
+            "fold_count": payload[mapping_name]["fold_count"],
         }
         for mapping_name in MAPPINGS
     ]
@@ -176,8 +184,28 @@ def combo_score_row(combo_name, payload):
     }
 
 
+def scatter_title(combo_name, mapping_name, metrics):
+    title = (
+        f"pitch | {mapping_name} | {combo_name}\n"
+        f"pearson={metrics['pearson']:.3f}+/-{metrics['pearson_ci95']:.3f}, "
+        f"spearman={metrics['spearman']:.3f}+/-{metrics['spearman_ci95']:.3f}"
+    )
+    if mapping_name != "raw":
+        title += (
+            f"\nl1={metrics['l1']:.2f}+/-{metrics['l1_ci95']:.2f}, "
+            f"random={metrics['random']:.2f}"
+        )
+    return title
+
+
 def write_outputs(
-    output_dir, combos, metric_rows, combo_scores, best_combo_name, best_payload
+    output_dir,
+    combos,
+    metric_rows,
+    combo_scores,
+    payloads_by_combo,
+    best_combo_name,
+    best_payload,
 ):
     write_tsv(
         output_dir / "metrics.tsv",
@@ -188,18 +216,40 @@ def write_outputs(
                 "pearson": f"{row['pearson']:.10f}"
                 if not np.isnan(row["pearson"])
                 else "nan",
+                "pearson_ci95": f"{row['pearson_ci95']:.10f}"
+                if not np.isnan(row["pearson_ci95"])
+                else "nan",
                 "spearman": f"{row['spearman']:.10f}"
                 if not np.isnan(row["spearman"])
                 else "nan",
+                "spearman_ci95": f"{row['spearman_ci95']:.10f}"
+                if not np.isnan(row["spearman_ci95"])
+                else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
+                "l1_ci95": f"{row['l1_ci95']:.10f}"
+                if not np.isnan(row["l1_ci95"])
+                else "nan",
                 "random": f"{row['random']:.10f}"
                 if not np.isnan(row["random"])
                 else "nan",
                 "sample_count": row["sample_count"],
+                "fold_count": row["fold_count"],
             }
             for row in metric_rows
         ],
-        ["combo", "mapping", "pearson", "spearman", "l1", "random", "sample_count"],
+        [
+            "combo",
+            "mapping",
+            "pearson",
+            "pearson_ci95",
+            "spearman",
+            "spearman_ci95",
+            "l1",
+            "l1_ci95",
+            "random",
+            "sample_count",
+            "fold_count",
+        ],
     )
     write_tsv(
         output_dir / "combo_scores.tsv",
@@ -243,18 +293,34 @@ def write_outputs(
         "Pitch axis L1",
     )
 
+    scatter_dir = output_dir / "scatters_by_combo"
+    for combo_name, payload in payloads_by_combo.items():
+        for mapping_name in MAPPINGS:
+            metrics = payload[mapping_name]
+            save_scatter(
+                scatter_dir / f"scatter_pitch__{combo_name}__{mapping_name}.png",
+                metrics["real"],
+                metrics["predicted"],
+                metrics["groups"],
+                scatter_title(combo_name, mapping_name, metrics),
+                "Real value (MIDI note)",
+                "Projected value"
+                if mapping_name == "raw"
+                else "Mapped projected value",
+                ref_line=mapping_name != "raw",
+                anchors_a=metrics["anchors_a"] if mapping_name != "raw" else None,
+                anchors_b=metrics["anchors_b"] if mapping_name != "raw" else None,
+            )
+
     projection_rows = []
     for mapping_name in MAPPINGS:
         metrics = best_payload[mapping_name]
-        title = f"pitch | {mapping_name} | {best_combo_name}\npearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
-        if mapping_name != "raw":
-            title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
         save_scatter(
             output_dir / f"scatter_pitch_{mapping_name}.png",
             metrics["real"],
             metrics["predicted"],
             metrics["groups"],
-            title,
+            scatter_title(best_combo_name, mapping_name, metrics),
             "Real value (MIDI note)",
             "Projected value" if mapping_name == "raw" else "Mapped projected value",
             ref_line=mapping_name != "raw",
@@ -324,6 +390,7 @@ def main(anchor_selection_method="anchor_column"):
         print(f"  using selected {feature_space} cols: {len(feature_cols)}")
     metric_rows = []
     combo_scores = []
+    payloads_by_combo = {}
     best_payload = None
     best_score = None
     best_combo_name = None
@@ -335,6 +402,7 @@ def main(anchor_selection_method="anchor_column"):
         payload = build_payload(
             transformed, rows, query_to_index, anchor_selection_method
         )
+        payloads_by_combo[combo["name"]] = payload
         metric_rows.extend(metric_rows_for_combo(combo["name"], payload))
         combo_scores.append(combo_score_row(combo["name"], payload))
         score = combo_selection_score(payload)
@@ -345,7 +413,13 @@ def main(anchor_selection_method="anchor_column"):
 
     print("[4/5] writing outputs")
     write_outputs(
-        output_dir, combos, metric_rows, combo_scores, best_combo_name, best_payload
+        output_dir,
+        combos,
+        metric_rows,
+        combo_scores,
+        payloads_by_combo,
+        best_combo_name,
+        best_payload,
     )
     print("[5/5] done")
     print(output_dir)

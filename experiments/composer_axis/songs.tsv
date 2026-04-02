@@ -1,346 +1,346 @@
-query_id	dataset	composer	title	birth_year	death_year	midpoint_year	composer_rank	input_kind	path	axis_side	overall_side
-asap_bach_0001	asap	Bach	Fugue_bwv_848	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_848/xml_score.musicxml	a	.
-asap_bach_0002	asap	Bach	Fugue_bwv_862	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_862/xml_score.musicxml	a	.
-asap_bach_0003	asap	Bach	Fugue_bwv_863	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_863/xml_score.musicxml	.	.
-asap_bach_0004	asap	Bach	Fugue_bwv_870	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_870/xml_score.musicxml	a	.
-asap_bach_0005	asap	Bach	Fugue_bwv_873	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_873/xml_score.musicxml	.	.
-asap_bach_0006	asap	Bach	Fugue_bwv_875	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Fugue/bwv_875/xml_score.musicxml	a	.
-asap_bach_0007	asap	Bach	Prelude_bwv_865	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Prelude/bwv_865/xml_score.musicxml	.	.
-asap_bach_0008	asap	Bach	Prelude_bwv_875	1685	1750	1717.500000	0	musicxml	ASAP/Bach/Prelude/bwv_875/xml_score.musicxml	.	.
-asap_beethoven_0001	asap	Beethoven	Piano_Sonatas_12-1	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/12-1/xml_score.musicxml	.	.
-asap_beethoven_0002	asap	Beethoven	Piano_Sonatas_13-4	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/13-4/xml_score.musicxml	.	.
-asap_beethoven_0003	asap	Beethoven	Piano_Sonatas_26-1	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/26-1_no_repeat/xml_score.musicxml	.	.
-asap_beethoven_0004	asap	Beethoven	Piano_Sonatas_27-1	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/27-1/xml_score.musicxml	.	.
-asap_beethoven_0005	asap	Beethoven	Piano_Sonatas_29-4	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/29-4/xml_score.musicxml	.	.
-asap_beethoven_0006	asap	Beethoven	Piano_Sonatas_31-1	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/31-1/xml_score.musicxml	.	.
-asap_beethoven_0007	asap	Beethoven	Piano_Sonatas_8-1	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/8-1/xml_score.musicxml	.	a
-asap_beethoven_0008	asap	Beethoven	Piano_Sonatas_9-3	1770	1827	1798.500000	3	musicxml	ASAP/Beethoven/Piano_Sonatas/9-3/xml_score.musicxml	.	.
-asap_chopin_0001	asap	Chopin	Ballades_2	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Ballades/2/xml_score.musicxml	.	.
-asap_chopin_0002	asap	Chopin	Ballades_3	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Ballades/3/xml_score.musicxml	.	.
-asap_chopin_0003	asap	Chopin	Berceuse_op_57	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Berceuse_op_57/xml_score.musicxml	.	.
-asap_chopin_0004	asap	Chopin	Etudes_op_10_10	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Etudes_op_10/10/xml_score.musicxml	.	.
-asap_chopin_0005	asap	Chopin	Etudes_op_10_7	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Etudes_op_10/7/xml_score.musicxml	.	.
-asap_chopin_0006	asap	Chopin	Etudes_op_25_10	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Etudes_op_25/10/xml_score.musicxml	.	.
-asap_chopin_0007	asap	Chopin	Etudes_op_25_2	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Etudes_op_25/2/xml_score.musicxml	.	.
-asap_chopin_0008	asap	Chopin	Sonata_2_1st	1810	1849	1829.500000	5	musicxml	ASAP/Chopin/Sonata_2/1st_no_repeat/xml_score.musicxml	.	.
-asap_haydn_0001	asap	Haydn	Keyboard_Sonatas_31-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/31-1/xml_score.musicxml	.	.
-asap_haydn_0002	asap	Haydn	Keyboard_Sonatas_32-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/32-1/xml_score.musicxml	.	.
-asap_haydn_0003	asap	Haydn	Keyboard_Sonatas_39-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/39-1/xml_score.musicxml	.	.
-asap_haydn_0004	asap	Haydn	Keyboard_Sonatas_39-2	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/39-2/xml_score.musicxml	.	.
-asap_haydn_0005	asap	Haydn	Keyboard_Sonatas_46-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/46-1/xml_score.musicxml	.	.
-asap_haydn_0006	asap	Haydn	Keyboard_Sonatas_48-2	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/48-2/xml_score.musicxml	.	.
-asap_haydn_0007	asap	Haydn	Keyboard_Sonatas_49-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/49-1/xml_score.musicxml	.	.
-asap_haydn_0008	asap	Haydn	Keyboard_Sonatas_50-1	1732	1809	1770.500000	1	musicxml	ASAP/Haydn/Keyboard_Sonatas/50-1_no_repeat/xml_score.musicxml	.	.
-asap_liszt_0001	asap	Liszt	Annees_de_pelerinage_2_1_Gondoliera	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Annees_de_pelerinage_2/1_Gondoliera/xml_score.musicxml	.	.
-asap_liszt_0002	asap	Liszt	Concert_Etude_S145_1	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Concert_Etude_S145/1/xml_score.musicxml	.	.
-asap_liszt_0003	asap	Liszt	Gran_Etudes_de_Paganini_6_Theme_and_Variations	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Gran_Etudes_de_Paganini/6_Theme_and_Variations/xml_score.musicxml	.	.
-asap_liszt_0004	asap	Liszt	Gran_Etudes_de_Paganini_6_Theme_and_Variations	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Gran_Etudes_de_Paganini/6_Theme_and_Variations_repeat/xml_score.musicxml	.	.
-asap_liszt_0005	asap	Liszt	Mephisto_Waltz	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Mephisto_Waltz/xml_score.musicxml	.	a
-asap_liszt_0006	asap	Liszt	Transcendental_Etudes_10	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Transcendental_Etudes/10/xml_score.musicxml	.	.
-asap_liszt_0007	asap	Liszt	Transcendental_Etudes_11	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Transcendental_Etudes/11/xml_score.musicxml	.	.
-asap_liszt_0008	asap	Liszt	Transcendental_Etudes_4	1811	1886	1848.500000	7	musicxml	ASAP/Liszt/Transcendental_Etudes/4/xml_score.musicxml	.	.
-asap_mozart_0001	asap	Mozart	Fantasie_475	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Fantasie_475/xml_score.musicxml	.	.
-asap_mozart_0002	asap	Mozart	Piano_Sonatas_11-3	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Piano_Sonatas/11-3/xml_score.musicxml	.	.
-asap_mozart_0003	asap	Mozart	Piano_Sonatas_12-1	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Piano_Sonatas/12-1/xml_score.musicxml	.	.
-asap_mozart_0004	asap	Mozart	Piano_Sonatas_12-2	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Piano_Sonatas/12-2/xml_score.musicxml	.	.
-asap_mozart_0005	asap	Mozart	Piano_Sonatas_12-3	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Piano_Sonatas/12-3/xml_score.musicxml	.	.
-asap_mozart_0006	asap	Mozart	Piano_Sonatas_8-1	1756	1791	1773.500000	2	musicxml	ASAP/Mozart/Piano_Sonatas/8-1/xml_score.musicxml	.	.
-asap_rachmaninoff_0001	asap	Rachmaninoff	Preludes_op_23_4	1873	1943	1908.000000	9	musicxml	ASAP/Rachmaninoff/Preludes_op_23/4/xml_score.musicxml	b	.
-asap_rachmaninoff_0002	asap	Rachmaninoff	Preludes_op_23_6	1873	1943	1908.000000	9	musicxml	ASAP/Rachmaninoff/Preludes_op_23/6/xml_score.musicxml	b	.
-asap_rachmaninoff_0003	asap	Rachmaninoff	Preludes_op_32_10	1873	1943	1908.000000	9	musicxml	ASAP/Rachmaninoff/Preludes_op_32/10/xml_score.musicxml	b	.
-asap_rachmaninoff_0004	asap	Rachmaninoff	Preludes_op_32_5	1873	1943	1908.000000	9	musicxml	ASAP/Rachmaninoff/Preludes_op_32/5/xml_score.musicxml	b	.
-asap_ravel_0001	asap	Ravel	Gaspard_de_la_Nuit_1_Ondine	1875	1937	1906.000000	8	musicxml	ASAP/Ravel/Gaspard_de_la_Nuit/1_Ondine/xml_score.musicxml	.	.
-asap_ravel_0002	asap	Ravel	Miroirs_3_Une_Barque	1875	1937	1906.000000	8	musicxml	ASAP/Ravel/Miroirs/3_Une_Barque/xml_score.musicxml	.	.
-asap_ravel_0003	asap	Ravel	Miroirs_4_Alborada_del_gracioso	1875	1937	1906.000000	8	musicxml	ASAP/Ravel/Miroirs/4_Alborada_del_gracioso/xml_score.musicxml	.	.
-asap_ravel_0004	asap	Ravel	Pavane	1875	1937	1906.000000	8	musicxml	ASAP/Ravel/Pavane/xml_score.musicxml	.	.
-asap_schubert_0001	asap	Schubert	Impromptu_op.90_D.899_2	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/2/xml_score.musicxml	.	.
-asap_schubert_0002	asap	Schubert	Impromptu_op.90_D.899_3	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/3/xml_score.musicxml	.	.
-asap_schubert_0003	asap	Schubert	Impromptu_op.90_D.899_4	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/4/xml_score.musicxml	.	.
-asap_schubert_0004	asap	Schubert	Impromptu_op.90_D.899_4	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/4_no_repeat/xml_score.musicxml	.	.
-asap_schubert_0005	asap	Schubert	Impromptu_op142_1	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op142/1/xml_score.musicxml	.	.
-asap_schubert_0006	asap	Schubert	Impromptu_op142_3	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Impromptu_op142/3/xml_score.musicxml	.	.
-asap_schubert_0007	asap	Schubert	Piano_Sonatas_664-1	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Piano_Sonatas/664-1/xml_score.musicxml	.	.
-asap_schubert_0008	asap	Schubert	Piano_Sonatas_664-2	1797	1828	1812.500000	4	musicxml	ASAP/Schubert/Piano_Sonatas/664-2/xml_score.musicxml	.	.
-asap_schumann_0001	asap	Schumann	Arabeske	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Arabeske/xml_score.musicxml	.	.
-asap_schumann_0002	asap	Schumann	Kreisleriana_2	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Kreisleriana/2/xml_score.musicxml	.	.
-asap_schumann_0003	asap	Schumann	Kreisleriana_3	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Kreisleriana/3/xml_score.musicxml	.	.
-asap_schumann_0004	asap	Schumann	Kreisleriana_4	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Kreisleriana/4/xml_score.musicxml	.	.
-asap_schumann_0005	asap	Schumann	Kreisleriana_6	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Kreisleriana/6/xml_score.musicxml	.	.
-asap_schumann_0006	asap	Schumann	Kreisleriana_7	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Kreisleriana/7/xml_score.musicxml	.	.
-asap_schumann_0007	asap	Schumann	Toccata	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Toccata/xml_score.musicxml	.	.
-asap_schumann_0008	asap	Schumann	Toccata_repeat	1810	1856	1833.000000	6	musicxml	ASAP/Schumann/Toccata_repeat/xml_score.musicxml	.	.
-ewld_billevans_0001	ewld	Bill Evans	Interplay	1929	1980	1954.500000	22	musicxml	EWLD/dataset/Bill_Evans/Interplay/Interplay.mxl	.	.
-ewld_billevans_0002	ewld	Bill Evans	Time Remembered	1929	1980	1954.500000	22	musicxml	EWLD/dataset/Bill_Evans/Time_Remembered/Time_Remembered.mxl	.	.
-ewld_billevans_0003	ewld	Bill Evans	Turn Out the Stars	1929	1980	1954.500000	22	musicxml	EWLD/dataset/Bill_Evans/Turn_Out_the_Stars/Turn_Out_the_Stars.mxl	.	.
-ewld_billevans_0004	ewld	Bill Evans	Very Early	1929	1980	1954.500000	22	musicxml	EWLD/dataset/Bill_Evans/Very_Early/Very_Early.mxl	.	.
-ewld_billevans_0005	ewld	Bill Evans	Waltz for Debby	1929	1980	1954.500000	22	musicxml	EWLD/dataset/Bill_Evans/Waltz_for_Debby/Waltz_for_Debby.mxl	.	.
-ewld_billystrayhorn_0001	ewld	Billy Strayhorn	A Flower Is a Lovesome Thing	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/A_Flower_Is_a_Lovesome_Thing/A_Flower_Is_a_Lovesome_Thing.mxl	.	.
-ewld_billystrayhorn_0002	ewld	Billy Strayhorn	Johnny Come Lately	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/Johnny_Come_Lately/Johnny_Come_Lately.mxl	.	.
-ewld_billystrayhorn_0003	ewld	Billy Strayhorn	Lush Life	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/Lush_Life/Lush_Life.mxl	.	.
-ewld_billystrayhorn_0004	ewld	Billy Strayhorn	My Little Brown Book	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/My_Little_Brown_Book/My_Little_Brown_Book.mxl	.	.
-ewld_billystrayhorn_0005	ewld	Billy Strayhorn	Passion Flower	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/Passion_Flower/Passion_Flower.mxl	.	.
-ewld_billystrayhorn_0006	ewld	Billy Strayhorn	Raincheck	1915	1967	1941.000000	12	musicxml	EWLD/dataset/Billy_Strayhorn/Raincheck/Raincheck.mxl	.	.
-ewld_billystrayhorn_0007	ewld	Billy Strayhorn	"Take the ""A"" Train"	1915	1967	1941.000000	12	musicxml	"EWLD/dataset/Billy_Strayhorn/Take_the_""A""_Train/Take_the_""A""_Train.mxl"	.	.
-ewld_bobbydarin_0001	ewld	Bobby Darin	18 Yellow Roses	1936	1973	1954.500000	23	musicxml	EWLD/dataset/Bobby_Darin/18_Yellow_Roses/18_Yellow_Roses.mxl	.	.
-ewld_bobbydarin_0002	ewld	Bobby Darin	18 Yellow Roses	1936	1973	1954.500000	23	musicxml	EWLD/dataset/Bobby_Darin/18_Yellow_Roses/18_Yellow_Roses.mxl	.	.
-ewld_bobbydarin_0003	ewld	Bobby Darin	Things	1936	1973	1954.500000	23	musicxml	EWLD/dataset/Bobby_Darin/Things/Things.mxl	.	.
-ewld_bobbydarin_0004	ewld	Bobby Darin	You're the Reason I'm Living	1936	1973	1954.500000	23	musicxml	EWLD/dataset/Bobby_Darin/You're_the_Reason_I'm_Living/You're_the_Reason_I'm_Living.mxl	.	.
-ewld_bobmerrill_0001	ewld	Bob Merrill	A Sweet Old Fashioned Girl	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/A_Sweet_Old_Fashioned_Girl/A_Sweet_Old_Fashioned_Girl.mxl	.	.
-ewld_bobmerrill_0002	ewld	Bob Merrill	Mambo Italiano	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/Mambo_Italiano/Mambo_Italiano.mxl	.	.
-ewld_bobmerrill_0003	ewld	Bob Merrill	My Truly, Truly Fair	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/My_Truly,_Truly_Fair/My_Truly,_Truly_Fair.mxl	.	.
-ewld_bobmerrill_0004	ewld	Bob Merrill	Pittsburgh Pennsylvania	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/Pittsburgh_Pennsylvania/Pittsburgh_Pennsylvania.mxl	.	.
-ewld_bobmerrill_0005	ewld	Bob Merrill	She Wears Red Feathers	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/She_Wears_Red_Feathers/She_Wears_Red_Feathers.mxl	.	.
-ewld_bobmerrill_0006	ewld	Bob Merrill	The Doggie in the Window	1921	1998	1959.500000	28	musicxml	EWLD/dataset/Bob_Merrill/The_Doggie_in_the_Window/The_Doggie_in_the_Window.mxl	.	.
-ewld_buckram_0001	ewld	Buck Ram	(You've Got) The Magic Touch	1907	1991	1949.000000	19	musicxml	EWLD/dataset/Buck_Ram/(You've_Got)_The_Magic_Touch/(You've_Got)_The_Magic_Touch.mxl	.	.
-ewld_buckram_0002	ewld	Buck Ram	Only You (And You Alone)	1907	1991	1949.000000	19	musicxml	EWLD/dataset/Buck_Ram/Only_You_(And_You_Alone)/Only_You_(And_You_Alone).mxl	.	.
-ewld_buckram_0003	ewld	Buck Ram	The Great Pretender	1907	1991	1949.000000	19	musicxml	EWLD/dataset/Buck_Ram/The_Great_Pretender/The_Great_Pretender.mxl	.	.
-ewld_buckram_0004	ewld	Buck Ram	The Great Pretender	1907	1991	1949.000000	19	musicxml	EWLD/dataset/Buck_Ram/The_Great_Pretender/The_Great_Pretender.mxl	.	.
-ewld_carlsigman_0001	ewld	Carl Sigman	(Where Do I Begin?) Love Story	1909	2000	1954.500000	24	musicxml	EWLD/dataset/Carl_Sigman/(Where_Do_I_Begin?)_Love_Story/(Where_Do_I_Begin?)_Love_Story.mxl	.	.
-ewld_carlsigman_0002	ewld	Carl Sigman	A Day in the Life of a Fool	1909	2000	1954.500000	24	musicxml	EWLD/dataset/Carl_Sigman/A_Day_in_the_Life_of_a_Fool/A_Day_in_the_Life_of_a_Fool.mxl	.	.
-ewld_carlsigman_0003	ewld	Carl Sigman	Answer Me	1909	2000	1954.500000	24	musicxml	EWLD/dataset/Carl_Sigman/Answer_Me/Answer_Me.mxl	.	.
-ewld_carlsigman_0004	ewld	Carl Sigman	It's All in the Game	1909	2000	1954.500000	24	musicxml	EWLD/dataset/Carl_Sigman/It's_All_in_the_Game/It's_All_in_the_Game.mxl	.	.
-ewld_carlsigman_0005	ewld	Carl Sigman	What Now, My Love?	1909	2000	1954.500000	24	musicxml	EWLD/dataset/Carl_Sigman/What_Now,_My_Love?/What_Now,_My_Love?.mxl	.	.
-ewld_charlesmingus_0001	ewld	Charles Mingus	All the Things You Could Be by Now if Sigmond Freud's Wife Was Our Mother	1922	1979	1950.500000	21	musicxml	EWLD/dataset/Charles_Mingus/All_the_Things_You_Could_Be_by_Now_if_Sigmond_Freud's_Wife_Was_Our_Mother/All_the_Things_You_Could_Be_by_Now_if_Sigmond_Freud's_Wife_Was_Our_Mother.mxl	.	.
-ewld_charlesmingus_0002	ewld	Charles Mingus	Goodbye Pork Pie Hat	1922	1979	1950.500000	21	musicxml	EWLD/dataset/Charles_Mingus/Goodbye_Pork_Pie_Hat/Goodbye_Pork_Pie_Hat.mxl	.	.
-ewld_charlesmingus_0003	ewld	Charles Mingus	Jelly Roll	1922	1979	1950.500000	21	musicxml	EWLD/dataset/Charles_Mingus/Jelly_Roll/Jelly_Roll.mxl	.	.
-ewld_charlesmingus_0004	ewld	Charles Mingus	Jump Monk	1922	1979	1950.500000	21	musicxml	EWLD/dataset/Charles_Mingus/Jump_Monk/Jump_Monk.mxl	.	.
-ewld_charlesmingus_0005	ewld	Charles Mingus	Nostalgia in Times Square	1922	1979	1950.500000	21	musicxml	EWLD/dataset/Charles_Mingus/Nostalgia_in_Times_Square/Nostalgia_in_Times_Square.mxl	.	.
-ewld_charlieparker_0001	ewld	Charlie Parker	Billie's Bounce	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Billie's_Bounce/Billie's_Bounce.mxl	.	.
-ewld_charlieparker_0002	ewld	Charlie Parker	Confirmation	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Confirmation/Confirmation.mxl	.	.
-ewld_charlieparker_0003	ewld	Charlie Parker	Cool Blues	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Cool_Blues/Cool_Blues.mxl	.	.
-ewld_charlieparker_0004	ewld	Charlie Parker	Donna Lee	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Donna_Lee/Donna_Lee.mxl	.	.
-ewld_charlieparker_0005	ewld	Charlie Parker	Moose the Mooche	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Moose_the_Mooche/Moose_the_Mooche.mxl	.	.
-ewld_charlieparker_0006	ewld	Charlie Parker	My Little Suede Shoes	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/My_Little_Suede_Shoes/My_Little_Suede_Shoes.mxl	.	.
-ewld_charlieparker_0007	ewld	Charlie Parker	Now's the Time	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Now's_the_Time/Now's_the_Time.mxl	.	.
-ewld_charlieparker_0008	ewld	Charlie Parker	Perhaps	1920	1955	1937.500000	6	musicxml	EWLD/dataset/Charlie_Parker/Perhaps/Perhaps.mxl	.	.
-ewld_chuckberry_0001	ewld	Chuck Berry	Beautiful Delilah	1926	2017	1971.500000	35	musicxml	EWLD/dataset/Chuck_Berry/Beautiful_Delilah/Beautiful_Delilah.mxl	.	.
-ewld_chuckberry_0002	ewld	Chuck Berry	Carol	1926	2017	1971.500000	35	musicxml	EWLD/dataset/Chuck_Berry/Carol/Carol.mxl	.	.
-ewld_chuckberry_0003	ewld	Chuck Berry	Johnny B. Goode	1926	2017	1971.500000	35	musicxml	EWLD/dataset/Chuck_Berry/Johnny_B._Goode/Johnny_B._Goode.mxl	.	.
-ewld_chuckberry_0004	ewld	Chuck Berry	Maybellene	1926	2017	1971.500000	35	musicxml	EWLD/dataset/Chuck_Berry/Maybellene/Maybellene.mxl	.	.
-ewld_coleporter_0001	ewld	Cole Porter	Do I Love You?	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Do_I_Love_You?/Do_I_Love_You?.mxl	.	.
-ewld_coleporter_0002	ewld	Cole Porter	Don't Fence Me In	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Don't_Fence_Me_In/Don't_Fence_Me_In.mxl	.	.
-ewld_coleporter_0003	ewld	Cole Porter	Friendship	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Friendship/Friendship.mxl	.	a
-ewld_coleporter_0004	ewld	Cole Porter	From This Moment On	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/From_This_Moment_On/From_This_Moment_On.mxl	.	.
-ewld_coleporter_0005	ewld	Cole Porter	In the Still of the Night	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/In_the_Still_of_the_Night/In_the_Still_of_the_Night.mxl	.	.
-ewld_coleporter_0006	ewld	Cole Porter	Let's Misbehave	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Let's_Misbehave/Let's_Misbehave.mxl	.	a
-ewld_coleporter_0007	ewld	Cole Porter	Miss Otis Regrets	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Miss_Otis_Regrets/Miss_Otis_Regrets.mxl	.	.
-ewld_coleporter_0008	ewld	Cole Porter	Wunderbar	1891	1964	1927.500000	3	musicxml	EWLD/dataset/Cole_Porter/Wunderbar/Wunderbar.mxl	.	b
-ewld_dizzygillespie_0001	ewld	Dizzy Gillespie	Birk's Works	1917	1993	1955.000000	25	musicxml	EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl	.	.
-ewld_dizzygillespie_0002	ewld	Dizzy Gillespie	Birk's Works	1917	1993	1955.000000	25	musicxml	EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl	.	.
-ewld_dizzygillespie_0003	ewld	Dizzy Gillespie	Con Alma	1917	1993	1955.000000	25	musicxml	EWLD/dataset/Dizzy_Gillespie/Con_Alma/Con_Alma.mxl	.	.
-ewld_dizzygillespie_0004	ewld	Dizzy Gillespie	Groovin' High	1917	1993	1955.000000	25	musicxml	EWLD/dataset/Dizzy_Gillespie/Groovin'_High/Groovin'_High.mxl	.	.
-ewld_dizzygillespie_0005	ewld	Dizzy Gillespie	Woody'n You	1917	1993	1955.000000	25	musicxml	EWLD/dataset/Dizzy_Gillespie/Woody'n_You/Woody'n_You.mxl	.	.
-ewld_dottierambo_0001	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	33	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
-ewld_dottierambo_0002	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	33	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
-ewld_dottierambo_0003	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	33	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
-ewld_dottierambo_0004	ewld	Dottie Rambo	If That Isn't Love	1934	2008	1971.000000	33	musicxml	EWLD/dataset/Dottie_Rambo/If_That_Isn't_Love/If_That_Isn't_Love.mxl	.	.
-ewld_dukeellington_0001	ewld	Duke Ellington	C Jam Blues	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl	.	.
-ewld_dukeellington_0002	ewld	Duke Ellington	C Jam Blues	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl	.	.
-ewld_dukeellington_0003	ewld	Duke Ellington	Come Sunday	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/Come_Sunday/Come_Sunday.mxl	.	.
-ewld_dukeellington_0004	ewld	Duke Ellington	Come Sunday	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/Come_Sunday/Come_Sunday.mxl	.	.
-ewld_dukeellington_0005	ewld	Duke Ellington	Love You Madly	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/Love_You_Madly/Love_You_Madly.mxl	.	.
-ewld_dukeellington_0006	ewld	Duke Ellington	The Single Petal of a Rose	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/The_Single_Petal_of_a_Rose/The_Single_Petal_of_a_Rose.mxl	.	.
-ewld_dukeellington_0007	ewld	Duke Ellington	Warm Valley	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/Warm_Valley/Warm_Valley.mxl	.	.
-ewld_dukeellington_0008	ewld	Duke Ellington	What Am I Here For?	1899	1974	1936.500000	5	musicxml	EWLD/dataset/Duke_Ellington/What_Am_I_Here_For?/What_Am_I_Here_For?.mxl	.	.
-ewld_frankloesser_0001	ewld	Frank Loesser	A Bushel and a Peck	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/A_Bushel_and_a_Peck/A_Bushel_and_a_Peck.mxl	.	.
-ewld_frankloesser_0002	ewld	Frank Loesser	A Woman in Love	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/A_Woman_in_Love/A_Woman_in_Love.mxl	.	.
-ewld_frankloesser_0003	ewld	Frank Loesser	Anywhere I Wander	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/Anywhere_I_Wander/Anywhere_I_Wander.mxl	.	.
-ewld_frankloesser_0004	ewld	Frank Loesser	Guys and Dolls	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/Guys_and_Dolls/Guys_and_Dolls.mxl	.	.
-ewld_frankloesser_0005	ewld	Frank Loesser	On a Slow Boat to China	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/On_a_Slow_Boat_to_China/On_a_Slow_Boat_to_China.mxl	.	.
-ewld_frankloesser_0006	ewld	Frank Loesser	Spring Will Be a Little Late This Year	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/Spring_Will_Be_a_Little_Late_This_Year/Spring_Will_Be_a_Little_Late_This_Year.mxl	.	.
-ewld_frankloesser_0007	ewld	Frank Loesser	Standing on the Corner	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/Standing_on_the_Corner/Standing_on_the_Corner.mxl	.	.
-ewld_frankloesser_0008	ewld	Frank Loesser	What Are You Doing New Year's Eve	1910	1969	1939.500000	9	musicxml	EWLD/dataset/Frank_Loesser/What_Are_You_Doing_New_Year's_Eve/What_Are_You_Doing_New_Year's_Eve.mxl	.	.
-ewld_georgemcohan_0001	ewld	George M. Cohan	Give My Regards to Broadway	1878	1942	1910.000000	1	musicxml	EWLD/dataset/George_M._Cohan/Give_My_Regards_to_Broadway/Give_My_Regards_to_Broadway.mxl	.	.
-ewld_georgemcohan_0002	ewld	George M. Cohan	Mary's a Grand Old Name	1878	1942	1910.000000	1	musicxml	EWLD/dataset/George_M._Cohan/Mary's_a_Grand_Old_Name/Mary's_a_Grand_Old_Name.mxl	.	.
-ewld_georgemcohan_0003	ewld	George M. Cohan	Over There	1878	1942	1910.000000	1	musicxml	EWLD/dataset/George_M._Cohan/Over_There/Over_There.mxl	.	.
-ewld_georgemcohan_0004	ewld	George M. Cohan	Yankee Doodle Boy	1878	1942	1910.000000	1	musicxml	EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl	.	.
-ewld_georgemcohan_0005	ewld	George M. Cohan	Yankee Doodle Boy	1878	1942	1910.000000	1	musicxml	EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl	.	.
-ewld_hankwilliams_0001	ewld	Hank Williams	Cold, Cold Heart	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/Cold,_Cold_Heart/Cold,_Cold_Heart.mxl	.	.
-ewld_hankwilliams_0002	ewld	Hank Williams	Hey, Good Lookin'	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/Hey,_Good_Lookin'/Hey,_Good_Lookin'.mxl	.	.
-ewld_hankwilliams_0003	ewld	Hank Williams	House of Gold	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/House_of_Gold/House_of_Gold.mxl	.	.
-ewld_hankwilliams_0004	ewld	Hank Williams	I Can't Escape From You	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/I_Can't_Escape_From_You/I_Can't_Escape_From_You.mxl	.	.
-ewld_hankwilliams_0005	ewld	Hank Williams	I Won't Be Home No More	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/I_Won't_Be_Home_No_More/I_Won't_Be_Home_No_More.mxl	.	.
-ewld_hankwilliams_0006	ewld	Hank Williams	May You Never Be Alone	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/May_You_Never_Be_Alone/May_You_Never_Be_Alone.mxl	.	.
-ewld_hankwilliams_0007	ewld	Hank Williams	There's a Tear in My Beer	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/There's_a_Tear_in_My_Beer/There's_a_Tear_in_My_Beer.mxl	.	.
-ewld_hankwilliams_0008	ewld	Hank Williams	Your Cheatin' Heart	1923	1953	1938.000000	7	musicxml	EWLD/dataset/Hank_Williams/Your_Cheatin'_Heart/Your_Cheatin'_Heart.mxl	.	.
-ewld_harrymwoods_0001	ewld	Harry M. Woods	Side by Side	1896	1970	1933.000000	4	musicxml	EWLD/dataset/Harry_M._Woods/Side_by_Side/Side_by_Side.mxl	.	.
-ewld_harrymwoods_0002	ewld	Harry M. Woods	We Just Couldn't Say Goodbye	1896	1970	1933.000000	4	musicxml	EWLD/dataset/Harry_M._Woods/We_Just_Couldn't_Say_Goodbye/We_Just_Couldn't_Say_Goodbye.mxl	.	.
-ewld_harrymwoods_0003	ewld	Harry M. Woods	What a Little Moonlight Can Do	1896	1970	1933.000000	4	musicxml	EWLD/dataset/Harry_M._Woods/What_a_Little_Moonlight_Can_Do/What_a_Little_Moonlight_Can_Do.mxl	.	.
-ewld_harrymwoods_0004	ewld	Harry M. Woods	When the Red, Red, Robin Comes Bob, Bob, Bobbin' Along	1896	1970	1933.000000	4	musicxml	EWLD/dataset/Harry_M._Woods/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along.mxl	.	.
-ewld_henrymancini_0001	ewld	Henry Mancini	Baby Elephant Walk	1924	1994	1959.000000	27	musicxml	EWLD/dataset/Henry_Mancini/Baby_Elephant_Walk/Baby_Elephant_Walk.mxl	.	.
-ewld_henrymancini_0002	ewld	Henry Mancini	Baby Elephant Walk	1924	1994	1959.000000	27	musicxml	EWLD/dataset/Henry_Mancini/Baby_Elephant_Walk/Baby_Elephant_Walk.mxl	.	.
-ewld_henrymancini_0003	ewld	Henry Mancini	Breakfast at Tiffany's	1924	1994	1959.000000	27	musicxml	EWLD/dataset/Henry_Mancini/Breakfast_at_Tiffany's/Breakfast_at_Tiffany's.mxl	.	.
-ewld_henrymancini_0004	ewld	Henry Mancini	Mr. Lucky	1924	1994	1959.000000	27	musicxml	EWLD/dataset/Henry_Mancini/Mr._Lucky/Mr._Lucky.mxl	.	.
-ewld_hoagycarmichael_0001	ewld	Hoagy Carmichael	I Get Along Without You Very Well	1899	1981	1940.000000	10	musicxml	EWLD/dataset/Hoagy_Carmichael/I_Get_Along_Without_You_Very_Well/I_Get_Along_Without_You_Very_Well.mxl	.	.
-ewld_hoagycarmichael_0002	ewld	Hoagy Carmichael	Rockin' Chair	1899	1981	1940.000000	10	musicxml	EWLD/dataset/Hoagy_Carmichael/Rockin'_Chair/Rockin'_Chair.mxl	.	.
-ewld_hoagycarmichael_0003	ewld	Hoagy Carmichael	Stardust	1899	1981	1940.000000	10	musicxml	EWLD/dataset/Hoagy_Carmichael/Stardust/Stardust.mxl	.	.
-ewld_hoagycarmichael_0004	ewld	Hoagy Carmichael	Stardust	1899	1981	1940.000000	10	musicxml	EWLD/dataset/Hoagy_Carmichael/Stardust/Stardust.mxl	.	.
-ewld_horacesilver_0001	ewld	Horace Silver	Come on Home	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Come_on_Home/Come_on_Home.mxl	.	.
-ewld_horacesilver_0002	ewld	Horace Silver	Doodlin'	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Doodlin'/Doodlin'.mxl	.	.
-ewld_horacesilver_0003	ewld	Horace Silver	Gregory Is Here	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Gregory_Is_Here/Gregory_Is_Here.mxl	.	.
-ewld_horacesilver_0004	ewld	Horace Silver	Nica's Dream	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Nica's_Dream/Nica's_Dream.mxl	.	.
-ewld_horacesilver_0005	ewld	Horace Silver	Peace	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Peace/Peace.mxl	.	.
-ewld_horacesilver_0006	ewld	Horace Silver	Song for My Father	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Song_for_My_Father/Song_for_My_Father.mxl	.	b
-ewld_horacesilver_0007	ewld	Horace Silver	Strollin'	1928	2014	1971.000000	34	musicxml	EWLD/dataset/Horace_Silver/Strollin'/Strollin'.mxl	.	.
-ewld_irvingberlin_0001	ewld	Irving Berlin	A Pretty Girl Is Like a Melody	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/A_Pretty_Girl_Is_Like_a_Melody/A_Pretty_Girl_Is_Like_a_Melody.mxl	.	.
-ewld_irvingberlin_0002	ewld	Irving Berlin	Blue Skies	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/Blue_Skies/Blue_Skies.mxl	.	.
-ewld_irvingberlin_0003	ewld	Irving Berlin	God Bless America	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/God_Bless_America/God_Bless_America.mxl	.	.
-ewld_irvingberlin_0004	ewld	Irving Berlin	Love You Didn't Do Right by Me	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/Love_You_Didn't_Do_Right_by_Me/Love_You_Didn't_Do_Right_by_Me.mxl	.	.
-ewld_irvingberlin_0005	ewld	Irving Berlin	Remember	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/Remember/Remember.mxl	.	.
-ewld_irvingberlin_0006	ewld	Irving Berlin	Say It Isn't So	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/Say_It_Isn't_So/Say_It_Isn't_So.mxl	.	.
-ewld_irvingberlin_0007	ewld	Irving Berlin	The Song Is Ended (But the Melody Lingers On)	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/The_Song_Is_Ended_(But_the_Melody_Lingers_On)/The_Song_Is_Ended_(But_the_Melody_Lingers_On).mxl	.	.
-ewld_irvingberlin_0008	ewld	Irving Berlin	What'll I Do	1888	1989	1938.500000	8	musicxml	EWLD/dataset/Irving_Berlin/What'll_I_Do/What'll_I_Do.mxl	.	.
-ewld_johncoltrane_0001	ewld	John Coltrane	Blue Train	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Blue_Train/Blue_Train.mxl	.	.
-ewld_johncoltrane_0002	ewld	John Coltrane	Central Park West	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Central_Park_West/Central_Park_West.mxl	.	.
-ewld_johncoltrane_0003	ewld	John Coltrane	Cousin Mary	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Cousin_Mary/Cousin_Mary.mxl	.	.
-ewld_johncoltrane_0004	ewld	John Coltrane	Equinox	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Equinox/Equinox.mxl	.	.
-ewld_johncoltrane_0005	ewld	John Coltrane	Giant Steps	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Giant_Steps/Giant_Steps.mxl	.	.
-ewld_johncoltrane_0006	ewld	John Coltrane	Impressions	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Impressions/Impressions.mxl	.	.
-ewld_johncoltrane_0007	ewld	John Coltrane	Mr. P.C.	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Mr._P.C./Mr._P.C..mxl	.	.
-ewld_johncoltrane_0008	ewld	John Coltrane	Some Other Blues	1926	1967	1946.500000	16	musicxml	EWLD/dataset/John_Coltrane/Some_Other_Blues/Some_Other_Blues.mxl	.	.
-ewld_johndenver_0001	ewld	John Denver	Annie's Song	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Annie's_Song/Annie's_Song.mxl	.	.
-ewld_johndenver_0002	ewld	John Denver	Back Home Again	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Back_Home_Again/Back_Home_Again.mxl	.	.
-ewld_johndenver_0003	ewld	John Denver	Calypso	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Calypso/Calypso.mxl	.	.
-ewld_johndenver_0004	ewld	John Denver	Follow Me	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Follow_Me/Follow_Me.mxl	.	.
-ewld_johndenver_0005	ewld	John Denver	I'm Sorry	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/I'm_Sorry/I'm_Sorry.mxl	.	.
-ewld_johndenver_0006	ewld	John Denver	Leaving on a Jet Plane	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Leaving_on_a_Jet_Plane/Leaving_on_a_Jet_Plane.mxl	.	.
-ewld_johndenver_0007	ewld	John Denver	Like a Sad Song	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Like_a_Sad_Song/Like_a_Sad_Song.mxl	.	.
-ewld_johndenver_0008	ewld	John Denver	Looking for Space	1943	1997	1970.000000	32	musicxml	EWLD/dataset/John_Denver/Looking_for_Space/Looking_for_Space.mxl	.	.
-ewld_johnnymarks_0001	ewld	Johnny Marks	A Holly Jolly Christmas	1909	1985	1947.000000	17	musicxml	EWLD/dataset/Johnny_Marks/A_Holly_Jolly_Christmas/A_Holly_Jolly_Christmas.mxl	.	.
-ewld_johnnymarks_0002	ewld	Johnny Marks	Most Wonderful Day of the Year	1909	1985	1947.000000	17	musicxml	EWLD/dataset/Johnny_Marks/Most_Wonderful_Day_of_the_Year/Most_Wonderful_Day_of_the_Year.mxl	.	.
-ewld_johnnymarks_0003	ewld	Johnny Marks	Rudolph, the Red-Nosed Reindeer	1909	1985	1947.000000	17	musicxml	EWLD/dataset/Johnny_Marks/Rudolph,_the_Red-Nosed_Reindeer/Rudolph,_the_Red-Nosed_Reindeer.mxl	.	.
-ewld_johnnymarks_0004	ewld	Johnny Marks	Rudolph, the Red-Nosed Reindeer	1909	1985	1947.000000	17	musicxml	EWLD/dataset/Johnny_Marks/Rudolph,_the_Red-Nosed_Reindeer/Rudolph,_the_Red-Nosed_Reindeer.mxl	.	.
-ewld_johnnymercer_0001	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
-ewld_johnnymercer_0002	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
-ewld_johnnymercer_0003	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
-ewld_johnnymercer_0004	ewld	Johnny Mercer	Dream	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Dream/Dream.mxl	.	.
-ewld_johnnymercer_0005	ewld	Johnny Mercer	G.I. Jive	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/G.I._Jive/G.I._Jive.mxl	.	.
-ewld_johnnymercer_0006	ewld	Johnny Mercer	I'm an Old Cowhand (From the Rio Grande)	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/I'm_an_Old_Cowhand_(From_the_Rio_Grande)/I'm_an_Old_Cowhand_(From_the_Rio_Grande).mxl	.	.
-ewld_johnnymercer_0007	ewld	Johnny Mercer	Something's Gotta Give	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Something's_Gotta_Give/Something's_Gotta_Give.mxl	.	.
-ewld_johnnymercer_0008	ewld	Johnny Mercer	Summer Wind	1909	1976	1942.500000	14	musicxml	EWLD/dataset/Johnny_Mercer/Summer_Wind/Summer_Wind.mxl	.	.
-ewld_jonhendricks_0001	ewld	Jon Hendricks	A Night in Tunisia	1921	2017	1969.000000	31	musicxml	EWLD/dataset/Jon_Hendricks/A_Night_in_Tunisia/A_Night_in_Tunisia.mxl	.	.
-ewld_jonhendricks_0002	ewld	Jon Hendricks	A Night in Tunisia	1921	2017	1969.000000	31	musicxml	EWLD/dataset/Jon_Hendricks/A_Night_in_Tunisia/A_Night_in_Tunisia.mxl	.	.
-ewld_jonhendricks_0003	ewld	Jon Hendricks	Centerpiece	1921	2017	1969.000000	31	musicxml	EWLD/dataset/Jon_Hendricks/Centerpiece/Centerpiece.mxl	.	.
-ewld_jonhendricks_0004	ewld	Jon Hendricks	One Note Samba	1921	2017	1969.000000	31	musicxml	EWLD/dataset/Jon_Hendricks/One_Note_Samba/One_Note_Samba.mxl	.	.
-ewld_leroyanderson_0001	ewld	Leroy Anderson	Belle of the Ball	1908	1975	1941.500000	13	musicxml	EWLD/dataset/Leroy_Anderson/Belle_of_the_Ball/Belle_of_the_Ball.mxl	.	.
-ewld_leroyanderson_0002	ewld	Leroy Anderson	Blue Tango	1908	1975	1941.500000	13	musicxml	EWLD/dataset/Leroy_Anderson/Blue_Tango/Blue_Tango.mxl	.	.
-ewld_leroyanderson_0003	ewld	Leroy Anderson	Serenata	1908	1975	1941.500000	13	musicxml	EWLD/dataset/Leroy_Anderson/Serenata/Serenata.mxl	.	.
-ewld_leroyanderson_0004	ewld	Leroy Anderson	Sleigh Ride	1908	1975	1941.500000	13	musicxml	EWLD/dataset/Leroy_Anderson/Sleigh_Ride/Sleigh_Ride.mxl	.	.
-ewld_leroyanderson_0005	ewld	Leroy Anderson	Sleigh Ride	1908	1975	1941.500000	13	musicxml	EWLD/dataset/Leroy_Anderson/Sleigh_Ride/Sleigh_Ride.mxl	.	.
-ewld_lionelbart_0001	ewld	Lionel Bart	As Long as He Needs Me	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/As_Long_as_He_Needs_Me/As_Long_as_He_Needs_Me.mxl	.	.
-ewld_lionelbart_0002	ewld	Lionel Bart	Consider Yourself	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/Consider_Yourself/Consider_Yourself.mxl	.	.
-ewld_lionelbart_0003	ewld	Lionel Bart	From Russia with Love	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/From_Russia_with_Love/From_Russia_with_Love.mxl	.	.
-ewld_lionelbart_0004	ewld	Lionel Bart	From Russia with Love	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/From_Russia_with_Love/From_Russia_with_Love.mxl	.	.
-ewld_lionelbart_0005	ewld	Lionel Bart	Living Doll	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/Living_Doll/Living_Doll.mxl	.	.
-ewld_lionelbart_0006	ewld	Lionel Bart	Where Is Love?	1930	1999	1964.500000	30	musicxml	EWLD/dataset/Lionel_Bart/Where_Is_Love?/Where_Is_Love?.mxl	.	.
-ewld_milesdavis_0001	ewld	Miles Davis	Blue in Green	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Blue_in_Green/Blue_in_Green.mxl	.	.
-ewld_milesdavis_0002	ewld	Miles Davis	Dig	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Dig/Dig.mxl	.	.
-ewld_milesdavis_0003	ewld	Miles Davis	Four	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Four/Four.mxl	.	.
-ewld_milesdavis_0004	ewld	Miles Davis	Little Willie Leaps	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Little_Willie_Leaps/Little_Willie_Leaps.mxl	.	.
-ewld_milesdavis_0005	ewld	Miles Davis	Milestones	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Milestones/Milestones.mxl	.	.
-ewld_milesdavis_0006	ewld	Miles Davis	Nardis	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Nardis/Nardis.mxl	.	.
-ewld_milesdavis_0007	ewld	Miles Davis	So What	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/So_What/So_What.mxl	.	.
-ewld_milesdavis_0008	ewld	Miles Davis	Tune Up	1926	1991	1958.500000	26	musicxml	EWLD/dataset/Miles_Davis/Tune_Up/Tune_Up.mxl	.	.
-ewld_raygilbert_0001	ewld	Ray Gilbert	Once I Loved	1912	1976	1944.000000	15	musicxml	EWLD/dataset/Ray_Gilbert/Once_I_Loved/Once_I_Loved.mxl	.	.
-ewld_raygilbert_0002	ewld	Ray Gilbert	The Face I Love	1912	1976	1944.000000	15	musicxml	EWLD/dataset/Ray_Gilbert/The_Face_I_Love/The_Face_I_Love.mxl	.	.
-ewld_raygilbert_0003	ewld	Ray Gilbert	You Belong to My Heart	1912	1976	1944.000000	15	musicxml	EWLD/dataset/Ray_Gilbert/You_Belong_to_My_Heart/You_Belong_to_My_Heart.mxl	.	.
-ewld_raygilbert_0004	ewld	Ray Gilbert	You Belong to My Heart	1912	1976	1944.000000	15	musicxml	EWLD/dataset/Ray_Gilbert/You_Belong_to_My_Heart/You_Belong_to_My_Heart.mxl	.	.
-ewld_raynoble_0001	ewld	Ray Noble	Cherokee	1903	1978	1940.500000	11	musicxml	EWLD/dataset/Ray_Noble/Cherokee/Cherokee.mxl	.	.
-ewld_raynoble_0002	ewld	Ray Noble	I Hadn't Anyone Till You	1903	1978	1940.500000	11	musicxml	EWLD/dataset/Ray_Noble/I_Hadn't_Anyone_Till_You/I_Hadn't_Anyone_Till_You.mxl	.	.
-ewld_raynoble_0003	ewld	Ray Noble	The Touch of Your Lips	1903	1978	1940.500000	11	musicxml	EWLD/dataset/Ray_Noble/The_Touch_of_Your_Lips/The_Touch_of_Your_Lips.mxl	.	.
-ewld_raynoble_0004	ewld	Ray Noble	The Very Thought of You	1903	1978	1940.500000	11	musicxml	EWLD/dataset/Ray_Noble/The_Very_Thought_of_You/The_Very_Thought_of_You.mxl	.	.
-ewld_rodmckuen_0001	ewld	Rod McKuen	I'll Catch the Sun	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/I'll_Catch_the_Sun/I'll_Catch_the_Sun.mxl	b	.
-ewld_rodmckuen_0002	ewld	Rod McKuen	If You Go Away	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/If_You_Go_Away/If_You_Go_Away.mxl	.	.
-ewld_rodmckuen_0003	ewld	Rod McKuen	Jean	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/Jean/Jean.mxl	.	.
-ewld_rodmckuen_0004	ewld	Rod McKuen	Love's Been Good to Me	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/Love's_Been_Good_to_Me/Love's_Been_Good_to_Me.mxl	b	.
-ewld_rodmckuen_0005	ewld	Rod McKuen	Someplace Green	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/Someplace_Green/Someplace_Green.mxl	b	.
-ewld_rodmckuen_0006	ewld	Rod McKuen	The World I Used to Know	1933	2015	1974.000000	36	musicxml	EWLD/dataset/Rod_McKuen/The_World_I_Used_to_Know/The_World_I_Used_to_Know.mxl	b	.
-ewld_rogermiller_0001	ewld	Roger Miller	King of the Road	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/King_of_the_Road/King_of_the_Road.mxl	.	.
-ewld_rogermiller_0002	ewld	Roger Miller	King of the Road	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/King_of_the_Road/King_of_the_Road.mxl	.	.
-ewld_rogermiller_0003	ewld	Roger Miller	Old Toy Trains	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/Old_Toy_Trains/Old_Toy_Trains.mxl	.	.
-ewld_rogermiller_0004	ewld	Roger Miller	The Last Word in Lonesome Is Me	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/The_Last_Word_in_Lonesome_Is_Me/The_Last_Word_in_Lonesome_Is_Me.mxl	.	.
-ewld_rogermiller_0005	ewld	Roger Miller	Walkin' in the Sunshine	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/Walkin'_in_the_Sunshine/Walkin'_in_the_Sunshine.mxl	.	.
-ewld_rogermiller_0006	ewld	Roger Miller	You Can't Roller Skate in a Buffalo Herd	1936	1992	1964.000000	29	musicxml	EWLD/dataset/Roger_Miller/You_Can't_Roller_Skate_in_a_Buffalo_Herd/You_Can't_Roller_Skate_in_a_Buffalo_Herd.mxl	.	.
-ewld_stephenfoster_0001	ewld	Stephen Foster	Beautiful Dreamer	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Beautiful_Dreamer/Beautiful_Dreamer.mxl	.	.
-ewld_stephenfoster_0002	ewld	Stephen Foster	Gwine to Run All Night, or De Camptown Races	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Gwine_to_Run_All_Night,_or_De_Camptown_Races/Gwine_to_Run_All_Night,_or_De_Camptown_Races.mxl	.	.
-ewld_stephenfoster_0003	ewld	Stephen Foster	Hard Times Come Again No More	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Hard_Times_Come_Again_No_More/Hard_Times_Come_Again_No_More.mxl	.	.
-ewld_stephenfoster_0004	ewld	Stephen Foster	Jeanie with the Light Brown Hair	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Jeanie_with_the_Light_Brown_Hair/Jeanie_with_the_Light_Brown_Hair.mxl	.	.
-ewld_stephenfoster_0005	ewld	Stephen Foster	My Old Kentucky Home - Good-Night!	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/My_Old_Kentucky_Home_-_Good-Night!/My_Old_Kentucky_Home_-_Good-Night!.mxl	.	.
-ewld_stephenfoster_0006	ewld	Stephen Foster	Oh! Susanna	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Oh!_Susanna/Oh!_Susanna.mxl	.	.
-ewld_stephenfoster_0007	ewld	Stephen Foster	Old Folks at Home	1826	1864	1845.000000	0	musicxml	EWLD/dataset/Stephen_Foster/Old_Folks_at_Home/Old_Folks_at_Home.mxl	.	.
-ewld_stuarthamblen_0001	ewld	Stuart Hamblen	Open Up Your Heart and Let the Sunshine In	1908	1989	1948.500000	18	musicxml	EWLD/dataset/Stuart_Hamblen/Open_Up_Your_Heart_and_Let_the_Sunshine_In/Open_Up_Your_Heart_and_Let_the_Sunshine_In.mxl	.	.
-ewld_stuarthamblen_0002	ewld	Stuart Hamblen	Remember Me (I'm the One Who Loves You)	1908	1989	1948.500000	18	musicxml	EWLD/dataset/Stuart_Hamblen/Remember_Me_(I'm_the_One_Who_Loves_You)/Remember_Me_(I'm_the_One_Who_Loves_You).mxl	.	.
-ewld_stuarthamblen_0003	ewld	Stuart Hamblen	This Ole House	1908	1989	1948.500000	18	musicxml	EWLD/dataset/Stuart_Hamblen/This_Ole_House/This_Ole_House.mxl	.	.
-ewld_stuarthamblen_0004	ewld	Stuart Hamblen	This Ole House	1908	1989	1948.500000	18	musicxml	EWLD/dataset/Stuart_Hamblen/This_Ole_House/This_Ole_House.mxl	.	.
-ewld_theloniousmonk_0001	ewld	Thelonious Monk	Ask Me Now	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Ask_Me_Now/Ask_Me_Now.mxl	.	.
-ewld_theloniousmonk_0002	ewld	Thelonious Monk	Blue Monk	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Blue_Monk/Blue_Monk.mxl	.	.
-ewld_theloniousmonk_0003	ewld	Thelonious Monk	Little Rootie Tootie	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Little_Rootie_Tootie/Little_Rootie_Tootie.mxl	.	.
-ewld_theloniousmonk_0004	ewld	Thelonious Monk	Misterioso	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Misterioso/Misterioso.mxl	.	.
-ewld_theloniousmonk_0005	ewld	Thelonious Monk	Monk's Dream	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Monk's_Dream/Monk's_Dream.mxl	.	.
-ewld_theloniousmonk_0006	ewld	Thelonious Monk	Pannonica	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Pannonica/Pannonica.mxl	.	.
-ewld_theloniousmonk_0007	ewld	Thelonious Monk	Straight No Chaser	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Straight_No_Chaser/Straight_No_Chaser.mxl	.	.
-ewld_theloniousmonk_0008	ewld	Thelonious Monk	Ugly Beauty	1917	1982	1949.500000	20	musicxml	EWLD/dataset/Thelonious_Monk/Ugly_Beauty/Ugly_Beauty.mxl	.	.
-ewld_walterdonaldson_0001	ewld	Walter Donaldson	At Sundown	1893	1947	1920.000000	2	musicxml	EWLD/dataset/Walter_Donaldson/At_Sundown/At_Sundown.mxl	a	.
-ewld_walterdonaldson_0002	ewld	Walter Donaldson	Little White Lies	1893	1947	1920.000000	2	musicxml	EWLD/dataset/Walter_Donaldson/Little_White_Lies/Little_White_Lies.mxl	a	.
-ewld_walterdonaldson_0003	ewld	Walter Donaldson	You're Driving Me Crazy (What Did I Do?)	1893	1947	1920.000000	2	musicxml	EWLD/dataset/Walter_Donaldson/You're_Driving_Me_Crazy_(What_Did_I_Do?)/You're_Driving_Me_Crazy_(What_Did_I_Do?).mxl	a	.
-ewld_walterdonaldson_0004	ewld	Walter Donaldson	You're Driving Me Crazy (What Did I Do?)	1893	1947	1920.000000	2	musicxml	EWLD/dataset/Walter_Donaldson/You're_Driving_Me_Crazy_(What_Did_I_Do?)/You're_Driving_Me_Crazy_(What_Did_I_Do?).mxl	a	.
-music21_claraschumann_0001	music21	Clara Schumann	movement3	1819	1896	1857.500000	7	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/opus17/movement3.xml	b	.
-music21_claraschumann_0002	music21	Clara Schumann	polonaise_op1n1	1819	1896	1857.500000	7	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n1.mxl	.	.
-music21_claraschumann_0003	music21	Clara Schumann	polonaise_op1n2	1819	1896	1857.500000	7	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n2.mxl	b	.
-music21_claraschumann_0004	music21	Clara Schumann	polonaise_op1n3	1819	1896	1857.500000	7	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n3.mxl	b	.
-music21_claraschumann_0005	music21	Clara Schumann	polonaise_op1n4	1819	1896	1857.500000	7	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n4.mxl	b	.
-music21_claudiomonteverdi_0001	music21	Claudio Monteverdi	madrigal.3.13	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.13.mxl	.	.
-music21_claudiomonteverdi_0002	music21	Claudio Monteverdi	madrigal.3.20	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.20.mxl	.	.
-music21_claudiomonteverdi_0003	music21	Claudio Monteverdi	madrigal.3.6	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.6.mxl	.	.
-music21_claudiomonteverdi_0004	music21	Claudio Monteverdi	madrigal.4.10	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.4.10.mxl	.	.
-music21_claudiomonteverdi_0005	music21	Claudio Monteverdi	madrigal.5.1	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.1.mxl	.	.
-music21_claudiomonteverdi_0006	music21	Claudio Monteverdi	madrigal.5.2	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.2.mxl	.	.
-music21_claudiomonteverdi_0007	music21	Claudio Monteverdi	madrigal.5.3	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.3.mxl	.	.
-music21_claudiomonteverdi_0008	music21	Claudio Monteverdi	madrigal.5.4	1567	1643	1605.000000	1	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.4.mxl	.	.
-music21_giovannipalestrina_0001	music21	Giovanni Palestrina	Agnus_I_03	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_I_03.krn	.	.
-music21_giovannipalestrina_0002	music21	Giovanni Palestrina	Agnus_II_37	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_II_37.krn	a	.
-music21_giovannipalestrina_0003	music21	Giovanni Palestrina	Credo_26	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_26.krn	a	.
-music21_giovannipalestrina_0004	music21	Giovanni Palestrina	Credo_31_a	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_31_a.krn	.	.
-music21_giovannipalestrina_0005	music21	Giovanni Palestrina	Credo_71_h	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_71_h.krn	a	.
-music21_giovannipalestrina_0006	music21	Giovanni Palestrina	Credo_78_a	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_78_a.krn	.	.
-music21_giovannipalestrina_0007	music21	Giovanni Palestrina	Sanctus_10	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_10.krn	.	.
-music21_giovannipalestrina_0008	music21	Giovanni Palestrina	Sanctus_rpt_01_b	1525	1594	1559.500000	0	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_b.krn	a	.
-music21_johannsebastianbach_0001	music21	Johann Sebastian Bach	bwv145-a	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv145-a.mxl	.	.
-music21_johannsebastianbach_0002	music21	Johann Sebastian Bach	bwv256	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv256.mxl	.	b
-music21_johannsebastianbach_0003	music21	Johann Sebastian Bach	bwv286	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv286.mxl	.	.
-music21_johannsebastianbach_0004	music21	Johann Sebastian Bach	bwv293	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv293.mxl	.	.
-music21_johannsebastianbach_0005	music21	Johann Sebastian Bach	bwv373	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv373.mxl	.	.
-music21_johannsebastianbach_0006	music21	Johann Sebastian Bach	bwv385	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv385.mxl	.	.
-music21_johannsebastianbach_0007	music21	Johann Sebastian Bach	bwv401	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv401.mxl	.	.
-music21_johannsebastianbach_0008	music21	Johann Sebastian Bach	bwv406	1685	1750	1717.500000	2	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv406.mxl	.	.
-music21_josephhaydn_0001	music21	Joseph Haydn	movement1	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement1.mxl	.	.
-music21_josephhaydn_0002	music21	Joseph Haydn	movement1	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement1.mxl	.	.
-music21_josephhaydn_0003	music21	Joseph Haydn	movement2	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement2.mxl	.	.
-music21_josephhaydn_0004	music21	Joseph Haydn	movement2	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement2.mxl	.	.
-music21_josephhaydn_0005	music21	Joseph Haydn	movement3	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement3.mxl	.	.
-music21_josephhaydn_0006	music21	Joseph Haydn	movement3	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement3.mxl	.	.
-music21_josephhaydn_0007	music21	Joseph Haydn	movement4	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement4.mxl	.	.
-music21_josephhaydn_0008	music21	Joseph Haydn	movement4	1732	1809	1770.500000	3	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement4.mxl	.	.
-music21_ludwigvanbeethoven_0001	music21	Ludwig van Beethoven	movement1	1770	1827	1798.500000	5	kern	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement1.krn	.	.
-music21_ludwigvanbeethoven_0002	music21	Ludwig van Beethoven	movement1	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement1.mxl	.	.
-music21_ludwigvanbeethoven_0003	music21	Ludwig van Beethoven	movement2	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement2.mxl	.	.
-music21_ludwigvanbeethoven_0004	music21	Ludwig van Beethoven	movement3	1770	1827	1798.500000	5	kern	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.krn	.	b
-music21_ludwigvanbeethoven_0005	music21	Ludwig van Beethoven	movement3	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.mxl	.	.
-music21_ludwigvanbeethoven_0006	music21	Ludwig van Beethoven	movement3	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement3.mxl	.	.
-music21_ludwigvanbeethoven_0007	music21	Ludwig van Beethoven	movement4	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement4.mxl	.	.
-music21_ludwigvanbeethoven_0008	music21	Ludwig van Beethoven	opus133	1770	1827	1798.500000	5	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus133.mxl	.	.
-music21_robertschumann_0001	music21	Robert Schumann	dichterliebe_no2	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/dichterliebe_no2.xml	.	.
-music21_robertschumann_0002	music21	Robert Schumann	movement1	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement1.mxl	.	.
-music21_robertschumann_0003	music21	Robert Schumann	movement2	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement2.mxl	.	.
-music21_robertschumann_0004	music21	Robert Schumann	movement3	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement3.mxl	.	.
-music21_robertschumann_0005	music21	Robert Schumann	movement4	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement4.mxl	.	.
-music21_robertschumann_0006	music21	Robert Schumann	movement5	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement5.mxl	.	.
-music21_robertschumann_0007	music21	Robert Schumann	opus48no2	1810	1856	1833.000000	6	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus48no2.mxl	.	.
-music21_wolfgangamadeusmozar_0001	music21	Wolfgang Amadeus Mozart	movement1	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement1.mxl	.	.
-music21_wolfgangamadeusmozar_0002	music21	Wolfgang Amadeus Mozart	movement1	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k458/movement1.mxl	.	.
-music21_wolfgangamadeusmozar_0003	music21	Wolfgang Amadeus Mozart	movement1_exposition	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k545/movement1_exposition.mxl	.	.
-music21_wolfgangamadeusmozar_0004	music21	Wolfgang Amadeus Mozart	movement2	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement2.mxl	.	.
-music21_wolfgangamadeusmozar_0005	music21	Wolfgang Amadeus Mozart	movement2	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k458/movement2.mxl	.	.
-music21_wolfgangamadeusmozar_0006	music21	Wolfgang Amadeus Mozart	movement3	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k155/movement3.mxl	.	.
-music21_wolfgangamadeusmozar_0007	music21	Wolfgang Amadeus Mozart	movement3	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement3.mxl	.	.
-music21_wolfgangamadeusmozar_0008	music21	Wolfgang Amadeus Mozart	movement4	1756	1791	1773.500000	4	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement4.mxl	.	.
+query_id	dataset	composer	title	birth_year	death_year	midpoint_year	year_source	input_kind	path	axis_side	overall_side
+asap_bach_0001	asap	Bach	Fugue_bwv_848	1685	1750	1725.000000	rism_source_date	musicxml	ASAP/Bach/Fugue/bwv_848/xml_score.musicxml	a	.
+asap_bach_0002	asap	Bach	Fugue_bwv_862	1685	1750	1722.000000	imslp_composition	musicxml	ASAP/Bach/Fugue/bwv_862/xml_score.musicxml	a	.
+asap_bach_0003	asap	Bach	Fugue_bwv_863	1685	1750	1722.000000	imslp_composition	musicxml	ASAP/Bach/Fugue/bwv_863/xml_score.musicxml	.	.
+asap_bach_0004	asap	Bach	Fugue_bwv_870	1685	1750	1740.000000	imslp_composition	musicxml	ASAP/Bach/Fugue/bwv_870/xml_score.musicxml	a	.
+asap_bach_0005	asap	Bach	Fugue_bwv_873	1685	1750	1740.000000	imslp_composition	musicxml	ASAP/Bach/Fugue/bwv_873/xml_score.musicxml	.	.
+asap_bach_0006	asap	Bach	Fugue_bwv_875	1685	1750	1740.000000	imslp_composition	musicxml	ASAP/Bach/Fugue/bwv_875/xml_score.musicxml	a	.
+asap_bach_0007	asap	Bach	Prelude_bwv_865	1685	1750	1722.000000	imslp_composition	musicxml	ASAP/Bach/Prelude/bwv_865/xml_score.musicxml	.	.
+asap_bach_0008	asap	Bach	Prelude_bwv_875	1685	1750	1740.000000	imslp_composition	musicxml	ASAP/Bach/Prelude/bwv_875/xml_score.musicxml	.	.
+asap_beethoven_0001	asap	Beethoven	Piano_Sonatas_12-1	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/12-1/xml_score.musicxml	.	.
+asap_beethoven_0002	asap	Beethoven	Piano_Sonatas_13-4	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/13-4/xml_score.musicxml	.	.
+asap_beethoven_0003	asap	Beethoven	Piano_Sonatas_26-1	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/26-1_no_repeat/xml_score.musicxml	.	.
+asap_beethoven_0004	asap	Beethoven	Piano_Sonatas_27-1	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/27-1/xml_score.musicxml	.	.
+asap_beethoven_0005	asap	Beethoven	Piano_Sonatas_29-4	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/29-4/xml_score.musicxml	.	.
+asap_beethoven_0006	asap	Beethoven	Piano_Sonatas_31-1	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/31-1/xml_score.musicxml	.	.
+asap_beethoven_0007	asap	Beethoven	Piano_Sonatas_8-1	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/8-1/xml_score.musicxml	.	a
+asap_beethoven_0008	asap	Beethoven	Piano_Sonatas_9-3	1770	1827	1782.500000	imslp_composition	musicxml	ASAP/Beethoven/Piano_Sonatas/9-3/xml_score.musicxml	.	.
+asap_chopin_0001	asap	Chopin	Ballades_2	1810	1849	1829.500000	lifespan_midpoint	musicxml	ASAP/Chopin/Ballades/2/xml_score.musicxml	.	.
+asap_chopin_0002	asap	Chopin	Ballades_3	1810	1849	1840.500000	rism_source_date	musicxml	ASAP/Chopin/Ballades/3/xml_score.musicxml	.	.
+asap_chopin_0003	asap	Chopin	Berceuse_op_57	1810	1849	1843.500000	imslp_composition	musicxml	ASAP/Chopin/Berceuse_op_57/xml_score.musicxml	.	.
+asap_chopin_0004	asap	Chopin	Etudes_op_10_10	1810	1849	1830.500000	imslp_composition	musicxml	ASAP/Chopin/Etudes_op_10/10/xml_score.musicxml	.	.
+asap_chopin_0005	asap	Chopin	Etudes_op_10_7	1810	1849	1830.500000	imslp_composition	musicxml	ASAP/Chopin/Etudes_op_10/7/xml_score.musicxml	.	.
+asap_chopin_0006	asap	Chopin	Etudes_op_25_10	1810	1849	1834.000000	imslp_composition	musicxml	ASAP/Chopin/Etudes_op_25/10/xml_score.musicxml	.	.
+asap_chopin_0007	asap	Chopin	Etudes_op_25_2	1810	1849	1834.000000	imslp_composition	musicxml	ASAP/Chopin/Etudes_op_25/2/xml_score.musicxml	.	.
+asap_chopin_0008	asap	Chopin	Sonata_2_1st	1810	1849	1829.500000	lifespan_midpoint	musicxml	ASAP/Chopin/Sonata_2/1st_no_repeat/xml_score.musicxml	.	.
+asap_haydn_0001	asap	Haydn	Keyboard_Sonatas_31-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/31-1/xml_score.musicxml	.	.
+asap_haydn_0002	asap	Haydn	Keyboard_Sonatas_32-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/32-1/xml_score.musicxml	.	.
+asap_haydn_0003	asap	Haydn	Keyboard_Sonatas_39-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/39-1/xml_score.musicxml	.	.
+asap_haydn_0004	asap	Haydn	Keyboard_Sonatas_39-2	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/39-2/xml_score.musicxml	.	.
+asap_haydn_0005	asap	Haydn	Keyboard_Sonatas_46-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/46-1/xml_score.musicxml	.	.
+asap_haydn_0006	asap	Haydn	Keyboard_Sonatas_48-2	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/48-2/xml_score.musicxml	.	.
+asap_haydn_0007	asap	Haydn	Keyboard_Sonatas_49-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/49-1/xml_score.musicxml	.	.
+asap_haydn_0008	asap	Haydn	Keyboard_Sonatas_50-1	1732	1809	1770.500000	lifespan_midpoint	musicxml	ASAP/Haydn/Keyboard_Sonatas/50-1_no_repeat/xml_score.musicxml	.	.
+asap_liszt_0001	asap	Liszt	Annees_de_pelerinage_2_1_Gondoliera	1811	1886	1859.000000	rism_source_date	musicxml	ASAP/Liszt/Annees_de_pelerinage_2/1_Gondoliera/xml_score.musicxml	.	.
+asap_liszt_0002	asap	Liszt	Concert_Etude_S145_1	1811	1886	1862.000000	imslp_composition	musicxml	ASAP/Liszt/Concert_Etude_S145/1/xml_score.musicxml	.	.
+asap_liszt_0003	asap	Liszt	Gran_Etudes_de_Paganini_6_Theme_and_Variations	1811	1886	1848.500000	lifespan_midpoint	musicxml	ASAP/Liszt/Gran_Etudes_de_Paganini/6_Theme_and_Variations/xml_score.musicxml	.	.
+asap_liszt_0004	asap	Liszt	Gran_Etudes_de_Paganini_6_Theme_and_Variations	1811	1886	1848.500000	lifespan_midpoint	musicxml	ASAP/Liszt/Gran_Etudes_de_Paganini/6_Theme_and_Variations_repeat/xml_score.musicxml	.	.
+asap_liszt_0005	asap	Liszt	Mephisto_Waltz	1811	1886	1858.500000	imslp_composition	musicxml	ASAP/Liszt/Mephisto_Waltz/xml_score.musicxml	.	a
+asap_liszt_0006	asap	Liszt	Transcendental_Etudes_10	1811	1886	1875.500000	wikipedia_inception	musicxml	ASAP/Liszt/Transcendental_Etudes/10/xml_score.musicxml	.	.
+asap_liszt_0007	asap	Liszt	Transcendental_Etudes_11	1811	1886	1875.500000	wikipedia_inception	musicxml	ASAP/Liszt/Transcendental_Etudes/11/xml_score.musicxml	.	.
+asap_liszt_0008	asap	Liszt	Transcendental_Etudes_4	1811	1886	1875.500000	wikipedia_inception	musicxml	ASAP/Liszt/Transcendental_Etudes/4/xml_score.musicxml	.	.
+asap_mozart_0001	asap	Mozart	Fantasie_475	1756	1791	1789.000000	imslp_composition	musicxml	ASAP/Mozart/Fantasie_475/xml_score.musicxml	.	.
+asap_mozart_0002	asap	Mozart	Piano_Sonatas_11-3	1756	1791	1781.500000	imslp_composition	musicxml	ASAP/Mozart/Piano_Sonatas/11-3/xml_score.musicxml	.	.
+asap_mozart_0003	asap	Mozart	Piano_Sonatas_12-1	1756	1791	1781.500000	imslp_composition	musicxml	ASAP/Mozart/Piano_Sonatas/12-1/xml_score.musicxml	.	.
+asap_mozart_0004	asap	Mozart	Piano_Sonatas_12-2	1756	1791	1781.500000	imslp_composition	musicxml	ASAP/Mozart/Piano_Sonatas/12-2/xml_score.musicxml	.	.
+asap_mozart_0005	asap	Mozart	Piano_Sonatas_12-3	1756	1791	1781.500000	imslp_composition	musicxml	ASAP/Mozart/Piano_Sonatas/12-3/xml_score.musicxml	.	.
+asap_mozart_0006	asap	Mozart	Piano_Sonatas_8-1	1756	1791	1781.500000	imslp_composition	musicxml	ASAP/Mozart/Piano_Sonatas/8-1/xml_score.musicxml	.	.
+asap_rachmaninoff_0001	asap	Rachmaninoff	Preludes_op_23_4	1873	1943	1902.000000	imslp_composition	musicxml	ASAP/Rachmaninoff/Preludes_op_23/4/xml_score.musicxml	.	.
+asap_rachmaninoff_0002	asap	Rachmaninoff	Preludes_op_23_6	1873	1943	1902.000000	imslp_composition	musicxml	ASAP/Rachmaninoff/Preludes_op_23/6/xml_score.musicxml	.	.
+asap_rachmaninoff_0003	asap	Rachmaninoff	Preludes_op_32_10	1873	1943	1910.000000	imslp_composition	musicxml	ASAP/Rachmaninoff/Preludes_op_32/10/xml_score.musicxml	.	.
+asap_rachmaninoff_0004	asap	Rachmaninoff	Preludes_op_32_5	1873	1943	1910.000000	imslp_composition	musicxml	ASAP/Rachmaninoff/Preludes_op_32/5/xml_score.musicxml	.	.
+asap_ravel_0001	asap	Ravel	Gaspard_de_la_Nuit_1_Ondine	1875	1937	1908.000000	imslp_composition	musicxml	ASAP/Ravel/Gaspard_de_la_Nuit/1_Ondine/xml_score.musicxml	b	.
+asap_ravel_0002	asap	Ravel	Miroirs_3_Une_Barque	1875	1937	1904.500000	imslp_composition	musicxml	ASAP/Ravel/Miroirs/3_Une_Barque/xml_score.musicxml	b	.
+asap_ravel_0003	asap	Ravel	Miroirs_4_Alborada_del_gracioso	1875	1937	1904.500000	imslp_composition	musicxml	ASAP/Ravel/Miroirs/4_Alborada_del_gracioso/xml_score.musicxml	b	.
+asap_ravel_0004	asap	Ravel	Pavane	1875	1937	1899.000000	imslp_composition	musicxml	ASAP/Ravel/Pavane/xml_score.musicxml	b	.
+asap_schubert_0001	asap	Schubert	Impromptu_op.90_D.899_2	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/2/xml_score.musicxml	.	.
+asap_schubert_0002	asap	Schubert	Impromptu_op.90_D.899_3	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/3/xml_score.musicxml	.	.
+asap_schubert_0003	asap	Schubert	Impromptu_op.90_D.899_4	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/4/xml_score.musicxml	.	.
+asap_schubert_0004	asap	Schubert	Impromptu_op.90_D.899_4	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op.90_D.899/4_no_repeat/xml_score.musicxml	.	.
+asap_schubert_0005	asap	Schubert	Impromptu_op142_1	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op142/1/xml_score.musicxml	.	.
+asap_schubert_0006	asap	Schubert	Impromptu_op142_3	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Impromptu_op142/3/xml_score.musicxml	.	.
+asap_schubert_0007	asap	Schubert	Piano_Sonatas_664-1	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Piano_Sonatas/664-1/xml_score.musicxml	.	.
+asap_schubert_0008	asap	Schubert	Piano_Sonatas_664-2	1797	1828	1815.000000	imslp_composition	musicxml	ASAP/Schubert/Piano_Sonatas/664-2/xml_score.musicxml	.	.
+asap_schumann_0001	asap	Schumann	Arabeske	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Arabeske/xml_score.musicxml	.	.
+asap_schumann_0002	asap	Schumann	Kreisleriana_2	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Kreisleriana/2/xml_score.musicxml	.	.
+asap_schumann_0003	asap	Schumann	Kreisleriana_3	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Kreisleriana/3/xml_score.musicxml	.	.
+asap_schumann_0004	asap	Schumann	Kreisleriana_4	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Kreisleriana/4/xml_score.musicxml	.	.
+asap_schumann_0005	asap	Schumann	Kreisleriana_6	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Kreisleriana/6/xml_score.musicxml	.	.
+asap_schumann_0006	asap	Schumann	Kreisleriana_7	1810	1856	1838.000000	imslp_composition	musicxml	ASAP/Schumann/Kreisleriana/7/xml_score.musicxml	.	.
+asap_schumann_0007	asap	Schumann	Toccata	1810	1856	1830.500000	imslp_composition	musicxml	ASAP/Schumann/Toccata/xml_score.musicxml	.	.
+asap_schumann_0008	asap	Schumann	Toccata_repeat	1810	1856	1842.000000	imslp_composition	musicxml	ASAP/Schumann/Toccata_repeat/xml_score.musicxml	.	.
+ewld_billevans_0001	ewld	Bill Evans	Interplay	1929	1980	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bill_Evans/Interplay/Interplay.mxl	.	.
+ewld_billevans_0002	ewld	Bill Evans	Time Remembered	1929	1980	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bill_Evans/Time_Remembered/Time_Remembered.mxl	.	.
+ewld_billevans_0003	ewld	Bill Evans	Turn Out the Stars	1929	1980	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bill_Evans/Turn_Out_the_Stars/Turn_Out_the_Stars.mxl	.	.
+ewld_billevans_0004	ewld	Bill Evans	Very Early	1929	1980	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bill_Evans/Very_Early/Very_Early.mxl	.	.
+ewld_billevans_0005	ewld	Bill Evans	Waltz for Debby	1929	1980	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bill_Evans/Waltz_for_Debby/Waltz_for_Debby.mxl	.	.
+ewld_billystrayhorn_0001	ewld	Billy Strayhorn	A Flower Is a Lovesome Thing	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/A_Flower_Is_a_Lovesome_Thing/A_Flower_Is_a_Lovesome_Thing.mxl	.	.
+ewld_billystrayhorn_0002	ewld	Billy Strayhorn	Johnny Come Lately	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/Johnny_Come_Lately/Johnny_Come_Lately.mxl	.	.
+ewld_billystrayhorn_0003	ewld	Billy Strayhorn	Lush Life	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/Lush_Life/Lush_Life.mxl	.	.
+ewld_billystrayhorn_0004	ewld	Billy Strayhorn	My Little Brown Book	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/My_Little_Brown_Book/My_Little_Brown_Book.mxl	.	.
+ewld_billystrayhorn_0005	ewld	Billy Strayhorn	Passion Flower	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/Passion_Flower/Passion_Flower.mxl	.	.
+ewld_billystrayhorn_0006	ewld	Billy Strayhorn	Raincheck	1915	1967	1941.000000	lifespan_midpoint	musicxml	EWLD/dataset/Billy_Strayhorn/Raincheck/Raincheck.mxl	.	.
+ewld_billystrayhorn_0007	ewld	Billy Strayhorn	"Take the ""A"" Train"	1915	1967	1941.000000	lifespan_midpoint	musicxml	"EWLD/dataset/Billy_Strayhorn/Take_the_""A""_Train/Take_the_""A""_Train.mxl"	.	.
+ewld_bobbydarin_0001	ewld	Bobby Darin	18 Yellow Roses	1936	1973	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bobby_Darin/18_Yellow_Roses/18_Yellow_Roses.mxl	.	.
+ewld_bobbydarin_0002	ewld	Bobby Darin	18 Yellow Roses	1936	1973	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bobby_Darin/18_Yellow_Roses/18_Yellow_Roses.mxl	.	.
+ewld_bobbydarin_0003	ewld	Bobby Darin	Things	1936	1973	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bobby_Darin/Things/Things.mxl	.	.
+ewld_bobbydarin_0004	ewld	Bobby Darin	You're the Reason I'm Living	1936	1973	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bobby_Darin/You're_the_Reason_I'm_Living/You're_the_Reason_I'm_Living.mxl	.	.
+ewld_bobmerrill_0001	ewld	Bob Merrill	A Sweet Old Fashioned Girl	1921	1998	1959.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bob_Merrill/A_Sweet_Old_Fashioned_Girl/A_Sweet_Old_Fashioned_Girl.mxl	.	.
+ewld_bobmerrill_0002	ewld	Bob Merrill	Mambo Italiano	1921	1998	1959.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bob_Merrill/Mambo_Italiano/Mambo_Italiano.mxl	.	.
+ewld_bobmerrill_0003	ewld	Bob Merrill	My Truly, Truly Fair	1921	1998	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Bob_Merrill/My_Truly,_Truly_Fair/My_Truly,_Truly_Fair.mxl	.	.
+ewld_bobmerrill_0004	ewld	Bob Merrill	Pittsburgh Pennsylvania	1921	1998	1977.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Bob_Merrill/Pittsburgh_Pennsylvania/Pittsburgh_Pennsylvania.mxl	.	.
+ewld_bobmerrill_0005	ewld	Bob Merrill	She Wears Red Feathers	1921	1998	1959.500000	lifespan_midpoint	musicxml	EWLD/dataset/Bob_Merrill/She_Wears_Red_Feathers/She_Wears_Red_Feathers.mxl	.	.
+ewld_bobmerrill_0006	ewld	Bob Merrill	The Doggie in the Window	1921	1998	1982.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Bob_Merrill/The_Doggie_in_the_Window/The_Doggie_in_the_Window.mxl	.	.
+ewld_buckram_0001	ewld	Buck Ram	(You've Got) The Magic Touch	1907	1991	1979.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Buck_Ram/(You've_Got)_The_Magic_Touch/(You've_Got)_The_Magic_Touch.mxl	.	.
+ewld_buckram_0002	ewld	Buck Ram	Only You (And You Alone)	1907	1991	1979.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Buck_Ram/Only_You_(And_You_Alone)/Only_You_(And_You_Alone).mxl	.	.
+ewld_buckram_0003	ewld	Buck Ram	The Great Pretender	1907	1991	1949.000000	lifespan_midpoint	musicxml	EWLD/dataset/Buck_Ram/The_Great_Pretender/The_Great_Pretender.mxl	.	.
+ewld_buckram_0004	ewld	Buck Ram	The Great Pretender	1907	1991	1949.000000	lifespan_midpoint	musicxml	EWLD/dataset/Buck_Ram/The_Great_Pretender/The_Great_Pretender.mxl	.	.
+ewld_carlsigman_0001	ewld	Carl Sigman	(Where Do I Begin?) Love Story	1909	2000	1991.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Carl_Sigman/(Where_Do_I_Begin?)_Love_Story/(Where_Do_I_Begin?)_Love_Story.mxl	b	.
+ewld_carlsigman_0002	ewld	Carl Sigman	A Day in the Life of a Fool	1909	2000	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Carl_Sigman/A_Day_in_the_Life_of_a_Fool/A_Day_in_the_Life_of_a_Fool.mxl	.	.
+ewld_carlsigman_0003	ewld	Carl Sigman	Answer Me	1909	2000	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Carl_Sigman/Answer_Me/Answer_Me.mxl	b	.
+ewld_carlsigman_0004	ewld	Carl Sigman	It's All in the Game	1909	2000	1954.500000	lifespan_midpoint	musicxml	EWLD/dataset/Carl_Sigman/It's_All_in_the_Game/It's_All_in_the_Game.mxl	b	.
+ewld_carlsigman_0005	ewld	Carl Sigman	What Now, My Love?	1909	2000	1982.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Carl_Sigman/What_Now,_My_Love?/What_Now,_My_Love?.mxl	b	.
+ewld_charlesmingus_0001	ewld	Charles Mingus	All the Things You Could Be by Now if Sigmond Freud's Wife Was Our Mother	1922	1979	1950.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charles_Mingus/All_the_Things_You_Could_Be_by_Now_if_Sigmond_Freud's_Wife_Was_Our_Mother/All_the_Things_You_Could_Be_by_Now_if_Sigmond_Freud's_Wife_Was_Our_Mother.mxl	.	.
+ewld_charlesmingus_0002	ewld	Charles Mingus	Goodbye Pork Pie Hat	1922	1979	1950.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charles_Mingus/Goodbye_Pork_Pie_Hat/Goodbye_Pork_Pie_Hat.mxl	.	.
+ewld_charlesmingus_0003	ewld	Charles Mingus	Jelly Roll	1922	1979	1950.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charles_Mingus/Jelly_Roll/Jelly_Roll.mxl	.	.
+ewld_charlesmingus_0004	ewld	Charles Mingus	Jump Monk	1922	1979	1950.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charles_Mingus/Jump_Monk/Jump_Monk.mxl	.	.
+ewld_charlesmingus_0005	ewld	Charles Mingus	Nostalgia in Times Square	1922	1979	1950.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charles_Mingus/Nostalgia_in_Times_Square/Nostalgia_in_Times_Square.mxl	.	.
+ewld_charlieparker_0001	ewld	Charlie Parker	Billie's Bounce	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Billie's_Bounce/Billie's_Bounce.mxl	.	.
+ewld_charlieparker_0002	ewld	Charlie Parker	Confirmation	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Confirmation/Confirmation.mxl	.	.
+ewld_charlieparker_0003	ewld	Charlie Parker	Cool Blues	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Cool_Blues/Cool_Blues.mxl	.	.
+ewld_charlieparker_0004	ewld	Charlie Parker	Donna Lee	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Donna_Lee/Donna_Lee.mxl	.	.
+ewld_charlieparker_0005	ewld	Charlie Parker	Moose the Mooche	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Moose_the_Mooche/Moose_the_Mooche.mxl	.	.
+ewld_charlieparker_0006	ewld	Charlie Parker	My Little Suede Shoes	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/My_Little_Suede_Shoes/My_Little_Suede_Shoes.mxl	.	.
+ewld_charlieparker_0007	ewld	Charlie Parker	Now's the Time	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Now's_the_Time/Now's_the_Time.mxl	.	.
+ewld_charlieparker_0008	ewld	Charlie Parker	Perhaps	1920	1955	1937.500000	lifespan_midpoint	musicxml	EWLD/dataset/Charlie_Parker/Perhaps/Perhaps.mxl	.	.
+ewld_chuckberry_0001	ewld	Chuck Berry	Beautiful Delilah	1926	2017	1981.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Chuck_Berry/Beautiful_Delilah/Beautiful_Delilah.mxl	.	.
+ewld_chuckberry_0002	ewld	Chuck Berry	Carol	1926	2017	1982.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Chuck_Berry/Carol/Carol.mxl	.	.
+ewld_chuckberry_0003	ewld	Chuck Berry	Johnny B. Goode	1926	2017	1979.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Chuck_Berry/Johnny_B._Goode/Johnny_B._Goode.mxl	.	.
+ewld_chuckberry_0004	ewld	Chuck Berry	Maybellene	1926	2017	1980.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Chuck_Berry/Maybellene/Maybellene.mxl	.	.
+ewld_coleporter_0001	ewld	Cole Porter	Do I Love You?	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Do_I_Love_You?/Do_I_Love_You?.mxl	.	.
+ewld_coleporter_0002	ewld	Cole Porter	Don't Fence Me In	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Don't_Fence_Me_In/Don't_Fence_Me_In.mxl	.	.
+ewld_coleporter_0003	ewld	Cole Porter	Friendship	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Friendship/Friendship.mxl	.	.
+ewld_coleporter_0004	ewld	Cole Porter	From This Moment On	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/From_This_Moment_On/From_This_Moment_On.mxl	.	.
+ewld_coleporter_0005	ewld	Cole Porter	In the Still of the Night	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/In_the_Still_of_the_Night/In_the_Still_of_the_Night.mxl	.	.
+ewld_coleporter_0006	ewld	Cole Porter	Let's Misbehave	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Let's_Misbehave/Let's_Misbehave.mxl	.	.
+ewld_coleporter_0007	ewld	Cole Porter	Miss Otis Regrets	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Miss_Otis_Regrets/Miss_Otis_Regrets.mxl	.	a
+ewld_coleporter_0008	ewld	Cole Porter	Wunderbar	1891	1964	1927.500000	lifespan_midpoint	musicxml	EWLD/dataset/Cole_Porter/Wunderbar/Wunderbar.mxl	.	.
+ewld_dizzygillespie_0001	ewld	Dizzy Gillespie	Birk's Works	1917	1993	1977.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl	.	.
+ewld_dizzygillespie_0002	ewld	Dizzy Gillespie	Birk's Works	1917	1993	1977.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl	.	a
+ewld_dizzygillespie_0003	ewld	Dizzy Gillespie	Con Alma	1917	1993	1955.000000	lifespan_midpoint	musicxml	EWLD/dataset/Dizzy_Gillespie/Con_Alma/Con_Alma.mxl	.	.
+ewld_dizzygillespie_0004	ewld	Dizzy Gillespie	Groovin' High	1917	1993	1973.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Dizzy_Gillespie/Groovin'_High/Groovin'_High.mxl	.	b
+ewld_dizzygillespie_0005	ewld	Dizzy Gillespie	Woody'n You	1917	1993	1973.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Dizzy_Gillespie/Woody'n_You/Woody'n_You.mxl	.	.
+ewld_dottierambo_0001	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
+ewld_dottierambo_0002	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
+ewld_dottierambo_0003	ewld	Dottie Rambo	Build My Mansion	1934	2008	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Dottie_Rambo/Build_My_Mansion/Build_My_Mansion.mxl	.	.
+ewld_dottierambo_0004	ewld	Dottie Rambo	If That Isn't Love	1934	2008	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Dottie_Rambo/If_That_Isn't_Love/If_That_Isn't_Love.mxl	.	.
+ewld_dukeellington_0001	ewld	Duke Ellington	C Jam Blues	1899	1974	1936.500000	lifespan_midpoint	musicxml	EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl	.	.
+ewld_dukeellington_0002	ewld	Duke Ellington	C Jam Blues	1899	1974	1936.500000	lifespan_midpoint	musicxml	EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl	.	.
+ewld_dukeellington_0003	ewld	Duke Ellington	Come Sunday	1899	1974	1972.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Duke_Ellington/Come_Sunday/Come_Sunday.mxl	.	.
+ewld_dukeellington_0004	ewld	Duke Ellington	Come Sunday	1899	1974	1972.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Duke_Ellington/Come_Sunday/Come_Sunday.mxl	.	.
+ewld_dukeellington_0005	ewld	Duke Ellington	Love You Madly	1899	1974	1936.500000	lifespan_midpoint	musicxml	EWLD/dataset/Duke_Ellington/Love_You_Madly/Love_You_Madly.mxl	.	.
+ewld_dukeellington_0006	ewld	Duke Ellington	The Single Petal of a Rose	1899	1974	1936.500000	lifespan_midpoint	musicxml	EWLD/dataset/Duke_Ellington/The_Single_Petal_of_a_Rose/The_Single_Petal_of_a_Rose.mxl	.	.
+ewld_dukeellington_0007	ewld	Duke Ellington	Warm Valley	1899	1974	1936.500000	lifespan_midpoint	musicxml	EWLD/dataset/Duke_Ellington/Warm_Valley/Warm_Valley.mxl	.	.
+ewld_dukeellington_0008	ewld	Duke Ellington	What Am I Here For?	1899	1974	1972.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Duke_Ellington/What_Am_I_Here_For?/What_Am_I_Here_For?.mxl	.	.
+ewld_frankloesser_0001	ewld	Frank Loesser	A Bushel and a Peck	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/A_Bushel_and_a_Peck/A_Bushel_and_a_Peck.mxl	.	.
+ewld_frankloesser_0002	ewld	Frank Loesser	A Woman in Love	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/A_Woman_in_Love/A_Woman_in_Love.mxl	.	.
+ewld_frankloesser_0003	ewld	Frank Loesser	Anywhere I Wander	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/Anywhere_I_Wander/Anywhere_I_Wander.mxl	.	.
+ewld_frankloesser_0004	ewld	Frank Loesser	Guys and Dolls	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/Guys_and_Dolls/Guys_and_Dolls.mxl	.	.
+ewld_frankloesser_0005	ewld	Frank Loesser	On a Slow Boat to China	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/On_a_Slow_Boat_to_China/On_a_Slow_Boat_to_China.mxl	.	.
+ewld_frankloesser_0006	ewld	Frank Loesser	Spring Will Be a Little Late This Year	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/Spring_Will_Be_a_Little_Late_This_Year/Spring_Will_Be_a_Little_Late_This_Year.mxl	.	.
+ewld_frankloesser_0007	ewld	Frank Loesser	Standing on the Corner	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/Standing_on_the_Corner/Standing_on_the_Corner.mxl	.	.
+ewld_frankloesser_0008	ewld	Frank Loesser	What Are You Doing New Year's Eve	1910	1969	1939.500000	lifespan_midpoint	musicxml	EWLD/dataset/Frank_Loesser/What_Are_You_Doing_New_Year's_Eve/What_Are_You_Doing_New_Year's_Eve.mxl	.	.
+ewld_georgemcohan_0001	ewld	George M. Cohan	Give My Regards to Broadway	1878	1942	1910.000000	lifespan_midpoint	musicxml	EWLD/dataset/George_M._Cohan/Give_My_Regards_to_Broadway/Give_My_Regards_to_Broadway.mxl	.	.
+ewld_georgemcohan_0002	ewld	George M. Cohan	Mary's a Grand Old Name	1878	1942	1910.000000	lifespan_midpoint	musicxml	EWLD/dataset/George_M._Cohan/Mary's_a_Grand_Old_Name/Mary's_a_Grand_Old_Name.mxl	a	.
+ewld_georgemcohan_0003	ewld	George M. Cohan	Over There	1878	1942	1910.000000	lifespan_midpoint	musicxml	EWLD/dataset/George_M._Cohan/Over_There/Over_There.mxl	a	.
+ewld_georgemcohan_0004	ewld	George M. Cohan	Yankee Doodle Boy	1878	1942	1910.000000	lifespan_midpoint	musicxml	EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl	a	.
+ewld_georgemcohan_0005	ewld	George M. Cohan	Yankee Doodle Boy	1878	1942	1910.000000	lifespan_midpoint	musicxml	EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl	a	.
+ewld_hankwilliams_0001	ewld	Hank Williams	Cold, Cold Heart	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/Cold,_Cold_Heart/Cold,_Cold_Heart.mxl	.	.
+ewld_hankwilliams_0002	ewld	Hank Williams	Hey, Good Lookin'	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/Hey,_Good_Lookin'/Hey,_Good_Lookin'.mxl	.	.
+ewld_hankwilliams_0003	ewld	Hank Williams	House of Gold	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/House_of_Gold/House_of_Gold.mxl	.	.
+ewld_hankwilliams_0004	ewld	Hank Williams	I Can't Escape From You	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/I_Can't_Escape_From_You/I_Can't_Escape_From_You.mxl	.	.
+ewld_hankwilliams_0005	ewld	Hank Williams	I Won't Be Home No More	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/I_Won't_Be_Home_No_More/I_Won't_Be_Home_No_More.mxl	.	.
+ewld_hankwilliams_0006	ewld	Hank Williams	May You Never Be Alone	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/May_You_Never_Be_Alone/May_You_Never_Be_Alone.mxl	.	.
+ewld_hankwilliams_0007	ewld	Hank Williams	There's a Tear in My Beer	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/There's_a_Tear_in_My_Beer/There's_a_Tear_in_My_Beer.mxl	.	.
+ewld_hankwilliams_0008	ewld	Hank Williams	Your Cheatin' Heart	1923	1953	1938.000000	lifespan_midpoint	musicxml	EWLD/dataset/Hank_Williams/Your_Cheatin'_Heart/Your_Cheatin'_Heart.mxl	.	.
+ewld_harrymwoods_0001	ewld	Harry M. Woods	Side by Side	1896	1970	1965.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Harry_M._Woods/Side_by_Side/Side_by_Side.mxl	.	.
+ewld_harrymwoods_0002	ewld	Harry M. Woods	We Just Couldn't Say Goodbye	1896	1970	1969.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Harry_M._Woods/We_Just_Couldn't_Say_Goodbye/We_Just_Couldn't_Say_Goodbye.mxl	.	.
+ewld_harrymwoods_0003	ewld	Harry M. Woods	What a Little Moonlight Can Do	1896	1970	1933.000000	lifespan_midpoint	musicxml	EWLD/dataset/Harry_M._Woods/What_a_Little_Moonlight_Can_Do/What_a_Little_Moonlight_Can_Do.mxl	.	.
+ewld_harrymwoods_0004	ewld	Harry M. Woods	When the Red, Red, Robin Comes Bob, Bob, Bobbin' Along	1896	1970	1965.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Harry_M._Woods/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along.mxl	.	.
+ewld_henrymancini_0001	ewld	Henry Mancini	Baby Elephant Walk	1924	1994	1986.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Henry_Mancini/Baby_Elephant_Walk/Baby_Elephant_Walk.mxl	.	.
+ewld_henrymancini_0002	ewld	Henry Mancini	Baby Elephant Walk	1924	1994	1986.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Henry_Mancini/Baby_Elephant_Walk/Baby_Elephant_Walk.mxl	.	.
+ewld_henrymancini_0003	ewld	Henry Mancini	Breakfast at Tiffany's	1924	1994	1959.000000	lifespan_midpoint	musicxml	EWLD/dataset/Henry_Mancini/Breakfast_at_Tiffany's/Breakfast_at_Tiffany's.mxl	.	.
+ewld_henrymancini_0004	ewld	Henry Mancini	Mr. Lucky	1924	1994	1984.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Henry_Mancini/Mr._Lucky/Mr._Lucky.mxl	.	.
+ewld_hoagycarmichael_0001	ewld	Hoagy Carmichael	I Get Along Without You Very Well	1899	1981	1970.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Hoagy_Carmichael/I_Get_Along_Without_You_Very_Well/I_Get_Along_Without_You_Very_Well.mxl	.	.
+ewld_hoagycarmichael_0002	ewld	Hoagy Carmichael	Rockin' Chair	1899	1981	1965.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Hoagy_Carmichael/Rockin'_Chair/Rockin'_Chair.mxl	.	.
+ewld_hoagycarmichael_0003	ewld	Hoagy Carmichael	Stardust	1899	1981	1968.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Hoagy_Carmichael/Stardust/Stardust.mxl	.	.
+ewld_hoagycarmichael_0004	ewld	Hoagy Carmichael	Stardust	1899	1981	1968.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Hoagy_Carmichael/Stardust/Stardust.mxl	.	.
+ewld_horacesilver_0001	ewld	Horace Silver	Come on Home	1928	2014	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Horace_Silver/Come_on_Home/Come_on_Home.mxl	.	.
+ewld_horacesilver_0002	ewld	Horace Silver	Doodlin'	1928	2014	1982.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Horace_Silver/Doodlin'/Doodlin'.mxl	.	.
+ewld_horacesilver_0003	ewld	Horace Silver	Gregory Is Here	1928	2014	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Horace_Silver/Gregory_Is_Here/Gregory_Is_Here.mxl	.	.
+ewld_horacesilver_0004	ewld	Horace Silver	Nica's Dream	1928	2014	1980.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Horace_Silver/Nica's_Dream/Nica's_Dream.mxl	.	.
+ewld_horacesilver_0005	ewld	Horace Silver	Peace	1928	2014	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Horace_Silver/Peace/Peace.mxl	.	.
+ewld_horacesilver_0006	ewld	Horace Silver	Song for My Father	1928	2014	1987.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Horace_Silver/Song_for_My_Father/Song_for_My_Father.mxl	.	.
+ewld_horacesilver_0007	ewld	Horace Silver	Strollin'	1928	2014	1971.000000	lifespan_midpoint	musicxml	EWLD/dataset/Horace_Silver/Strollin'/Strollin'.mxl	.	.
+ewld_irvingberlin_0001	ewld	Irving Berlin	A Pretty Girl Is Like a Melody	1888	1989	1962.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/A_Pretty_Girl_Is_Like_a_Melody/A_Pretty_Girl_Is_Like_a_Melody.mxl	.	.
+ewld_irvingberlin_0002	ewld	Irving Berlin	Blue Skies	1888	1989	1969.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/Blue_Skies/Blue_Skies.mxl	.	.
+ewld_irvingberlin_0003	ewld	Irving Berlin	God Bless America	1888	1989	1974.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/God_Bless_America/God_Bless_America.mxl	.	.
+ewld_irvingberlin_0004	ewld	Irving Berlin	Love You Didn't Do Right by Me	1888	1989	1938.500000	lifespan_midpoint	musicxml	EWLD/dataset/Irving_Berlin/Love_You_Didn't_Do_Right_by_Me/Love_You_Didn't_Do_Right_by_Me.mxl	.	.
+ewld_irvingberlin_0005	ewld	Irving Berlin	Remember	1888	1989	1966.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/Remember/Remember.mxl	.	.
+ewld_irvingberlin_0006	ewld	Irving Berlin	Say It Isn't So	1888	1989	1970.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/Say_It_Isn't_So/Say_It_Isn't_So.mxl	.	.
+ewld_irvingberlin_0007	ewld	Irving Berlin	The Song Is Ended (But the Melody Lingers On)	1888	1989	1968.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/The_Song_Is_Ended_(But_the_Melody_Lingers_On)/The_Song_Is_Ended_(But_the_Melody_Lingers_On).mxl	.	b
+ewld_irvingberlin_0008	ewld	Irving Berlin	What'll I Do	1888	1989	1963.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Irving_Berlin/What'll_I_Do/What'll_I_Do.mxl	.	.
+ewld_johncoltrane_0001	ewld	John Coltrane	Blue Train	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Blue_Train/Blue_Train.mxl	.	.
+ewld_johncoltrane_0002	ewld	John Coltrane	Central Park West	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Central_Park_West/Central_Park_West.mxl	.	.
+ewld_johncoltrane_0003	ewld	John Coltrane	Cousin Mary	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Cousin_Mary/Cousin_Mary.mxl	.	.
+ewld_johncoltrane_0004	ewld	John Coltrane	Equinox	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Equinox/Equinox.mxl	.	.
+ewld_johncoltrane_0005	ewld	John Coltrane	Giant Steps	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Giant_Steps/Giant_Steps.mxl	.	.
+ewld_johncoltrane_0006	ewld	John Coltrane	Impressions	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Impressions/Impressions.mxl	.	.
+ewld_johncoltrane_0007	ewld	John Coltrane	Mr. P.C.	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Mr._P.C./Mr._P.C..mxl	.	.
+ewld_johncoltrane_0008	ewld	John Coltrane	Some Other Blues	1926	1967	1946.500000	lifespan_midpoint	musicxml	EWLD/dataset/John_Coltrane/Some_Other_Blues/Some_Other_Blues.mxl	.	.
+ewld_johndenver_0001	ewld	John Denver	Annie's Song	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Annie's_Song/Annie's_Song.mxl	.	.
+ewld_johndenver_0002	ewld	John Denver	Back Home Again	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Back_Home_Again/Back_Home_Again.mxl	.	.
+ewld_johndenver_0003	ewld	John Denver	Calypso	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Calypso/Calypso.mxl	.	.
+ewld_johndenver_0004	ewld	John Denver	Follow Me	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Follow_Me/Follow_Me.mxl	.	.
+ewld_johndenver_0005	ewld	John Denver	I'm Sorry	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/I'm_Sorry/I'm_Sorry.mxl	.	.
+ewld_johndenver_0006	ewld	John Denver	Leaving on a Jet Plane	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Leaving_on_a_Jet_Plane/Leaving_on_a_Jet_Plane.mxl	.	.
+ewld_johndenver_0007	ewld	John Denver	Like a Sad Song	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Like_a_Sad_Song/Like_a_Sad_Song.mxl	.	.
+ewld_johndenver_0008	ewld	John Denver	Looking for Space	1943	1997	1970.000000	lifespan_midpoint	musicxml	EWLD/dataset/John_Denver/Looking_for_Space/Looking_for_Space.mxl	.	.
+ewld_johnnymarks_0001	ewld	Johnny Marks	A Holly Jolly Christmas	1909	1985	1947.000000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Marks/A_Holly_Jolly_Christmas/A_Holly_Jolly_Christmas.mxl	.	.
+ewld_johnnymarks_0002	ewld	Johnny Marks	Most Wonderful Day of the Year	1909	1985	1982.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Johnny_Marks/Most_Wonderful_Day_of_the_Year/Most_Wonderful_Day_of_the_Year.mxl	.	.
+ewld_johnnymarks_0003	ewld	Johnny Marks	Rudolph, the Red-Nosed Reindeer	1909	1985	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Johnny_Marks/Rudolph,_the_Red-Nosed_Reindeer/Rudolph,_the_Red-Nosed_Reindeer.mxl	.	.
+ewld_johnnymarks_0004	ewld	Johnny Marks	Rudolph, the Red-Nosed Reindeer	1909	1985	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Johnny_Marks/Rudolph,_the_Red-Nosed_Reindeer/Rudolph,_the_Red-Nosed_Reindeer.mxl	.	.
+ewld_johnnymercer_0001	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
+ewld_johnnymercer_0002	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
+ewld_johnnymercer_0003	ewld	Johnny Mercer	Autumn Leaves	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl	.	.
+ewld_johnnymercer_0004	ewld	Johnny Mercer	Dream	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Dream/Dream.mxl	.	.
+ewld_johnnymercer_0005	ewld	Johnny Mercer	G.I. Jive	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/G.I._Jive/G.I._Jive.mxl	.	.
+ewld_johnnymercer_0006	ewld	Johnny Mercer	I'm an Old Cowhand (From the Rio Grande)	1909	1976	1971.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Johnny_Mercer/I'm_an_Old_Cowhand_(From_the_Rio_Grande)/I'm_an_Old_Cowhand_(From_the_Rio_Grande).mxl	.	.
+ewld_johnnymercer_0007	ewld	Johnny Mercer	Something's Gotta Give	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Something's_Gotta_Give/Something's_Gotta_Give.mxl	.	.
+ewld_johnnymercer_0008	ewld	Johnny Mercer	Summer Wind	1909	1976	1942.500000	lifespan_midpoint	musicxml	EWLD/dataset/Johnny_Mercer/Summer_Wind/Summer_Wind.mxl	.	.
+ewld_jonhendricks_0001	ewld	Jon Hendricks	A Night in Tunisia	1921	2017	1969.000000	lifespan_midpoint	musicxml	EWLD/dataset/Jon_Hendricks/A_Night_in_Tunisia/A_Night_in_Tunisia.mxl	.	.
+ewld_jonhendricks_0002	ewld	Jon Hendricks	A Night in Tunisia	1921	2017	1969.000000	lifespan_midpoint	musicxml	EWLD/dataset/Jon_Hendricks/A_Night_in_Tunisia/A_Night_in_Tunisia.mxl	.	.
+ewld_jonhendricks_0003	ewld	Jon Hendricks	Centerpiece	1921	2017	1983.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Jon_Hendricks/Centerpiece/Centerpiece.mxl	.	.
+ewld_jonhendricks_0004	ewld	Jon Hendricks	One Note Samba	1921	2017	1985.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Jon_Hendricks/One_Note_Samba/One_Note_Samba.mxl	.	.
+ewld_leroyanderson_0001	ewld	Leroy Anderson	Belle of the Ball	1908	1975	1941.500000	lifespan_midpoint	musicxml	EWLD/dataset/Leroy_Anderson/Belle_of_the_Ball/Belle_of_the_Ball.mxl	.	.
+ewld_leroyanderson_0002	ewld	Leroy Anderson	Blue Tango	1908	1975	1941.500000	lifespan_midpoint	musicxml	EWLD/dataset/Leroy_Anderson/Blue_Tango/Blue_Tango.mxl	.	.
+ewld_leroyanderson_0003	ewld	Leroy Anderson	Serenata	1908	1975	1941.500000	lifespan_midpoint	musicxml	EWLD/dataset/Leroy_Anderson/Serenata/Serenata.mxl	.	.
+ewld_leroyanderson_0004	ewld	Leroy Anderson	Sleigh Ride	1908	1975	1941.500000	lifespan_midpoint	musicxml	EWLD/dataset/Leroy_Anderson/Sleigh_Ride/Sleigh_Ride.mxl	.	.
+ewld_leroyanderson_0005	ewld	Leroy Anderson	Sleigh Ride	1908	1975	1941.500000	lifespan_midpoint	musicxml	EWLD/dataset/Leroy_Anderson/Sleigh_Ride/Sleigh_Ride.mxl	.	.
+ewld_lionelbart_0001	ewld	Lionel Bart	As Long as He Needs Me	1930	1999	1983.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Lionel_Bart/As_Long_as_He_Needs_Me/As_Long_as_He_Needs_Me.mxl	.	.
+ewld_lionelbart_0002	ewld	Lionel Bart	Consider Yourself	1930	1999	1983.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Lionel_Bart/Consider_Yourself/Consider_Yourself.mxl	.	.
+ewld_lionelbart_0003	ewld	Lionel Bart	From Russia with Love	1930	1999	1964.500000	lifespan_midpoint	musicxml	EWLD/dataset/Lionel_Bart/From_Russia_with_Love/From_Russia_with_Love.mxl	.	.
+ewld_lionelbart_0004	ewld	Lionel Bart	From Russia with Love	1930	1999	1964.500000	lifespan_midpoint	musicxml	EWLD/dataset/Lionel_Bart/From_Russia_with_Love/From_Russia_with_Love.mxl	.	.
+ewld_lionelbart_0005	ewld	Lionel Bart	Living Doll	1930	1999	1982.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Lionel_Bart/Living_Doll/Living_Doll.mxl	.	.
+ewld_lionelbart_0006	ewld	Lionel Bart	Where Is Love?	1930	1999	1983.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Lionel_Bart/Where_Is_Love?/Where_Is_Love?.mxl	.	.
+ewld_milesdavis_0001	ewld	Miles Davis	Blue in Green	1926	1991	1981.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Blue_in_Green/Blue_in_Green.mxl	.	.
+ewld_milesdavis_0002	ewld	Miles Davis	Dig	1926	1991	1980.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Dig/Dig.mxl	.	.
+ewld_milesdavis_0003	ewld	Miles Davis	Four	1926	1991	1978.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Four/Four.mxl	.	.
+ewld_milesdavis_0004	ewld	Miles Davis	Little Willie Leaps	1926	1991	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Little_Willie_Leaps/Little_Willie_Leaps.mxl	.	.
+ewld_milesdavis_0005	ewld	Miles Davis	Milestones	1926	1991	1980.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Milestones/Milestones.mxl	.	.
+ewld_milesdavis_0006	ewld	Miles Davis	Nardis	1926	1991	1982.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Nardis/Nardis.mxl	.	.
+ewld_milesdavis_0007	ewld	Miles Davis	So What	1926	1991	1981.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/So_What/So_What.mxl	.	.
+ewld_milesdavis_0008	ewld	Miles Davis	Tune Up	1926	1991	1979.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Miles_Davis/Tune_Up/Tune_Up.mxl	.	.
+ewld_raygilbert_0001	ewld	Ray Gilbert	Once I Loved	1912	1976	1944.000000	lifespan_midpoint	musicxml	EWLD/dataset/Ray_Gilbert/Once_I_Loved/Once_I_Loved.mxl	.	.
+ewld_raygilbert_0002	ewld	Ray Gilbert	The Face I Love	1912	1976	1944.000000	lifespan_midpoint	musicxml	EWLD/dataset/Ray_Gilbert/The_Face_I_Love/The_Face_I_Love.mxl	.	.
+ewld_raygilbert_0003	ewld	Ray Gilbert	You Belong to My Heart	1912	1976	1972.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Gilbert/You_Belong_to_My_Heart/You_Belong_to_My_Heart.mxl	.	.
+ewld_raygilbert_0004	ewld	Ray Gilbert	You Belong to My Heart	1912	1976	1972.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Gilbert/You_Belong_to_My_Heart/You_Belong_to_My_Heart.mxl	.	.
+ewld_raynoble_0001	ewld	Ray Noble	Cherokee	1903	1978	1974.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Noble/Cherokee/Cherokee.mxl	.	.
+ewld_raynoble_0002	ewld	Ray Noble	I Hadn't Anyone Till You	1903	1978	1969.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Noble/I_Hadn't_Anyone_Till_You/I_Hadn't_Anyone_Till_You.mxl	.	.
+ewld_raynoble_0003	ewld	Ray Noble	The Touch of Your Lips	1903	1978	1969.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Noble/The_Touch_of_Your_Lips/The_Touch_of_Your_Lips.mxl	.	.
+ewld_raynoble_0004	ewld	Ray Noble	The Very Thought of You	1903	1978	1969.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Ray_Noble/The_Very_Thought_of_You/The_Very_Thought_of_You.mxl	.	.
+ewld_rodmckuen_0001	ewld	Rod McKuen	I'll Catch the Sun	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/I'll_Catch_the_Sun/I'll_Catch_the_Sun.mxl	.	.
+ewld_rodmckuen_0002	ewld	Rod McKuen	If You Go Away	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/If_You_Go_Away/If_You_Go_Away.mxl	.	.
+ewld_rodmckuen_0003	ewld	Rod McKuen	Jean	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/Jean/Jean.mxl	.	.
+ewld_rodmckuen_0004	ewld	Rod McKuen	Love's Been Good to Me	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/Love's_Been_Good_to_Me/Love's_Been_Good_to_Me.mxl	.	.
+ewld_rodmckuen_0005	ewld	Rod McKuen	Someplace Green	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/Someplace_Green/Someplace_Green.mxl	.	.
+ewld_rodmckuen_0006	ewld	Rod McKuen	The World I Used to Know	1933	2015	1974.000000	lifespan_midpoint	musicxml	EWLD/dataset/Rod_McKuen/The_World_I_Used_to_Know/The_World_I_Used_to_Know.mxl	.	.
+ewld_rogermiller_0001	ewld	Roger Miller	King of the Road	1936	1992	1987.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/King_of_the_Road/King_of_the_Road.mxl	.	.
+ewld_rogermiller_0002	ewld	Roger Miller	King of the Road	1936	1992	1987.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/King_of_the_Road/King_of_the_Road.mxl	.	.
+ewld_rogermiller_0003	ewld	Roger Miller	Old Toy Trains	1936	1992	1988.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/Old_Toy_Trains/Old_Toy_Trains.mxl	.	.
+ewld_rogermiller_0004	ewld	Roger Miller	The Last Word in Lonesome Is Me	1936	1992	1984.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/The_Last_Word_in_Lonesome_Is_Me/The_Last_Word_in_Lonesome_Is_Me.mxl	.	.
+ewld_rogermiller_0005	ewld	Roger Miller	Walkin' in the Sunshine	1936	1992	1984.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/Walkin'_in_the_Sunshine/Walkin'_in_the_Sunshine.mxl	.	.
+ewld_rogermiller_0006	ewld	Roger Miller	You Can't Roller Skate in a Buffalo Herd	1936	1992	1987.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Roger_Miller/You_Can't_Roller_Skate_in_a_Buffalo_Herd/You_Can't_Roller_Skate_in_a_Buffalo_Herd.mxl	.	.
+ewld_stephenfoster_0001	ewld	Stephen Foster	Beautiful Dreamer	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Beautiful_Dreamer/Beautiful_Dreamer.mxl	.	.
+ewld_stephenfoster_0002	ewld	Stephen Foster	Gwine to Run All Night, or De Camptown Races	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Gwine_to_Run_All_Night,_or_De_Camptown_Races/Gwine_to_Run_All_Night,_or_De_Camptown_Races.mxl	.	.
+ewld_stephenfoster_0003	ewld	Stephen Foster	Hard Times Come Again No More	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Hard_Times_Come_Again_No_More/Hard_Times_Come_Again_No_More.mxl	.	.
+ewld_stephenfoster_0004	ewld	Stephen Foster	Jeanie with the Light Brown Hair	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Jeanie_with_the_Light_Brown_Hair/Jeanie_with_the_Light_Brown_Hair.mxl	.	.
+ewld_stephenfoster_0005	ewld	Stephen Foster	My Old Kentucky Home - Good-Night!	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/My_Old_Kentucky_Home_-_Good-Night!/My_Old_Kentucky_Home_-_Good-Night!.mxl	.	.
+ewld_stephenfoster_0006	ewld	Stephen Foster	Oh! Susanna	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Oh!_Susanna/Oh!_Susanna.mxl	.	.
+ewld_stephenfoster_0007	ewld	Stephen Foster	Old Folks at Home	1826	1864	1845.000000	lifespan_midpoint	musicxml	EWLD/dataset/Stephen_Foster/Old_Folks_at_Home/Old_Folks_at_Home.mxl	.	.
+ewld_stuarthamblen_0001	ewld	Stuart Hamblen	Open Up Your Heart and Let the Sunshine In	1908	1989	1948.500000	lifespan_midpoint	musicxml	EWLD/dataset/Stuart_Hamblen/Open_Up_Your_Heart_and_Let_the_Sunshine_In/Open_Up_Your_Heart_and_Let_the_Sunshine_In.mxl	.	.
+ewld_stuarthamblen_0002	ewld	Stuart Hamblen	Remember Me (I'm the One Who Loves You)	1908	1989	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Stuart_Hamblen/Remember_Me_(I'm_the_One_Who_Loves_You)/Remember_Me_(I'm_the_One_Who_Loves_You).mxl	.	.
+ewld_stuarthamblen_0003	ewld	Stuart Hamblen	This Ole House	1908	1989	1948.500000	lifespan_midpoint	musicxml	EWLD/dataset/Stuart_Hamblen/This_Ole_House/This_Ole_House.mxl	.	.
+ewld_stuarthamblen_0004	ewld	Stuart Hamblen	This Ole House	1908	1989	1948.500000	lifespan_midpoint	musicxml	EWLD/dataset/Stuart_Hamblen/This_Ole_House/This_Ole_House.mxl	.	.
+ewld_theloniousmonk_0001	ewld	Thelonious Monk	Ask Me Now	1917	1982	1979.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Ask_Me_Now/Ask_Me_Now.mxl	.	.
+ewld_theloniousmonk_0002	ewld	Thelonious Monk	Blue Monk	1917	1982	1981.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Blue_Monk/Blue_Monk.mxl	.	.
+ewld_theloniousmonk_0003	ewld	Thelonious Monk	Little Rootie Tootie	1917	1982	1981.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Little_Rootie_Tootie/Little_Rootie_Tootie.mxl	.	.
+ewld_theloniousmonk_0004	ewld	Thelonious Monk	Misterioso	1917	1982	1977.500000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Misterioso/Misterioso.mxl	.	.
+ewld_theloniousmonk_0005	ewld	Thelonious Monk	Monk's Dream	1917	1982	1981.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Monk's_Dream/Monk's_Dream.mxl	.	.
+ewld_theloniousmonk_0006	ewld	Thelonious Monk	Pannonica	1917	1982	1949.500000	lifespan_midpoint	musicxml	EWLD/dataset/Thelonious_Monk/Pannonica/Pannonica.mxl	.	.
+ewld_theloniousmonk_0007	ewld	Thelonious Monk	Straight No Chaser	1917	1982	1979.000000	ewld_first_performance_date	musicxml	EWLD/dataset/Thelonious_Monk/Straight_No_Chaser/Straight_No_Chaser.mxl	.	.
+ewld_theloniousmonk_0008	ewld	Thelonious Monk	Ugly Beauty	1917	1982	1949.500000	lifespan_midpoint	musicxml	EWLD/dataset/Thelonious_Monk/Ugly_Beauty/Ugly_Beauty.mxl	.	.
+ewld_walterdonaldson_0001	ewld	Walter Donaldson	At Sundown	1893	1947	1920.000000	lifespan_midpoint	musicxml	EWLD/dataset/Walter_Donaldson/At_Sundown/At_Sundown.mxl	.	.
+ewld_walterdonaldson_0002	ewld	Walter Donaldson	Little White Lies	1893	1947	1920.000000	lifespan_midpoint	musicxml	EWLD/dataset/Walter_Donaldson/Little_White_Lies/Little_White_Lies.mxl	.	.
+ewld_walterdonaldson_0003	ewld	Walter Donaldson	You're Driving Me Crazy (What Did I Do?)	1893	1947	1920.000000	lifespan_midpoint	musicxml	EWLD/dataset/Walter_Donaldson/You're_Driving_Me_Crazy_(What_Did_I_Do?)/You're_Driving_Me_Crazy_(What_Did_I_Do?).mxl	.	.
+ewld_walterdonaldson_0004	ewld	Walter Donaldson	You're Driving Me Crazy (What Did I Do?)	1893	1947	1920.000000	lifespan_midpoint	musicxml	EWLD/dataset/Walter_Donaldson/You're_Driving_Me_Crazy_(What_Did_I_Do?)/You're_Driving_Me_Crazy_(What_Did_I_Do?).mxl	.	.
+music21_claraschumann_0001	music21	Clara Schumann	movement3	1819	1896	1870.500000	wikipedia_inception	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/opus17/movement3.xml	b	.
+music21_claraschumann_0002	music21	Clara Schumann	polonaise_op1n1	1819	1896	1891.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n1.mxl	.	.
+music21_claraschumann_0003	music21	Clara Schumann	polonaise_op1n2	1819	1896	1869.000000	wikipedia_inception	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n2.mxl	b	.
+music21_claraschumann_0004	music21	Clara Schumann	polonaise_op1n3	1819	1896	1891.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n3.mxl	b	.
+music21_claraschumann_0005	music21	Clara Schumann	polonaise_op1n4	1819	1896	1891.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n4.mxl	b	.
+music21_claudiomonteverdi_0001	music21	Claudio Monteverdi	madrigal.3.13	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.13.mxl	.	.
+music21_claudiomonteverdi_0002	music21	Claudio Monteverdi	madrigal.3.20	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.20.mxl	.	.
+music21_claudiomonteverdi_0003	music21	Claudio Monteverdi	madrigal.3.6	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.6.mxl	.	.
+music21_claudiomonteverdi_0004	music21	Claudio Monteverdi	madrigal.4.10	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.4.10.mxl	.	.
+music21_claudiomonteverdi_0005	music21	Claudio Monteverdi	madrigal.5.1	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.1.mxl	.	.
+music21_claudiomonteverdi_0006	music21	Claudio Monteverdi	madrigal.5.2	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.2.mxl	.	.
+music21_claudiomonteverdi_0007	music21	Claudio Monteverdi	madrigal.5.3	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.3.mxl	.	.
+music21_claudiomonteverdi_0008	music21	Claudio Monteverdi	madrigal.5.4	1567	1643	1605.000000	lifespan_midpoint	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.4.mxl	.	.
+music21_giovannipalestrina_0001	music21	Giovanni Palestrina	Agnus_I_03	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_I_03.krn	.	.
+music21_giovannipalestrina_0002	music21	Giovanni Palestrina	Agnus_II_37	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_II_37.krn	a	.
+music21_giovannipalestrina_0003	music21	Giovanni Palestrina	Credo_26	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_26.krn	a	.
+music21_giovannipalestrina_0004	music21	Giovanni Palestrina	Credo_31_a	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_31_a.krn	.	.
+music21_giovannipalestrina_0005	music21	Giovanni Palestrina	Credo_71_h	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_71_h.krn	a	.
+music21_giovannipalestrina_0006	music21	Giovanni Palestrina	Credo_78_a	1525	1594	1559.500000	lifespan_midpoint	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_78_a.krn	.	.
+music21_giovannipalestrina_0007	music21	Giovanni Palestrina	Sanctus_10	1525	1594	1583.500000	wikipedia_inception	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_10.krn	.	.
+music21_giovannipalestrina_0008	music21	Giovanni Palestrina	Sanctus_rpt_01_b	1525	1594	1585.000000	wikipedia_inception	kern	.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_b.krn	a	.
+music21_johannsebastianbach_0001	music21	Johann Sebastian Bach	bwv145-a	1685	1750	1728.500000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv145-a.mxl	.	.
+music21_johannsebastianbach_0002	music21	Johann Sebastian Bach	bwv256	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv256.mxl	.	b
+music21_johannsebastianbach_0003	music21	Johann Sebastian Bach	bwv286	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv286.mxl	.	.
+music21_johannsebastianbach_0004	music21	Johann Sebastian Bach	bwv293	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv293.mxl	.	.
+music21_johannsebastianbach_0005	music21	Johann Sebastian Bach	bwv373	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv373.mxl	.	.
+music21_johannsebastianbach_0006	music21	Johann Sebastian Bach	bwv385	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv385.mxl	.	.
+music21_johannsebastianbach_0007	music21	Johann Sebastian Bach	bwv401	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv401.mxl	.	.
+music21_johannsebastianbach_0008	music21	Johann Sebastian Bach	bwv406	1685	1750	1725.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv406.mxl	.	.
+music21_josephhaydn_0001	music21	Joseph Haydn	movement1	1732	1809	1771.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement1.mxl	.	.
+music21_josephhaydn_0002	music21	Joseph Haydn	movement1	1732	1809	1771.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement1.mxl	.	.
+music21_josephhaydn_0003	music21	Joseph Haydn	movement2	1732	1809	1773.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement2.mxl	.	.
+music21_josephhaydn_0004	music21	Joseph Haydn	movement2	1732	1809	1773.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement2.mxl	.	.
+music21_josephhaydn_0005	music21	Joseph Haydn	movement3	1732	1809	1786.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement3.mxl	.	.
+music21_josephhaydn_0006	music21	Joseph Haydn	movement3	1732	1809	1786.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement3.mxl	.	.
+music21_josephhaydn_0007	music21	Joseph Haydn	movement4	1732	1809	1773.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement4.mxl	.	.
+music21_josephhaydn_0008	music21	Joseph Haydn	movement4	1732	1809	1773.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement4.mxl	.	.
+music21_ludwigvanbeethoven_0001	music21	Ludwig van Beethoven	movement1	1770	1827	1825.000000	rism_source_date	kern	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement1.krn	.	.
+music21_ludwigvanbeethoven_0002	music21	Ludwig van Beethoven	movement1	1770	1827	1825.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement1.mxl	.	.
+music21_ludwigvanbeethoven_0003	music21	Ludwig van Beethoven	movement2	1770	1827	1823.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement2.mxl	.	.
+music21_ludwigvanbeethoven_0004	music21	Ludwig van Beethoven	movement3	1770	1827	1814.000000	rism_source_date	kern	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.krn	.	b
+music21_ludwigvanbeethoven_0005	music21	Ludwig van Beethoven	movement3	1770	1827	1814.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.mxl	.	.
+music21_ludwigvanbeethoven_0006	music21	Ludwig van Beethoven	movement3	1770	1827	1814.000000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement3.mxl	.	.
+music21_ludwigvanbeethoven_0007	music21	Ludwig van Beethoven	movement4	1770	1827	1799.000000	wikipedia_inception	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement4.mxl	.	.
+music21_ludwigvanbeethoven_0008	music21	Ludwig van Beethoven	opus133	1770	1827	1825.500000	rism_source_date	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus133.mxl	.	.
+music21_robertschumann_0001	music21	Robert Schumann	dichterliebe_no2	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/dichterliebe_no2.xml	.	.
+music21_robertschumann_0002	music21	Robert Schumann	movement1	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement1.mxl	.	.
+music21_robertschumann_0003	music21	Robert Schumann	movement2	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement2.mxl	.	.
+music21_robertschumann_0004	music21	Robert Schumann	movement3	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement3.mxl	.	.
+music21_robertschumann_0005	music21	Robert Schumann	movement4	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement4.mxl	.	.
+music21_robertschumann_0006	music21	Robert Schumann	movement5	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus41no1/movement5.mxl	.	.
+music21_robertschumann_0007	music21	Robert Schumann	opus48no2	1810	1856	1842.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/schumann_robert/opus48no2.mxl	.	.
+music21_wolfgangamadeusmozar_0001	music21	Wolfgang Amadeus Mozart	movement1	1756	1791	1772.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement1.mxl	.	.
+music21_wolfgangamadeusmozar_0002	music21	Wolfgang Amadeus Mozart	movement1	1756	1791	1784.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k458/movement1.mxl	.	.
+music21_wolfgangamadeusmozar_0003	music21	Wolfgang Amadeus Mozart	movement1_exposition	1756	1791	1788.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k545/movement1_exposition.mxl	.	.
+music21_wolfgangamadeusmozar_0004	music21	Wolfgang Amadeus Mozart	movement2	1756	1791	1782.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement2.mxl	.	.
+music21_wolfgangamadeusmozar_0005	music21	Wolfgang Amadeus Mozart	movement2	1756	1791	1782.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k458/movement2.mxl	.	.
+music21_wolfgangamadeusmozar_0006	music21	Wolfgang Amadeus Mozart	movement3	1756	1791	1772.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k155/movement3.mxl	.	.
+music21_wolfgangamadeusmozar_0007	music21	Wolfgang Amadeus Mozart	movement3	1756	1791	1772.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement3.mxl	.	.
+music21_wolfgangamadeusmozar_0008	music21	Wolfgang Amadeus Mozart	movement4	1756	1791	1772.000000	imslp_composition	musicxml	.venv/lib/python3.11/site-packages/music21/corpus/mozart/k156/movement4.mxl	.	.

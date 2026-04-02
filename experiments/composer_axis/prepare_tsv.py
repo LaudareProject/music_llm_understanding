@@ -1,5 +1,6 @@
 from collections import defaultdict
 import csv
+import json
 import os
 from pathlib import Path
 import random
@@ -7,7 +8,9 @@ import re
 import sqlite3
 import subprocess
 import sys
+import time
 import unicodedata
+from urllib import parse, request
 
 import numpy as np
 
@@ -23,11 +26,19 @@ EWLD_ROOT = REPO_ROOT / "EWLD"
 EWLD_DB_PATH = EWLD_ROOT / "EWLD.db"
 LIFESPANS_CSV = REPO_ROOT / "data" / "composer_lifespans.csv"
 OUTPUT_TSV = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
+CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
+DATE_CACHE_PATH = CACHE_DIR / "prepare_tsv_date_cache.json"
 MIN_SONGS_PER_COMPOSER = 4
 MAX_SONGS_PER_COMPOSER = 8
 SAMPLE_SIZE_PER_SIDE = 4
 OVERALL_SAMPLE_SIZE = 8
 SEED = 42
+
+HTTP_USER_AGENT = "Laudare-prepare-tsv/1.0"
+IMSLP_API_URL = "https://imslp.org/api.php"
+WIKIPEDIA_API_URL = "https://en.wikipedia.org/w/api.php"
+WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{qid}.json"
+RISM_SEARCH_URL = "https://rism.online/search"
 
 MUSIC21_COMPOSERS = [
     "bach",
@@ -104,6 +115,402 @@ def parse_year(value):
     text = str(value or "").strip()
     match = re.search(r"-?\d{3,4}", text)
     return int(match.group(0)) if match else None
+
+
+def parse_work_year(value):
+    text = str(value or "").strip()
+    if not text:
+        return None
+    normalized = text.replace("\u2013", "-").replace("\u2014", "-")
+    pairs = list(re.finditer(r"(\d{4})\s*-\s*(\d{2,4})", normalized))
+    if pairs:
+        match = pairs[0]
+        start = int(match.group(1))
+        end_text = match.group(2)
+        if len(end_text) == 2:
+            end = (start // 100) * 100 + int(end_text)
+            if end < start:
+                end += 100
+        else:
+            end = int(end_text)
+        return (start + end) / 2.0
+    years = [int(token) for token in re.findall(r"\b\d{4}\b", normalized)]
+    if not years:
+        return None
+    if len(years) == 1:
+        return float(years[0])
+    return (years[0] + years[-1]) / 2.0
+
+
+def load_date_cache():
+    if not DATE_CACHE_PATH.exists():
+        return {}
+    with DATE_CACHE_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def save_date_cache(cache):
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with DATE_CACHE_PATH.open("w", encoding="utf-8") as handle:
+        json.dump(cache, handle, indent=2, sort_keys=True)
+
+
+def fetch_text(url, headers=None, accept=None):
+    request_headers = {"User-Agent": HTTP_USER_AGENT}
+    if headers:
+        request_headers.update(headers)
+    if accept:
+        request_headers["Accept"] = accept
+    req = request.Request(url, headers=request_headers)
+    with request.urlopen(req, timeout=30) as response:
+        return response.read().decode("utf-8")
+
+
+def fetch_json(url, headers=None, accept=None):
+    return json.loads(fetch_text(url, headers=headers, accept=accept))
+
+
+def strip_markup(text):
+    value = str(text or "")
+    value = re.sub(r"\{\{[^{}]*\|([^{}|]+)\}\}", r"\1", value)
+    value = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", value)
+    value = re.sub(r"\[\[([^\]]+)\]\]", r"\1", value)
+    value = value.replace("<br>", "; ").replace("<br/>", "; ").replace("<br />", "; ")
+    value = re.sub(r"<[^>]+>", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def normalize_title_text(text):
+    value = str(text or "").replace("_", " ").strip()
+    value = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", value)
+    value = re.sub(r"(?<=[A-Za-z])(?=\d)", " ", value)
+    value = re.sub(r"(?<=\d)(?=[A-Za-z])", " ", value)
+    value = re.sub(r"[-./]+", " ", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+
+def title_tokens(text):
+    folded = canonicalize(normalize_title_text(text))
+    return folded
+
+
+def extract_catalog_queries(title, path):
+    text = f"{title} {path}".lower().replace("_", " ").replace("/", " ")
+    patterns = [
+        (r"\bbwv\s*([0-9]+[a-z-]*)", "BWV {}"),
+        (r"\bk\.?\s*([0-9]+[a-z-]*)", "K.{}"),
+        (r"\bd\.?\s*([0-9]+[a-z-]*)", "D.{}"),
+        (r"\bop\.?\s*([0-9]+[a-z-]*)", "Op.{}"),
+        (r"\bhob\.?\s*([xivlcdm]+[:.]?[0-9a-z-]+)", "Hob.{}"),
+        (r"\bs\.?\s*([0-9]+[a-z-]*)", "S.{}"),
+        (r"\bm\.?\s*([0-9]+[a-z-]*)", "M.{}"),
+    ]
+    queries = []
+    for pattern, template in patterns:
+        for match in re.findall(pattern, text):
+            queries.append(template.format(match.upper()))
+    return queries
+
+
+def path_context_queries(path):
+    parts = [normalize_title_text(part) for part in Path(path).parts[:-1]]
+    queries = []
+    for part in reversed(parts):
+        lowered = part.lower()
+        if not part or lowered in {"asap", "music21", "corpus", "dataset"}:
+            continue
+        if re.search(r"\b(op|opus|bwv|hob|k\.?|d\.?|s\.?|m\.?)[ .:0-9a-z-]+", lowered):
+            queries.append(part)
+    return queries[:3]
+
+
+def build_query_candidates(row):
+    composer = row["composer"]
+    title = normalize_title_text(row["title"])
+    candidates = []
+
+    def add(query):
+        value = re.sub(r"\s+", " ", str(query or "")).strip()
+        if value and value not in candidates:
+            candidates.append(value)
+
+    add(f"{title} {composer}")
+    add(title)
+    for catalog in extract_catalog_queries(row["title"], row["path"]):
+        add(f"{catalog} {composer}")
+        add(catalog)
+    for context in path_context_queries(row["path"]):
+        add(f"{context} {composer}")
+        add(context)
+    return candidates
+
+
+def choose_imslp_hit(row, hits):
+    composer_key = canonicalize(row["composer"])
+    title_key = canonicalize(normalize_title_text(row["title"]))
+    catalogs = [
+        canonicalize(value)
+        for value in extract_catalog_queries(row["title"], row["path"])
+    ]
+    best_title = None
+    best_score = None
+    for title in hits:
+        hit_key = canonicalize(title)
+        score = 0
+        if composer_key and composer_key[:12] in hit_key:
+            score += 4
+        if title_key and title_key[:16] and title_key[:16] in hit_key:
+            score += 3
+        for catalog in catalogs:
+            if catalog and catalog in hit_key:
+                score += 5
+        if canonicalize(row["composer"].split()[-1]) in hit_key:
+            score += 2
+        if best_score is None or score > best_score:
+            best_score = score
+            best_title = title
+    return best_title if (best_score or 0) > 0 else None
+
+
+def fetch_imslp_fields(page_title):
+    params = parse.urlencode(
+        {
+            "action": "query",
+            "prop": "revisions",
+            "titles": page_title,
+            "rvprop": "content",
+            "format": "json",
+        }
+    )
+    payload = fetch_json(f"{IMSLP_API_URL}?{params}")
+    pages = payload.get("query", {}).get("pages", {})
+    page = next(iter(pages.values()), {})
+    revisions = page.get("revisions") or []
+    if not revisions:
+        return {}
+    content = revisions[0].get("*") or ""
+    fields = {}
+    for name in [
+        "Work Title",
+        "Opus/Catalogue Number",
+        "Year/Date of Composition",
+        "Year of First Publication",
+    ]:
+        match = re.search(rf"^\|{re.escape(name)}=(.*)$", content, flags=re.MULTILINE)
+        fields[name] = strip_markup(match.group(1)) if match else ""
+    return fields
+
+
+def lookup_imslp_year(row):
+    for query in build_query_candidates(row):
+        params = parse.urlencode(
+            {
+                "action": "query",
+                "list": "search",
+                "srsearch": query,
+                "format": "json",
+            }
+        )
+        payload = fetch_json(f"{IMSLP_API_URL}?{params}")
+        titles = [
+            item.get("title", "") for item in payload.get("query", {}).get("search", [])
+        ]
+        chosen = choose_imslp_hit(row, titles)
+        if not chosen:
+            continue
+        fields = fetch_imslp_fields(chosen)
+        composition_year = parse_work_year(fields.get("Year/Date of Composition"))
+        if composition_year is not None:
+            return composition_year, "imslp_composition"
+        publication_year = parse_work_year(fields.get("Year of First Publication"))
+        if publication_year is not None:
+            return publication_year, "imslp_first_publication"
+    return None, None
+
+
+def choose_wikipedia_hit(row, hits):
+    composer_words = [canonicalize(token) for token in row["composer"].split() if token]
+    title_words = [
+        canonicalize(token)
+        for token in normalize_title_text(row["title"]).split()
+        if token
+    ]
+    best = None
+    best_score = None
+    for hit in hits:
+        title = hit.get("title", "")
+        snippet = strip_markup(hit.get("snippet", ""))
+        haystack = canonicalize(f"{title} {snippet}")
+        score = 0
+        for word in composer_words:
+            if word and word in haystack:
+                score += 2
+        for word in title_words[:4]:
+            if word and word in haystack:
+                score += 1
+        for catalog in extract_catalog_queries(row["title"], row["path"]):
+            if canonicalize(catalog) in haystack:
+                score += 4
+        if best_score is None or score > best_score:
+            best = hit
+            best_score = score
+    return best if (best_score or 0) > 0 else None
+
+
+def fetch_wikidata_year(qid):
+    payload = fetch_json(WIKIDATA_ENTITY_URL.format(qid=qid))
+    entity = payload.get("entities", {}).get(qid, {})
+    for prop, source in [
+        ("P571", "wikipedia_inception"),
+        ("P577", "wikipedia_publication"),
+    ]:
+        claims = entity.get("claims", {}).get(prop) or []
+        for claim in claims:
+            datavalue = claim.get("mainsnak", {}).get("datavalue", {})
+            value = datavalue.get("value", {})
+            year = parse_work_year(value.get("time"))
+            if year is not None:
+                return year, source
+    return None, None
+
+
+def lookup_wikipedia_year(row):
+    for query in build_query_candidates(row):
+        params = parse.urlencode(
+            {
+                "action": "query",
+                "list": "search",
+                "srsearch": query,
+                "format": "json",
+            }
+        )
+        payload = fetch_json(f"{WIKIPEDIA_API_URL}?{params}")
+        chosen = choose_wikipedia_hit(row, payload.get("query", {}).get("search", []))
+        if not chosen:
+            continue
+        title = chosen.get("title")
+        if not title:
+            continue
+        detail_params = parse.urlencode(
+            {
+                "action": "query",
+                "prop": "pageprops",
+                "titles": title,
+                "format": "json",
+            }
+        )
+        detail = fetch_json(f"{WIKIPEDIA_API_URL}?{detail_params}")
+        pages = detail.get("query", {}).get("pages", {})
+        page = next(iter(pages.values()), {})
+        qid = page.get("pageprops", {}).get("wikibase_item")
+        if not qid:
+            continue
+        year, source = fetch_wikidata_year(qid)
+        if year is not None:
+            return year, source
+    return None, None
+
+
+def choose_rism_item(row, items):
+    composer_key = canonicalize(row["composer"])
+    best = None
+    best_score = None
+    for item in items:
+        label = ""
+        for key in ["none", "en", "de", "fr"]:
+            values = (item.get("label") or {}).get(key) or []
+            if values:
+                label = values[0]
+                break
+        haystack = canonicalize(label)
+        score = 0
+        if composer_key[:12] and composer_key[:12] in haystack:
+            score += 3
+        for catalog in extract_catalog_queries(row["title"], row["path"]):
+            if canonicalize(catalog) in haystack:
+                score += 5
+        for token in normalize_title_text(row["title"]).split()[:4]:
+            if canonicalize(token) in haystack:
+                score += 1
+        if best_score is None or score > best_score:
+            best = item
+            best_score = score
+    return best if (best_score or 0) > 0 else None
+
+
+def lookup_rism_year(row):
+    for query in build_query_candidates(row):
+        params = parse.urlencode({"q": query, "rows": 20})
+        payload = fetch_json(
+            f"{RISM_SEARCH_URL}?{params}", accept="application/ld+json"
+        )
+        items = payload.get("items") or []
+        chosen = choose_rism_item(row, items)
+        if not chosen:
+            continue
+        resource = fetch_json(chosen["id"], accept="application/ld+json")
+        creator = (
+            resource.get("creator", {})
+            .get("relatedTo", {})
+            .get("label", {})
+            .get("none", [""])[0]
+        )
+        if canonicalize(row["composer"].split()[-1]) not in canonicalize(creator):
+            continue
+        dates = resource.get("dates") or {}
+        earliest = parse_work_year(dates.get("earliestDate"))
+        latest = parse_work_year(dates.get("latestDate"))
+        if earliest is not None and latest is not None:
+            return (earliest + latest) / 2.0, "rism_source_date"
+        date_statement = parse_work_year(dates.get("dateStatement"))
+        if date_statement is not None:
+            return date_statement, "rism_source_date"
+    return None, None
+
+
+def lookup_network_year(row):
+    for fn in [lookup_imslp_year, lookup_wikipedia_year, lookup_rism_year]:
+        try:
+            year, source = fn(row)
+        except Exception:
+            year, source = None, None
+        if year is not None:
+            return year, source
+        time.sleep(0.1)
+    return None, None
+
+
+def assign_work_years(records):
+    cache = load_date_cache()
+    dirty = False
+    for row in records:
+        cache_key = "|".join(
+            [row["dataset"], row["composer"], row["title"], row["path"]]
+        )
+        cached = cache.get(cache_key)
+        if cached is None:
+            if row["dataset"] == "ewld":
+                year = parse_work_year(row.get("first_performance_date"))
+                if year is not None:
+                    cached = {"year": year, "source": "ewld_first_performance_date"}
+                else:
+                    cached = {
+                        "year": row["midpoint_year"],
+                        "source": "lifespan_midpoint",
+                    }
+            else:
+                year, source = lookup_network_year(row)
+                if year is None:
+                    year = row["midpoint_year"]
+                    source = "lifespan_midpoint"
+                cached = {"year": year, "source": source}
+            cache[cache_key] = cached
+            dirty = True
+        row["midpoint_year"] = float(cached["year"])
+        row["year_source"] = cached["source"]
+    if dirty:
+        save_date_cache(cache)
 
 
 def load_lifespans():
@@ -261,17 +668,27 @@ def collect_ewld(table, rng):
           s.work_id,
           s.title,
           s.path_leadsheet,
+          w.first_performance_date,
           a.common_name,
           a.birth,
           a.death
         FROM single_author_works s
+        JOIN works w ON w.id = s.work_id
         JOIN authors a ON a.common_name = s.author
         WHERE a.common_name NOT IN ('[Unknown]', '[Traditional]')
         """
     )
     fetched = cursor.fetchall()
     conn.close()
-    for work_id, title, path_leadsheet, composer, birth_raw, death_raw in fetched:
+    for (
+        work_id,
+        title,
+        path_leadsheet,
+        first_performance_date,
+        composer,
+        birth_raw,
+        death_raw,
+    ) in fetched:
         if not path_leadsheet:
             continue
         source_path = (EWLD_ROOT / str(path_leadsheet)).resolve()
@@ -293,6 +710,7 @@ def collect_ewld(table, rng):
                 "birth_year": birth_year,
                 "death_year": death_year,
                 "midpoint_year": (birth_year + death_year) / 2.0,
+                "first_performance_date": first_performance_date,
                 "input_kind": "musicxml",
                 "path": relpath(source_path),
                 "work_id": str(work_id),
@@ -328,23 +746,6 @@ def assign_query_ids(records):
         row["query_id"] = (
             f"{row['dataset']}_{canonicalize(row['composer'])[:20]}_{counters[key]:04d}"
         )
-
-
-def assign_composer_ranks(records):
-    grouped = defaultdict(lambda: defaultdict(list))
-    for row in records:
-        grouped[row["dataset"]][row["composer"]].append(row)
-    for dataset in grouped:
-        ordered = sorted(
-            grouped[dataset],
-            key=lambda composer: (
-                grouped[dataset][composer][0]["midpoint_year"],
-                canonicalize(composer),
-            ),
-        )
-        for rank, composer in enumerate(ordered):
-            for row in grouped[dataset][composer]:
-                row["composer_rank"] = rank
 
 
 def remove_year_outliers(composers, grouped):
@@ -398,8 +799,9 @@ def main():
         "ewld": keep_composers_with_enough_songs(ewld_rows),
     }
     rows = by_dataset["asap"] + by_dataset["music21"] + by_dataset["ewld"]
+    print("[2.5/5] assigning work years")
+    assign_work_years(rows)
     assign_query_ids(rows)
-    assign_composer_ranks(rows)
     for row in rows:
         row["axis_side"] = "."
         row["overall_side"] = "."
@@ -439,7 +841,7 @@ def main():
                 "birth_year": row["birth_year"],
                 "death_year": row["death_year"],
                 "midpoint_year": f"{row['midpoint_year']:.6f}",
-                "composer_rank": row["composer_rank"],
+                "year_source": row["year_source"],
                 "input_kind": row["input_kind"],
                 "path": row["path"],
                 "axis_side": row["axis_side"],
@@ -457,7 +859,7 @@ def main():
             "birth_year",
             "death_year",
             "midpoint_year",
-            "composer_rank",
+            "year_source",
             "input_kind",
             "path",
             "axis_side",

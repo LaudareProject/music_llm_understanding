@@ -9,8 +9,9 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.anchor_selection import select_anchors
 from experiments.common.folder_handling import create_folder
-from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
+from experiments.common.plots import save_scatter, save_table_png
 from experiments.common.math1d import (
     COMBOS,
     apply_combo,
@@ -104,7 +105,7 @@ def save_metric_table(output_path, combos, metric_rows, metric_name, title):
     save_table_png(output_path, headers, body, title)
 
 
-def main():
+def main(anchor_selection_method="anchor_column"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     feature_cols = parse_feature_cols_env()
     feature_space = feature_selection_space_env()
@@ -123,6 +124,7 @@ def main():
             "feature_selection_space": feature_space,
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
+            "anchor_selection": anchor_selection_method,
         },
     )
     midi_dir = output_dir / "midi"
@@ -156,16 +158,28 @@ def main():
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
     np.save(output_dir / "embeddings.npy", matrix)
 
-    anchor_a_idx = [
-        query_to_index[row["query_id"]] for row in rows if row["axis_side"] == "a"
-    ]
-    anchor_b_idx = [
-        query_to_index[row["query_id"]] for row in rows if row["axis_side"] == "b"
-    ]
-    eval_rows = [row for row in rows if row["axis_side"] not in {"a", "b"}]
+    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
+        rows,
+        "axis_side",
+        anchor_selection_method,
+        target_key="midi_note",
+        random_n=10,
+        best_pairs_n=10,
+        best_pairs_separation=12,
+    )
+    anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
+    anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
     eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
     real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
     groups = [row["name"] for row in eval_rows]
+    anchors_a_values = np.asarray(
+        [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_a_ids],
+        dtype=np.float64,
+    )
+    anchors_b_values = np.asarray(
+        [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_b_ids],
+        dtype=np.float64,
+    )
 
     print("[3/5] evaluating combos")
     if forced_combo_name:
@@ -228,6 +242,8 @@ def main():
                 "random": baseline_l1,
                 "sample_count": len(eval_rows),
                 "query_ids": [row["query_id"] for row in eval_rows],
+                "anchors_a": anchors_a_values,
+                "anchors_b": anchors_b_values,
             }
             metric_rows.append(
                 {
@@ -356,6 +372,9 @@ def main():
                 "Projected value"
                 if mapping_name == "raw"
                 else "Mapped projected value",
+                ref_line=mapping_name != "raw",
+                anchors_a=metrics["anchors_a"] if mapping_name != "raw" else None,
+                anchors_b=metrics["anchors_b"] if mapping_name != "raw" else None,
             )
             for query_id, real_value, predicted_value, group in zip(
                 metrics["query_ids"],
@@ -378,15 +397,6 @@ def main():
         output_dir / "projections.tsv",
         projection_rows,
         ["dataset", "combo", "mapping", "query_id", "name", "real", "predicted"],
-    )
-    raw_metrics = best_by_dataset["pitch"]["payload"]["raw"]
-    save_projection_strip(
-        output_dir / "projection_strip.png",
-        raw_metrics["predicted"],
-        raw_metrics["groups"],
-        raw_metrics["groups"],
-        f"Projection per note | {best_by_dataset['pitch']['combo']}",
-        "Note",
     )
     print("[5/5] done")
     print(output_dir)

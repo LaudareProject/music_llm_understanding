@@ -8,8 +8,9 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.anchor_selection import select_anchors
 from experiments.common.folder_handling import create_folder
-from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
+from experiments.common.plots import save_scatter, save_table_png
 from experiments.common.math1d import (
     COMBOS,
     apply_combo,
@@ -156,18 +157,22 @@ def save_metric_table(output_path, combos, metric_rows, metric_name, title):
     save_table_png(output_path, headers, body, title)
 
 
-def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
+def evaluate_dataset(
+    name, matrix, rows, query_to_index, anchor_column, anchor_selection_method
+):
     if name == "overall":
         relevant_rows = rows
     else:
         relevant_rows = [row for row in rows if row["dataset"] == name]
-    anchor_a_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "a"
-    ]
-    anchor_b_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "b"
-    ]
-    eval_rows = [row for row in relevant_rows if row[anchor_column] not in {"a", "b"}]
+    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
+        relevant_rows,
+        anchor_column,
+        anchor_selection_method,
+        target_key="midpoint_year",
+        random_n=10,
+        best_pairs_n=10,
+        best_pairs_separation=100,
+    )
     if len(eval_rows) < 2:
         return None
     anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
@@ -182,6 +187,22 @@ def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
     )
     death_years = np.asarray(
         [float(row["death_year"]) for row in eval_rows], dtype=np.float64
+    )
+    anchors_a_years = np.asarray(
+        [
+            float(row["midpoint_year"])
+            for row in relevant_rows
+            if row["query_id"] in anchor_a_ids
+        ],
+        dtype=np.float64,
+    )
+    anchors_b_years = np.asarray(
+        [
+            float(row["midpoint_year"])
+            for row in relevant_rows
+            if row["query_id"] in anchor_b_ids
+        ],
+        dtype=np.float64,
     )
     mappings = {
         "raw": raw_projection,
@@ -212,11 +233,13 @@ def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
             "random": baseline_l1,
             "sample_count": len(eval_rows),
             "query_ids": [row["query_id"] for row in eval_rows],
+            "anchors_a": anchors_a_years,
+            "anchors_b": anchors_b_years,
         }
     return out
 
 
-def main(use_hann_selection=False):
+def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     feature_cols = parse_feature_cols_env()
     feature_space = feature_selection_space_env()
@@ -235,6 +258,7 @@ def main(use_hann_selection=False):
             "feature_selection_space": feature_space,
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
+            "anchor_selection": anchor_selection_method,
         },
     )
     midi_dir = output_dir / "midi"
@@ -306,16 +330,36 @@ def main(use_hann_selection=False):
             transformed = transformed[:, feature_cols]
         payload = {
             "asap": evaluate_dataset(
-                "asap", transformed, rows, query_to_index, "axis_side"
+                "asap",
+                transformed,
+                rows,
+                query_to_index,
+                "axis_side",
+                anchor_selection_method,
             ),
             "music21": evaluate_dataset(
-                "music21", transformed, rows, query_to_index, "axis_side"
+                "music21",
+                transformed,
+                rows,
+                query_to_index,
+                "axis_side",
+                anchor_selection_method,
             ),
             "ewld": evaluate_dataset(
-                "ewld", transformed, rows, query_to_index, "axis_side"
+                "ewld",
+                transformed,
+                rows,
+                query_to_index,
+                "axis_side",
+                anchor_selection_method,
             ),
             "overall": evaluate_dataset(
-                "overall", transformed, rows, query_to_index, "overall_side"
+                "overall",
+                transformed,
+                rows,
+                query_to_index,
+                "overall_side",
+                anchor_selection_method,
             ),
         }
         raw_scores = []
@@ -535,6 +579,9 @@ def main(use_hann_selection=False):
                 title,
                 "Real value (composer midpoint year)",
                 "Projected value" if mapping == "raw" else "Mapped projected value",
+                ref_line=mapping != "raw",
+                anchors_a=metrics["anchors_a"] if mapping != "raw" else None,
+                anchors_b=metrics["anchors_b"] if mapping != "raw" else None,
             )
             for query_id, real_value, predicted_value, group in zip(
                 metrics["query_ids"],
@@ -558,18 +605,6 @@ def main(use_hann_selection=False):
         projection_rows,
         ["combo", "dataset", "mapping", "query_id", "composer", "real", "predicted"],
     )
-    for dataset in ["asap", "music21", "ewld", "overall"]:
-        if dataset not in best_by_dataset:
-            continue
-        raw_metrics = best_by_dataset[dataset]["payload"]["raw"]
-        save_projection_strip(
-            output_dir / f"projection_strip_{dataset}.png",
-            raw_metrics["predicted"],
-            raw_metrics["groups"],
-            raw_metrics["groups"],
-            f"Projection per song | {dataset} | {best_by_dataset[dataset]['combo']}",
-            "Song",
-        )
 
     print("[5/5] done")
     print(output_dir)

@@ -8,4 +8,4 @@ from experiments.composer_axis.run import main
 
 
 if __name__ == "__main__":
-    main(use_hann_selection=True)
+    main(use_hann_selection=True, anchor_selection_method="anchor_column")

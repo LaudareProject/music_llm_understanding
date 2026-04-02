@@ -19,7 +19,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from experiments.common.tsv import read_tsv, write_tsv
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
+    COMBOS,
     apply_combo,
+    combo_config_by_name,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
@@ -39,15 +41,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
-
-COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
-]
 
 
 def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
@@ -105,16 +98,16 @@ def evaluate_combo(
     return score_projection(raw_proj, real, mapping_name)
 
 
-def find_best_combo(matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real):
+def find_best_combo(
+    matrix, labels, target_scores, anchor_a_idx, anchor_b_idx, eval_idx, real
+):
     """Return (best_combo_name, best_mapping_name, best_score, best_transformed)."""
     best_score = float("-inf")
     best_combo_name = None
     best_mapping_name = None
     best_transformed = None
     for combo in COMBOS:
-        transformed = apply_combo(
-            matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
-        )
+        transformed = apply_combo(matrix, labels, combo, target_scores=target_scores)
         raw_proj = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
         for mapping_name in ["linear", "log_linear", "exp_linear"]:
             sc = score_projection(raw_proj, real, mapping_name)
@@ -124,13 +117,6 @@ def find_best_combo(matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real):
                 best_mapping_name = mapping_name
                 best_transformed = transformed
     return best_combo_name, best_mapping_name, best_score, best_transformed
-
-
-def combo_config_by_name(combo_name):
-    for combo in COMBOS:
-        if combo["name"] == combo_name:
-            return combo
-    raise ValueError(f"Unknown combo: {combo_name}")
 
 
 def evaluate_subset_score(
@@ -300,10 +286,13 @@ def run_feature_selection(selection_space="transformed"):
     eval_rows = [row for row in rows if row["axis_side"] not in {"a", "b"}]
     eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
     real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
+    target_scores = np.asarray(
+        [float(row["midi_note"]) for row in rows], dtype=np.float64
+    )
 
     print("[3/6] finding best combo+mapping")
     best_combo_name, best_mapping_name, best_score, best_transformed = find_best_combo(
-        matrix, labels, anchor_a_idx, anchor_b_idx, eval_idx, real
+        matrix, labels, target_scores, anchor_a_idx, anchor_b_idx, eval_idx, real
     )
     print(
         f"  best combo: {best_combo_name}  mapping: {best_mapping_name}  score: {best_score:.6f}"
@@ -331,11 +320,7 @@ def run_feature_selection(selection_space="transformed"):
         def score_fn(cols):
             raw_subset = matrix[:, cols]
             transformed_subset = apply_combo(
-                raw_subset,
-                labels,
-                combo_cfg["whiten"],
-                combo_cfg["lda"],
-                combo_cfg["pca"],
+                raw_subset, labels, combo_cfg, target_scores=target_scores
             )
             return evaluate_combo(
                 transformed_subset,

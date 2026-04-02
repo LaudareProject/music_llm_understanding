@@ -18,10 +18,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from experiments.common.tsv import read_tsv, write_tsv
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
+    COMBOS,
     apply_combo,
+    combo_config_by_name,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
+    hann_density,
     l1,
     project_1d,
     spearman,
@@ -40,15 +43,6 @@ TSV_PATH = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "composer_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 BIN_DIR = REPO_ROOT / "bin"
-
-COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
-]
 
 DATASETS = ["asap", "music21", "ewld", "overall"]
 
@@ -78,7 +72,7 @@ def load_or_compute_embedding(query_id, midi_path):
 
 
 def dataset_index_sets(rows, query_to_index, dataset_name):
-    """Return (anchor_a_idx, anchor_b_idx, eval_idx, real) for a given dataset name."""
+    """Return anchor/eval indices plus chronology targets for one dataset."""
     if dataset_name == "overall":
         relevant = rows
         anchor_col = "overall_side"
@@ -98,11 +92,24 @@ def dataset_index_sets(rows, query_to_index, dataset_name):
     real = np.asarray(
         [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
     )
-    return anchor_a_idx, anchor_b_idx, eval_idx, real
+    birth_years = np.asarray(
+        [float(row["birth_year"]) for row in eval_rows], dtype=np.float64
+    )
+    death_years = np.asarray(
+        [float(row["death_year"]) for row in eval_rows], dtype=np.float64
+    )
+    return anchor_a_idx, anchor_b_idx, eval_idx, real, birth_years, death_years
 
 
 def score_one_dataset(
-    transformed, anchor_a_idx, anchor_b_idx, eval_idx, real, mapping_name
+    transformed,
+    anchor_a_idx,
+    anchor_b_idx,
+    eval_idx,
+    real,
+    birth_years,
+    death_years,
+    mapping_name,
 ):
     raw_proj = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
     if mapping_name == "raw":
@@ -114,10 +121,10 @@ def score_one_dataset(
         "exp_linear": fit_exp_linear,
     }[mapping_name]
     predicted = fit_fn(raw_proj, real)
-    value = l1(real, predicted)
+    value = hann_density(predicted, birth_years, death_years)
     if np.isnan(value):
         return None
-    return -value
+    return value
 
 
 def combo_score(transformed, rows, query_to_index, mapping_name):
@@ -129,23 +136,30 @@ def combo_score(transformed, rows, query_to_index, mapping_name):
             index_sets[ds] = result
 
     scores = []
-    for ds, (aa, ab, ei, real) in index_sets.items():
-        sc = score_one_dataset(transformed, aa, ab, ei, real, mapping_name)
+    for ds, (aa, ab, ei, real, birth_years, death_years) in index_sets.items():
+        sc = score_one_dataset(
+            transformed,
+            aa,
+            ab,
+            ei,
+            real,
+            birth_years,
+            death_years,
+            mapping_name,
+        )
         if sc is not None:
             scores.append(sc)
     return float(np.mean(scores)) if scores else float("-inf")
 
 
-def find_best_combo(matrix, labels, rows, query_to_index):
+def find_best_combo(matrix, labels, target_scores, rows, query_to_index):
     """Return (best_combo_name, best_mapping_name, best_score, best_transformed)."""
     best_score = float("-inf")
     best_combo_name = None
     best_mapping_name = None
     best_transformed = None
     for combo in COMBOS:
-        transformed = apply_combo(
-            matrix, labels, combo["whiten"], combo["lda"], combo["pca"]
-        )
+        transformed = apply_combo(matrix, labels, combo, target_scores=target_scores)
         for mapping_name in ["linear", "log_linear", "exp_linear"]:
             sc = combo_score(transformed, rows, query_to_index, mapping_name)
             if sc > best_score:
@@ -154,13 +168,6 @@ def find_best_combo(matrix, labels, rows, query_to_index):
                 best_mapping_name = mapping_name
                 best_transformed = transformed
     return best_combo_name, best_mapping_name, best_score, best_transformed
-
-
-def combo_config_by_name(combo_name):
-    for combo in COMBOS:
-        if combo["name"] == combo_name:
-            return combo
-    raise ValueError(f"Unknown combo: {combo_name}")
 
 
 def evaluate_subset_score(transformed, cols, rows, query_to_index, mapping_name):
@@ -191,7 +198,7 @@ def sklearn_selector_comparison(feature_matrix, score_fn, rows, query_to_index):
     overall = dataset_index_sets(rows, query_to_index, "overall")
     if overall is None:
         return []
-    _, _, eval_idx, real = overall
+    _, _, eval_idx, real, _, _ = overall
 
     x_eval = feature_matrix[np.asarray(eval_idx, dtype=int)]
     y_eval = np.asarray(real, dtype=np.float64)
@@ -304,11 +311,14 @@ def run_feature_selection(selection_space="transformed"):
         embeddings.append(load_or_compute_embedding(query_id, midi_paths.get(query_id)))
     matrix = np.stack(embeddings, axis=0)
     labels = [row["composer"] for row in rows]
+    target_scores = np.asarray(
+        [float(row["midpoint_year"]) for row in rows], dtype=np.float64
+    )
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
     print("[3/6] finding best combo+mapping")
     best_combo_name, best_mapping_name, best_score, best_transformed = find_best_combo(
-        matrix, labels, rows, query_to_index
+        matrix, labels, target_scores, rows, query_to_index
     )
     print(
         f"  best combo: {best_combo_name}  mapping: {best_mapping_name}  score: {best_score:.6f}"
@@ -330,11 +340,7 @@ def run_feature_selection(selection_space="transformed"):
         def score_fn(cols):
             raw_subset = matrix[:, cols]
             transformed_subset = apply_combo(
-                raw_subset,
-                labels,
-                combo_cfg["whiten"],
-                combo_cfg["lda"],
-                combo_cfg["pca"],
+                raw_subset, labels, combo_cfg, target_scores=target_scores
             )
             return combo_score(
                 transformed_subset, rows, query_to_index, best_mapping_name

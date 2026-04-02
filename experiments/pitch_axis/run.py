@@ -12,6 +12,7 @@ from experiments.common.tsv import read_tsv, write_tsv
 from experiments.common.folder_handling import create_folder
 from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
 from experiments.common.math1d import (
+    COMBOS,
     apply_combo,
     fit_exp_linear,
     fit_linear,
@@ -29,17 +30,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
-
-COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
-    # {"name": "lda+pca", "whiten": False, "lda": True, "pca": True},
-    # {"name": "whiten+lda+pca", "whiten": True, "lda": True, "pca": True},
-]
 
 
 def parse_feature_cols_env():
@@ -98,6 +88,22 @@ def combo_selection_score(payload):
     return max(scores) if scores else float("-inf")
 
 
+def save_metric_table(output_path, combos, metric_rows, metric_name, title):
+    value_map = {
+        (row["combo"], row["mapping"]): row[metric_name] for row in metric_rows
+    }
+    headers = ["combo", "raw", "linear", "log_linear", "exp_linear"]
+    body = []
+    for combo in combos:
+        combo_name = combo["name"]
+        line = [combo_name]
+        for mapping in ["raw", "linear", "log_linear", "exp_linear"]:
+            value = value_map.get((combo_name, mapping), float("nan"))
+            line.append("nan" if np.isnan(value) else f"{value:.3f}")
+        body.append(line)
+    save_table_png(output_path, headers, body, title)
+
+
 def main():
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     feature_cols = parse_feature_cols_env()
@@ -144,6 +150,9 @@ def main():
         axis=0,
     )
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
+    target_scores = np.asarray(
+        [float(row["midi_note"]) for row in rows], dtype=np.float64
+    )
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
     np.save(output_dir / "embeddings.npy", matrix)
 
@@ -183,7 +192,7 @@ def main():
                 )
             combo_input = combo_input[:, feature_cols]
         transformed = apply_combo(
-            combo_input, labels, combo["whiten"], combo["lda"], combo["pca"]
+            combo_input, labels, combo, target_scores=target_scores
         )
         if feature_cols is not None and feature_space == "transformed":
             if transformed.shape[1] == 0:
@@ -304,89 +313,79 @@ def main():
         ],
         ["combo", "raw_spearman_abs_mean", "mapped_l1_mean", "random"],
     )
-    headers = [
-        "combo",
-        "raw_spearman",
-        "raw_pearson",
-        "linear_l1",
-        "log_linear_l1",
-        "exp_linear_l1",
-        "random",
-    ]
-    metric_map = {(row["combo"], row["mapping"]): row for row in metric_rows}
-    body = []
-    for combo in combos:
-        combo_name = combo["name"]
-        raw_metrics = metric_map[(combo_name, "raw")]
-        linear_metrics = metric_map[(combo_name, "linear")]
-        log_metrics = metric_map[(combo_name, "log_linear")]
-        exp_metrics = metric_map[(combo_name, "exp_linear")]
-        line = [
-            combo_name,
-            "nan"
-            if np.isnan(raw_metrics["spearman"])
-            else f"{raw_metrics['spearman']:.3f}",
-            "nan"
-            if np.isnan(raw_metrics["pearson"])
-            else f"{raw_metrics['pearson']:.3f}",
-            "nan" if np.isnan(linear_metrics["l1"]) else f"{linear_metrics['l1']:.3f}",
-            "nan" if np.isnan(log_metrics["l1"]) else f"{log_metrics['l1']:.3f}",
-            "nan" if np.isnan(exp_metrics["l1"]) else f"{exp_metrics['l1']:.3f}",
-            "nan"
-            if np.isnan(raw_metrics["random"])
-            else f"{raw_metrics['random']:.3f}",
-        ]
-        body.append(line)
-    save_table_png(
-        output_dir / "correlations_table.png", headers, body, "Pitch axis summary"
+    save_metric_table(
+        output_dir / "pearson_table.png",
+        combos,
+        metric_rows,
+        "pearson",
+        "Pitch axis Pearson",
+    )
+    save_metric_table(
+        output_dir / "spearman_table.png",
+        combos,
+        metric_rows,
+        "spearman",
+        "Pitch axis Spearman",
+    )
+    save_metric_table(
+        output_dir / "l1_table.png",
+        combos,
+        metric_rows,
+        "l1",
+        "Pitch axis L1",
     )
 
     projection_rows = []
-    for mapping_name in ["raw", "linear", "log_linear", "exp_linear"]:
-        metrics = best_payload[mapping_name]
-        title = (
-            f"pitch | {mapping_name} | {best_combo_name}\n"
-            f"pearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
-        )
-        if mapping_name != "raw":
-            title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
-        save_scatter(
-            output_dir / f"scatter_pitch_{mapping_name}.png",
-            metrics["real"],
-            metrics["predicted"],
-            metrics["groups"],
-            title,
-            "Real value (MIDI note)",
-            "Projected value" if mapping_name == "raw" else "Mapped projected value",
-        )
-        for query_id, real_value, predicted_value, group in zip(
-            metrics["query_ids"],
-            metrics["real"],
-            metrics["predicted"],
-            metrics["groups"],
-        ):
-            projection_rows.append(
-                {
-                    "combo": best_combo_name,
-                    "mapping": mapping_name,
-                    "query_id": query_id,
-                    "name": group,
-                    "real": f"{float(real_value):.10f}",
-                    "predicted": f"{float(predicted_value):.10f}",
-                }
+    best_by_dataset = {"pitch": {"combo": best_combo_name, "payload": best_payload}}
+    for dataset_name, best in best_by_dataset.items():
+        for mapping_name in ["raw", "linear", "log_linear", "exp_linear"]:
+            metrics = best["payload"][mapping_name]
+            title = (
+                f"{dataset_name} | {mapping_name} | {best['combo']}\n"
+                f"pearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
             )
+            if mapping_name != "raw":
+                title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
+            save_scatter(
+                output_dir / f"scatter_{dataset_name}_{mapping_name}.png",
+                metrics["real"],
+                metrics["predicted"],
+                metrics["groups"],
+                title,
+                "Real value (MIDI note)",
+                "Projected value"
+                if mapping_name == "raw"
+                else "Mapped projected value",
+            )
+            for query_id, real_value, predicted_value, group in zip(
+                metrics["query_ids"],
+                metrics["real"],
+                metrics["predicted"],
+                metrics["groups"],
+            ):
+                projection_rows.append(
+                    {
+                        "dataset": dataset_name,
+                        "combo": best["combo"],
+                        "mapping": mapping_name,
+                        "query_id": query_id,
+                        "name": group,
+                        "real": f"{float(real_value):.10f}",
+                        "predicted": f"{float(predicted_value):.10f}",
+                    }
+                )
     write_tsv(
         output_dir / "projections.tsv",
         projection_rows,
-        ["combo", "mapping", "query_id", "name", "real", "predicted"],
+        ["dataset", "combo", "mapping", "query_id", "name", "real", "predicted"],
     )
-    raw_metrics = best_payload["raw"]
+    raw_metrics = best_by_dataset["pitch"]["payload"]["raw"]
     save_projection_strip(
         output_dir / "projection_strip.png",
         raw_metrics["predicted"],
         raw_metrics["groups"],
         raw_metrics["groups"],
-        f"Projection per note | {best_combo_name}",
+        f"Projection per note | {best_by_dataset['pitch']['combo']}",
         "Note",
     )
     print("[5/5] done")

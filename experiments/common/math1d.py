@@ -1,6 +1,20 @@
 import numpy as np
 
 
+COMBOS = [
+    {"name": "baseline", "whiten": False, "method": None},
+    {"name": "whiten", "whiten": True, "method": None},
+    {"name": "lda", "whiten": False, "method": "lda"},
+    {"name": "pca", "whiten": False, "method": "pca"},
+    {"name": "pls", "whiten": False, "method": "pls"},
+    {"name": "olda", "whiten": False, "method": "olda"},
+    {"name": "whiten+lda", "whiten": True, "method": "lda"},
+    {"name": "whiten+pca", "whiten": True, "method": "pca"},
+    {"name": "whiten+pls", "whiten": True, "method": "pls"},
+    {"name": "whiten+olda", "whiten": True, "method": "olda"},
+]
+
+
 def whiten(matrix):
     matrix = np.asarray(matrix, dtype=np.float64)
     if matrix.shape[0] < 2:
@@ -19,9 +33,10 @@ def pca_reduce(matrix, variance=0.9):
         return matrix
     from sklearn.decomposition import PCA
 
-    out = PCA(n_components=variance, svd_solver="full").fit_transform(matrix)
-    if out.ndim == 1:
-        out = out.reshape(-1, 1)
+    n_components = min(matrix.shape[0], matrix.shape[1])
+    model = PCA(n_components=n_components, svd_solver="full")
+    scores = model.fit_transform(matrix)
+    out = scores @ model.components_
     return out
 
 
@@ -35,24 +50,94 @@ def lda_reduce(matrix, labels):
     n_components = min(len(set(labels)) - 1, matrix.shape[1])
     if n_components < 1:
         return matrix
-    out = LinearDiscriminantAnalysis(
-        n_components=n_components, solver="svd"
-    ).fit_transform(matrix, labels)
-    out = np.asarray(out, dtype=np.float64)
-    if out.ndim == 1:
-        out = out.reshape(-1, 1)
+    model = LinearDiscriminantAnalysis(n_components=n_components, solver="svd")
+    scores = model.fit_transform(matrix, labels)
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    out = scores @ model.scalings_[:, : scores.shape[1]].T
     return out
 
 
-def apply_combo(matrix, labels, whiten_enabled, lda_enabled, pca_enabled):
+def pls_reduce(matrix, target_scores):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    target_scores = np.asarray(target_scores, dtype=np.float64)
+    if matrix.shape[0] < 2 or np.std(target_scores) <= 1e-12:
+        return matrix
+    from sklearn.cross_decomposition import PLSRegression
+
+    n_components = min(matrix.shape[0] - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    try:
+        model = PLSRegression(n_components=n_components)
+        scores = model.fit_transform(matrix, target_scores.reshape(-1, 1))[0]
+    except Exception:
+        model = PLSRegression(n_components=1)
+        scores = model.fit_transform(matrix, target_scores.reshape(-1, 1))[0]
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    return scores @ model.x_loadings_[:, : scores.shape[1]].T
+
+
+def olda_reduce(matrix, labels, target_scores):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    labels = np.asarray(labels)
+    target_scores = np.asarray(target_scores, dtype=np.float64)
+    unique_labels = np.unique(labels)
+    if unique_labels.shape[0] < 2:
+        return matrix
+    n_components = min(unique_labels.shape[0] - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    from experiments.common.olda import OrdinalLinearDiscriminantAnalysis
+
+    class_scores = np.asarray(
+        [np.mean(target_scores[labels == label]) for label in unique_labels],
+        dtype=np.float64,
+    )
+    try:
+        model = OrdinalLinearDiscriminantAnalysis(
+            n_components=n_components,
+            solver="eigen",
+            class_scores=class_scores,
+        )
+        scores = model.fit_transform(matrix, labels)
+    except Exception:
+        return lda_reduce(matrix, labels)
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    out = scores @ model.scalings_[:, : scores.shape[1]].T
+    return out
+
+
+def apply_combo(matrix, labels, combo, target_scores=None):
     out = np.asarray(matrix, dtype=np.float64)
-    if whiten_enabled:
+    if combo["whiten"]:
         out = whiten(out)
-    if lda_enabled:
+    method = combo["method"]
+    if method == "lda":
         out = lda_reduce(out, labels)
-    if pca_enabled:
+    elif method == "pca":
         out = pca_reduce(out, 0.9)
+    elif method == "pls":
+        if target_scores is None:
+            raise ValueError("PLS requires target_scores")
+        out = pls_reduce(out, target_scores)
+    elif method == "olda":
+        if target_scores is None:
+            raise ValueError("OLDA requires target_scores")
+        out = olda_reduce(out, labels, target_scores)
     return out
+
+
+def combo_config_by_name(combo_name):
+    for combo in COMBOS:
+        if combo["name"] == combo_name:
+            return combo
+    raise ValueError(f"Unknown combo: {combo_name}")
 
 
 def project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx):
@@ -192,33 +277,32 @@ def random_l1_baseline(y_true):
 
 def hann_density(predicted, birth_years, death_years):
     """
-    Mean Hann-window density evaluated at each predicted value.
+    Mean normalized overlap area between the predicted Hann window and the real lifespan.
 
-    For composer i the Hann window is defined over [birth_i, death_i], centered at
-    midpoint_i = (birth_i + death_i) / 2, with half-span = (death_i - birth_i) / 2:
-
-        h_i(t) = 0.5 * (1 + cos(π * (t - midpoint_i) / half_span_i))   if birth_i ≤ t ≤ death_i
-                 0                                                         otherwise
-
-    Returns the mean density across all samples (scalar in [0, 1]).
+    Each predicted window is centered at the predicted midpoint, but it reuses the real
+    lifespan length. The score for a sample is the fraction of the predicted Hann-window
+    area that falls inside the real lifespan, so exact alignment gives 1 and no overlap
+    gives 0.
     """
     density = _hann_weights(predicted, birth_years, death_years)
     return float(np.mean(density))
 
 
 def _hann_weights(predicted, birth_years, death_years):
-    """Per-sample Hann densities (not averaged), used as correlation weights."""
+    """Per-sample normalized Hann overlap areas, used as correlation weights."""
     predicted = np.asarray(predicted, dtype=np.float64)
     birth = np.asarray(birth_years, dtype=np.float64)
     death = np.asarray(death_years, dtype=np.float64)
-    midpoint = (birth + death) / 2.0
     half_span = np.maximum((death - birth) / 2.0, 1e-9)
-    inside = (predicted >= birth) & (predicted <= death)
-    return np.where(
-        inside,
-        0.5 * (1.0 + np.cos(np.pi * (predicted - midpoint) / half_span)),
-        0.0,
-    )
+    left = np.maximum(birth, predicted - half_span)
+    right = np.minimum(death, predicted + half_span)
+    overlap = right > left
+    u_left = (left - predicted) / half_span
+    u_right = (right - predicted) / half_span
+    area_fraction = 0.5 * (u_right - u_left) + (
+        np.sin(np.pi * u_right) - np.sin(np.pi * u_left)
+    ) / (2.0 * np.pi)
+    return np.where(overlap, area_fraction, 0.0)
 
 
 def weighted_pearson(x, y, w):

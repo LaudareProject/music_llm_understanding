@@ -11,6 +11,7 @@ from experiments.common.tsv import read_tsv, write_tsv
 from experiments.common.folder_handling import create_folder
 from experiments.common.plots import save_scatter, save_table_png, save_projection_strip
 from experiments.common.math1d import (
+    COMBOS,
     apply_combo,
     fit_exp_linear,
     fit_linear,
@@ -34,17 +35,6 @@ TSV_PATH = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "composer_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 BIN_DIR = REPO_ROOT / "bin"
-
-COMBOS = [
-    {"name": "baseline", "whiten": False, "lda": False, "pca": False},
-    {"name": "whiten", "whiten": True, "lda": False, "pca": False},
-    {"name": "lda", "whiten": False, "lda": True, "pca": False},
-    {"name": "pca", "whiten": False, "lda": False, "pca": True},
-    {"name": "whiten+lda", "whiten": True, "lda": True, "pca": False},
-    {"name": "whiten+pca", "whiten": True, "lda": False, "pca": True},
-    # {"name": "lda+pca", "whiten": False, "lda": True, "pca": True},
-    # {"name": "whiten+lda+pca", "whiten": True, "lda": True, "pca": True},
-]
 
 
 def parse_feature_cols_env():
@@ -86,7 +76,13 @@ def load_or_compute_embedding(query_id, midi_path):
     return embedding
 
 
-def combo_selection_score(payload):
+def combo_selection_score(payload, use_hann_selection):
+    if use_hann_selection:
+        return combo_selection_score_hann(payload)
+    return combo_selection_score_standard(payload)
+
+
+def combo_selection_score_standard(payload):
     scores = []
     for mapping_name in ["linear", "log_linear", "exp_linear"]:
         l1_values = [
@@ -98,6 +94,66 @@ def combo_selection_score(payload):
         if l1_values:
             scores.append(-float(np.mean(l1_values)))
     return max(scores) if scores else float("-inf")
+
+
+def combo_selection_score_hann(payload):
+    scores = []
+    for mapping_name in ["linear", "log_linear", "exp_linear"]:
+        hann_values = [
+            payload[dataset][mapping_name]["hann_score"]
+            for dataset in ["asap", "music21", "ewld", "overall"]
+            if payload[dataset] is not None
+            and not np.isnan(payload[dataset][mapping_name]["hann_score"])
+        ]
+        if hann_values:
+            scores.append(float(np.mean(hann_values)))
+    return max(scores) if scores else float("-inf")
+
+
+def dataset_combo_selection_score(dataset_payload, use_hann_selection):
+    if use_hann_selection:
+        return dataset_combo_selection_score_hann(dataset_payload)
+    return dataset_combo_selection_score_standard(dataset_payload)
+
+
+def dataset_combo_selection_score_standard(dataset_payload):
+    scores = []
+    for mapping_name in ["linear", "log_linear", "exp_linear"]:
+        value = dataset_payload[mapping_name]["l1"]
+        if not np.isnan(value):
+            scores.append(-value)
+    return max(scores) if scores else float("-inf")
+
+
+def dataset_combo_selection_score_hann(dataset_payload):
+    scores = []
+    for mapping_name in ["linear", "log_linear", "exp_linear"]:
+        value = dataset_payload[mapping_name]["hann_score"]
+        if not np.isnan(value):
+            scores.append(value)
+    return max(scores) if scores else float("-inf")
+
+
+def save_metric_table(output_path, combos, metric_rows, metric_name, title):
+    value_map = {
+        (row["combo"], row["dataset"], row["mapping"]): row[metric_name]
+        for row in metric_rows
+    }
+    headers = ["combo"] + [
+        f"{dataset}:{mapping}"
+        for dataset in ["asap", "music21", "ewld", "overall"]
+        for mapping in ["raw", "linear", "log_linear", "exp_linear"]
+    ]
+    body = []
+    for combo in combos:
+        combo_name = combo["name"]
+        line = [combo_name]
+        for dataset in ["asap", "music21", "ewld", "overall"]:
+            for mapping in ["raw", "linear", "log_linear", "exp_linear"]:
+                value = value_map.get((combo_name, dataset, mapping), float("nan"))
+                line.append("nan" if np.isnan(value) else f"{value:.3f}")
+        body.append(line)
+    save_table_png(output_path, headers, body, title)
 
 
 def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
@@ -160,7 +216,7 @@ def evaluate_dataset(name, matrix, rows, query_to_index, anchor_column):
     return out
 
 
-def main():
+def main(use_hann_selection=False):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     feature_cols = parse_feature_cols_env()
     feature_space = feature_selection_space_env()
@@ -205,6 +261,9 @@ def main():
         embeddings.append(load_or_compute_embedding(query_id, midi_paths.get(query_id)))
     matrix = np.stack(embeddings, axis=0)
     labels = [row["composer"] for row in rows]
+    target_scores = np.asarray(
+        [float(row["midpoint_year"]) for row in rows], dtype=np.float64
+    )
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
     np.save(output_dir / "embeddings.npy", matrix)
@@ -216,9 +275,8 @@ def main():
         print(f"  using selected {feature_space} cols: {len(feature_cols)}")
     metric_rows = []
     combo_scores = []
-    best_payload = None
+    payloads_by_combo = {}
     best_score = None
-    best_combo_name = None
     for combo in combos:
         combo_name = combo["name"]
         print(f"  - {combo_name}")
@@ -234,7 +292,7 @@ def main():
                 )
             combo_input = combo_input[:, feature_cols]
         transformed = apply_combo(
-            combo_input, labels, combo["whiten"], combo["lda"], combo["pca"]
+            combo_input, labels, combo, target_scores=target_scores
         )
         if feature_cols is not None and feature_space == "transformed":
             if transformed.shape[1] == 0:
@@ -286,11 +344,18 @@ def main():
                     raw_scores.append(abs(metrics["spearman"]))
                 if mapping_name != "raw" and not np.isnan(metrics["l1"]):
                     mapped_l1_ratios.append(metrics["l1"])
-        score = combo_selection_score(payload)
+        score = combo_selection_score(payload, use_hann_selection)
         random_values = [
             payload[dataset]["raw"]["random"]
             for dataset in ["asap", "music21", "ewld", "overall"]
             if payload[dataset] is not None
+        ]
+        hann_score_values = [
+            payload[dataset][mapping_name]["hann_score"]
+            for dataset in ["asap", "music21", "ewld", "overall"]
+            if payload[dataset] is not None
+            for mapping_name in ["linear", "log_linear", "exp_linear"]
+            if not np.isnan(payload[dataset][mapping_name]["hann_score"])
         ]
         combo_scores.append(
             {
@@ -301,15 +366,17 @@ def main():
                 "mapped_l1_mean": float(np.mean(mapped_l1_ratios))
                 if mapped_l1_ratios
                 else float("nan"),
+                "mapped_hann_score_mean": float(np.mean(hann_score_values))
+                if hann_score_values
+                else float("nan"),
                 "random": float(np.mean(random_values))
                 if random_values
                 else float("nan"),
             }
         )
+        payloads_by_combo[combo_name] = payload
         if best_score is None or score > best_score:
             best_score = score
-            best_payload = payload
-            best_combo_name = combo_name
 
     print("[4/5] writing outputs")
     write_tsv(
@@ -367,92 +434,99 @@ def main():
                 "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}"
                 if not np.isnan(row["mapped_l1_mean"])
                 else "nan",
+                "mapped_hann_score_mean": f"{row['mapped_hann_score_mean']:.10f}"
+                if not np.isnan(row["mapped_hann_score_mean"])
+                else "nan",
                 "random": f"{row['random']:.10f}"
                 if not np.isnan(row["random"])
                 else "nan",
             }
             for row in combo_scores
         ],
-        ["combo", "raw_spearman_abs_mean", "mapped_l1_mean", "random"],
+        [
+            "combo",
+            "raw_spearman_abs_mean",
+            "mapped_l1_mean",
+            "mapped_hann_score_mean",
+            "random",
+        ],
     )
-
-    spearman_map = {
-        (row["combo"], row["dataset"], row["mapping"]): row["spearman"]
-        for row in metric_rows
-    }
-    hann_pearson_map = {
-        (row["combo"], row["dataset"], row["mapping"]): row["hann_pearson"]
-        for row in metric_rows
-    }
-    hann_spearman_map = {
-        (row["combo"], row["dataset"], row["mapping"]): row["hann_spearman"]
-        for row in metric_rows
-    }
-    hann_score_map = {
-        (row["combo"], row["dataset"], row["mapping"]): row["hann_score"]
-        for row in metric_rows
-    }
-    score_map = {row["combo"]: row["raw_spearman_abs_mean"] for row in combo_scores}
-
-    def _table_body(value_map):
-        body = []
-        for combo in combos:
-            combo_name = combo["name"]
-            line = [
-                combo_name,
-                f"{score_map[combo_name]:.3f}"
-                if not np.isnan(score_map[combo_name])
-                else "nan",
-            ]
-            for dataset in ["asap", "music21", "ewld", "overall"]:
-                for mapping in ["raw", "linear", "log_linear", "exp_linear"]:
-                    value = value_map.get((combo_name, dataset, mapping), float("nan"))
-                    line.append("nan" if np.isnan(value) else f"{value:.3f}")
-            body.append(line)
-        return body
-
-    col_headers = ["combo", "raw_spear_mean"] + [
-        f"{dataset}:{mapping}"
-        for dataset in ["asap", "music21", "ewld", "overall"]
-        for mapping in ["raw", "linear", "log_linear", "exp_linear"]
-    ]
-    save_table_png(
-        output_dir / "correlations_table.png",
-        col_headers,
-        _table_body(spearman_map),
-        "Composer chronology correlations (Spearman)",
+    save_metric_table(
+        output_dir / "pearson_table.png",
+        combos,
+        metric_rows,
+        "pearson",
+        "Composer chronology Pearson",
     )
-    save_table_png(
+    save_metric_table(
+        output_dir / "spearman_table.png",
+        combos,
+        metric_rows,
+        "spearman",
+        "Composer chronology Spearman",
+    )
+    save_metric_table(
+        output_dir / "l1_table.png",
+        combos,
+        metric_rows,
+        "l1",
+        "Composer chronology L1",
+    )
+    save_metric_table(
         output_dir / "hann_pearson_table.png",
-        col_headers,
-        _table_body(hann_pearson_map),
+        combos,
+        metric_rows,
+        "hann_pearson",
         "Composer chronology Hann-weighted Pearson",
     )
-    save_table_png(
+    save_metric_table(
         output_dir / "hann_spearman_table.png",
-        col_headers,
-        _table_body(hann_spearman_map),
+        combos,
+        metric_rows,
+        "hann_spearman",
         "Composer chronology Hann-weighted Spearman",
     )
-    save_table_png(
+    save_metric_table(
         output_dir / "hann_score_table.png",
-        col_headers,
-        _table_body(hann_score_map),
-        "Composer chronology Hann scores",
+        combos,
+        metric_rows,
+        "hann_score",
+        "Composer chronology Hann overlap score",
     )
+
+    best_by_dataset = {}
+    for dataset in ["asap", "music21", "ewld", "overall"]:
+        candidates = [
+            (combo_name, payload[dataset])
+            for combo_name, payload in payloads_by_combo.items()
+            if payload[dataset] is not None
+        ]
+        if not candidates:
+            continue
+        best_dataset_combo_name, best_dataset_payload = max(
+            candidates,
+            key=lambda item: dataset_combo_selection_score(item[1], use_hann_selection),
+        )
+        best_by_dataset[dataset] = {
+            "combo": best_dataset_combo_name,
+            "payload": best_dataset_payload,
+        }
 
     projection_rows = []
     for dataset in ["asap", "music21", "ewld", "overall"]:
+        if dataset not in best_by_dataset:
+            continue
         for mapping in ["raw", "linear", "log_linear", "exp_linear"]:
-            if best_payload[dataset] is None:
-                continue
-            metrics = best_payload[dataset][mapping]
+            metrics = best_by_dataset[dataset]["payload"][mapping]
             title = (
-                f"{dataset} | {mapping} | {best_combo_name}\n"
+                f"{dataset} | {mapping} | {best_by_dataset[dataset]['combo']}\n"
                 f"pearson={metrics['pearson']:.3f}, spearman={metrics['spearman']:.3f}"
             )
             if mapping != "raw":
-                title += f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}"
+                title += (
+                    f"\nl1={metrics['l1']:.2f}, random={metrics['random']:.2f}, "
+                    f"hann={metrics['hann_score']:.3f}"
+                )
             save_scatter(
                 output_dir / f"scatter_{dataset}_{mapping}.png",
                 metrics["real"],
@@ -470,7 +544,7 @@ def main():
             ):
                 projection_rows.append(
                     {
-                        "combo": best_combo_name,
+                        "combo": best_by_dataset[dataset]["combo"],
                         "dataset": dataset,
                         "mapping": mapping,
                         "query_id": query_id,
@@ -485,15 +559,15 @@ def main():
         ["combo", "dataset", "mapping", "query_id", "composer", "real", "predicted"],
     )
     for dataset in ["asap", "music21", "ewld", "overall"]:
-        if best_payload[dataset] is None:
+        if dataset not in best_by_dataset:
             continue
-        raw_metrics = best_payload[dataset]["raw"]
+        raw_metrics = best_by_dataset[dataset]["payload"]["raw"]
         save_projection_strip(
             output_dir / f"projection_strip_{dataset}.png",
             raw_metrics["predicted"],
             raw_metrics["groups"],
             raw_metrics["groups"],
-            f"Projection per song | {dataset} | {best_combo_name}",
+            f"Projection per song | {dataset} | {best_by_dataset[dataset]['combo']}",
             "Song",
         )
 

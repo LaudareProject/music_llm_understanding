@@ -79,6 +79,18 @@ def save_scatter(
             color="red",
             alpha=0.7,
         )
+    x_extent = np.asarray(list(x) + list(anchors_a) + list(anchors_b), dtype=np.float64)
+    y_extent = np.asarray(list(y) + list(anchors_a) + list(anchors_b), dtype=np.float64)
+    x_min, x_max = float(np.min(x_extent)), float(np.max(x_extent))
+    y_min, y_max = float(np.min(y_extent)), float(np.max(y_extent))
+    if x_min == x_max:
+        x_min -= 1.0
+        x_max += 1.0
+    if y_min == y_max:
+        y_min -= 1.0
+        y_max += 1.0
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_min, y_max)
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)

@@ -10,7 +10,11 @@ from experiments.common.aggregate import (
     to_float,
 )
 from experiments.common.folder_handling import create_folder
-from experiments.common.plots import save_heatmap, save_image_matrix
+from experiments.common.plots import (
+    save_heatmap,
+    save_image_matrix,
+    save_multi_line_chart,
+)
 
 import numpy as np
 
@@ -19,13 +23,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "composer_axis"
 DATASETS = ["asap", "music21", "ewld", "overall"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
+BASE_ANCHOR_N = 10
+ANCHOR_N_SWEEP = [1, 2, 4, 8, 16, 32]
 
 RUN_SPECS = [
     {
         "script": "run_base.py",
-        "anchor": "anchor_column",
+        "anchor": "first_vs_last",
         "hann": False,
-        "label": "column",
+        "label": "first_last",
     },
     {
         "script": "run_random_median.py",
@@ -41,9 +47,9 @@ RUN_SPECS = [
     },
     # {
     #     "script": "run_hann.py",
-    #     "anchor": "anchor_column",
+    #     "anchor": "first_vs_last",
     #     "hann": True,
-    #     "label": "column+hann",
+    #     "label": "first_last+hann",
     # },
     # {
     #     "script": "run_random_median_hann.py",
@@ -303,18 +309,76 @@ def dataset_transformation_value_matrix(mode_results, metric_name, maximize):
     return columns, np.asarray(values, dtype=np.float64)
 
 
-def main():
-    output_dir = create_folder(
-        OUTPUT_ROOT,
-        {"aggregate": True, "scripts": [spec["script"] for spec in RUN_SPECS]},
-    )
+def run_modes(anchor_n):
     mode_results = []
     for spec in RUN_SPECS:
         script_path = REPO_ROOT / "experiments" / "composer_axis" / spec["script"]
-        run_output_dir = run_script_and_capture_output_dir(script_path, OUTPUT_ROOT)
-        mode_result = load_mode_result(spec, run_output_dir)
+        run_output_dir = run_script_and_capture_output_dir(
+            script_path,
+            OUTPUT_ROOT,
+            extra_env={"ANCHOR_N": str(anchor_n)},
+        )
+        mode_result = load_mode_result({**spec, "anchor_n": anchor_n}, run_output_dir)
         mode_result["best_rows_by_dataset"] = best_rows_by_dataset(mode_result)
         mode_results.append(mode_result)
+    return mode_results
+
+
+def best_combo_mapping_by_dataset(mode_results_by_n):
+    best_by_dataset = {}
+    for dataset in DATASETS:
+        candidates = []
+        for anchor_n in ANCHOR_N_SWEEP:
+            for mode in mode_results_by_n[anchor_n]:
+                for row in mode["rows"]:
+                    if row["dataset"] != dataset:
+                        continue
+                    l1_value = row_l1(row)
+                    if np.isnan(l1_value):
+                        continue
+                    candidates.append((l1_value, row["combo"], row["mapping"]))
+        if candidates:
+            _, combo, mapping = min(candidates, key=lambda item: item[0])
+            best_by_dataset[dataset] = {"combo": combo, "mapping": mapping}
+    return best_by_dataset
+
+
+def anchor_n_curves_for_dataset(
+    dataset, target_combo, target_mapping, mode_results_by_n
+):
+    series = []
+    for spec in RUN_SPECS:
+        y_values = []
+        for anchor_n in ANCHOR_N_SWEEP:
+            mode = next(
+                mode
+                for mode in mode_results_by_n[anchor_n]
+                if mode["anchor"] == spec["anchor"]
+            )
+            candidates = [
+                row
+                for row in mode["rows"]
+                if row["dataset"] == dataset
+                and row["combo"] == target_combo
+                and row["mapping"] == target_mapping
+            ]
+            y_values.append(row_l1(candidates[0]) if candidates else float("nan"))
+        series.append((spec["label"], y_values))
+    return series
+
+
+def main():
+    output_dir = create_folder(
+        OUTPUT_ROOT,
+        {
+            "aggregate": True,
+            "scripts": [spec["script"] for spec in RUN_SPECS],
+            "base_anchor_n": BASE_ANCHOR_N,
+            "anchor_n_sweep": ANCHOR_N_SWEEP,
+        },
+    )
+    mode_results = run_modes(BASE_ANCHOR_N)
+    mode_results_by_n = {anchor_n: run_modes(anchor_n) for anchor_n in ANCHOR_N_SWEEP}
 
     mapping_columns, dataset_mapping_images, dataset_mapping_texts = (
         dataset_mapping_image_matrix(mode_results)
@@ -409,6 +473,42 @@ def main():
         transformation_columns,
         "Composer dataset x transformation | best mode by L1",
         cell_texts=transformation_texts,
+    )
+
+    best_combo_mapping = best_combo_mapping_by_dataset(mode_results_by_n)
+    line_plot_paths = []
+    line_plot_texts = []
+    for dataset in DATASETS:
+        if dataset not in best_combo_mapping:
+            line_plot_paths.append(None)
+            line_plot_texts.append("")
+            continue
+        target_combo = best_combo_mapping[dataset]["combo"]
+        target_mapping = best_combo_mapping[dataset]["mapping"]
+        path = output_dir / f"anchor_n_l1_{dataset}.png"
+        save_multi_line_chart(
+            path,
+            ANCHOR_N_SWEEP,
+            anchor_n_curves_for_dataset(
+                dataset,
+                target_combo,
+                target_mapping,
+                mode_results_by_n,
+            ),
+            f"{dataset}: L1 vs anchor n ({target_combo} + {target_mapping})",
+            "Anchor n",
+            "L1",
+        )
+        line_plot_paths.append(path)
+        line_plot_texts.append(f"combo={target_combo} | mapping={target_mapping}")
+
+    save_image_matrix(
+        output_dir / "anchor_n_l1_grid.png",
+        [line_plot_paths],
+        ["datasets"],
+        DATASETS,
+        "L1 vs anchor n by dataset and method",
+        cell_texts=[line_plot_texts],
     )
     print(output_dir)
 

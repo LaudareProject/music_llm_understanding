@@ -16,6 +16,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.anchor_selection import select_anchors
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
     COMBOS,
@@ -45,6 +46,7 @@ CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 BIN_DIR = REPO_ROOT / "bin"
 
 DATASETS = ["asap", "music21", "ewld", "overall"]
+ANCHOR_N = 10
 
 
 def prepare_midi(row, midi_dir):
@@ -75,17 +77,17 @@ def dataset_index_sets(rows, query_to_index, dataset_name):
     """Return anchor/eval indices plus chronology targets for one dataset."""
     if dataset_name == "overall":
         relevant = rows
-        anchor_col = "overall_side"
     else:
         relevant = [row for row in rows if row["dataset"] == dataset_name]
-        anchor_col = "axis_side"
-    anchor_a_idx = [
-        query_to_index[row["query_id"]] for row in relevant if row[anchor_col] == "a"
-    ]
-    anchor_b_idx = [
-        query_to_index[row["query_id"]] for row in relevant if row[anchor_col] == "b"
-    ]
-    eval_rows = [row for row in relevant if row[anchor_col] not in {"a", "b"}]
+    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
+        relevant,
+        "first_vs_last",
+        target_key="midpoint_year",
+        n=ANCHOR_N,
+        best_pairs_separation=100,
+    )
+    anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
+    anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
     if len(eval_rows) < 2:
         return None
     eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]

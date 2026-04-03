@@ -97,14 +97,12 @@ def prepare_rows(output_dir):
     return rows, midi_paths
 
 
-def build_payload(transformed, rows, query_to_index, anchor_selection_method):
+def build_payload(transformed, rows, query_to_index, anchor_selection_method, anchor_n):
     anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
         rows,
-        "axis_side",
         anchor_selection_method,
         target_key="midi_note",
-        random_n=10,
-        best_pairs_n=10,
+        n=anchor_n,
         best_pairs_separation=12,
     )
     anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
@@ -351,8 +349,9 @@ def write_outputs(
     )
 
 
-def main(anchor_selection_method="anchor_column"):
+def main(anchor_selection_method="first_vs_last"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
+    anchor_n = int(os.environ.get("ANCHOR_N", "10").strip() or "10")
     feature_cols = parse_feature_cols_env()
     feature_space = feature_selection_space_env()
     combos = selected_combos(forced_combo_name)
@@ -363,6 +362,7 @@ def main(anchor_selection_method="anchor_column"):
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
+            "anchor_n": anchor_n,
         },
     )
     rows, midi_paths = prepare_rows(output_dir)
@@ -400,7 +400,7 @@ def main(anchor_selection_method="anchor_column"):
             matrix, labels, combo, target_scores, feature_cols, feature_space
         )
         payload = build_payload(
-            transformed, rows, query_to_index, anchor_selection_method
+            transformed, rows, query_to_index, anchor_selection_method, anchor_n
         )
         payloads_by_combo[combo["name"]] = payload
         metric_rows.extend(metric_rows_for_combo(combo["name"], payload))

@@ -33,11 +33,6 @@ def main():
         name = note_name(midi_note)
         for duration_ticks, duration_name in LENGTHS:
             for velocity in VELOCITIES:
-                axis_side = "."
-                if midi_note == 24 and duration_ticks == 60 and velocity == 25:
-                    axis_side = "a"
-                if midi_note == 95 and duration_ticks == 1920 and velocity == 127:
-                    axis_side = "b"
                 rows.append(
                     {
                         "query_id": (
@@ -47,13 +42,12 @@ def main():
                         "duration_ticks": duration_ticks,
                         "velocity": velocity,
                         "name": name,
-                        "axis_side": axis_side,
                     }
                 )
     write_tsv(
         OUTPUT_TSV,
         rows,
-        ["query_id", "midi_note", "duration_ticks", "velocity", "name", "axis_side"],
+        ["query_id", "midi_note", "duration_ticks", "velocity", "name"],
     )
     print(f"wrote {OUTPUT_TSV}")
 

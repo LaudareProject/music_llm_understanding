@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -7,11 +8,17 @@ import numpy as np
 from experiments.common.tsv import read_tsv
 
 
-def run_script_and_capture_output_dir(script_path, output_root):
+def run_script_and_capture_output_dir(script_path, output_root, extra_env=None):
     output_root = Path(output_root)
     before = {path.name for path in output_root.glob(f"{script_path.stem}_*")}
+    env = None
+    if extra_env:
+        env = {**os.environ, **{str(k): str(v) for k, v in extra_env.items()}}
     subprocess.run(
-        [sys.executable, str(script_path)], check=True, cwd=script_path.parents[2]
+        [sys.executable, str(script_path)],
+        check=True,
+        cwd=script_path.parents[2],
+        env=env,
     )
     after = list(output_root.glob(f"{script_path.stem}_*"))
     new_dirs = [path for path in after if path.name not in before and path.is_dir()]

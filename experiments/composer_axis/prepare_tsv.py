@@ -30,8 +30,6 @@ CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 DATE_CACHE_PATH = CACHE_DIR / "prepare_tsv_date_cache.json"
 MIN_SONGS_PER_COMPOSER = 4
 MAX_SONGS_PER_COMPOSER = 8
-SAMPLE_SIZE_PER_SIDE = 4
-OVERALL_SAMPLE_SIZE = 8
 SEED = 42
 
 HTTP_USER_AGENT = "Laudare-prepare-tsv/1.0"
@@ -748,41 +746,6 @@ def assign_query_ids(records):
         )
 
 
-def remove_year_outliers(composers, grouped):
-    """Return composers with midpoint_year outliers removed using IQR."""
-    years = np.array(
-        [grouped[c][0]["midpoint_year"] for c in composers], dtype=np.float64
-    )
-    q1, q3 = np.percentile(years, [25, 75])
-    iqr = q3 - q1
-    lo = q1 - 1.5 * iqr
-    hi = q3 + 1.5 * iqr
-    return [c for c, y in zip(composers, years) if lo <= y <= hi]
-
-
-def choose_dataset_anchors(records, rng):
-    grouped = defaultdict(list)
-    for row in records:
-        grouped[row["composer"]].append(row)
-    ordered = sorted(
-        grouped,
-        key=lambda composer: (
-            grouped[composer][0]["midpoint_year"],
-            canonicalize(composer),
-        ),
-    )
-    ordered = remove_year_outliers(ordered, grouped)
-    early = sorted(grouped[ordered[0]], key=lambda row: row["query_id"])
-    late = sorted(grouped[ordered[-1]], key=lambda row: row["query_id"])
-    anchor_a = sorted(
-        rng.sample(early, SAMPLE_SIZE_PER_SIDE), key=lambda row: row["query_id"]
-    )
-    anchor_b = sorted(
-        rng.sample(late, SAMPLE_SIZE_PER_SIDE), key=lambda row: row["query_id"]
-    )
-    return anchor_a, anchor_b
-
-
 def main():
     rng = random.Random(SEED)
     print("[1/5] collecting datasets")
@@ -802,34 +765,8 @@ def main():
     print("[2.5/5] assigning work years")
     assign_work_years(rows)
     assign_query_ids(rows)
-    for row in rows:
-        row["axis_side"] = "."
-        row["overall_side"] = "."
 
-    print("[3/5] choosing anchors")
-    dataset_anchor_ids = set()
-    for dataset in ["asap", "music21", "ewld"]:
-        anchor_a, anchor_b = choose_dataset_anchors(by_dataset[dataset], rng)
-        for row in anchor_a:
-            row["axis_side"] = "a"
-            dataset_anchor_ids.add(row["query_id"])
-        for row in anchor_b:
-            row["axis_side"] = "b"
-            dataset_anchor_ids.add(row["query_id"])
-
-    overall_pool = sorted(
-        [row for row in rows if row["query_id"] not in dataset_anchor_ids],
-        key=lambda row: row["query_id"],
-    )
-    overall_sample = sorted(
-        rng.sample(overall_pool, OVERALL_SAMPLE_SIZE), key=lambda row: row["query_id"]
-    )
-    for row in overall_sample[: OVERALL_SAMPLE_SIZE // 2]:
-        row["overall_side"] = "a"
-    for row in overall_sample[OVERALL_SAMPLE_SIZE // 2 :]:
-        row["overall_side"] = "b"
-
-    print("[4/5] writing tsv")
+    print("[3/5] writing tsv")
     out_rows = []
     for row in sorted(rows, key=lambda row: row["query_id"]):
         out_rows.append(
@@ -844,8 +781,6 @@ def main():
                 "year_source": row["year_source"],
                 "input_kind": row["input_kind"],
                 "path": row["path"],
-                "axis_side": row["axis_side"],
-                "overall_side": row["overall_side"],
             }
         )
     write_tsv(
@@ -862,12 +797,10 @@ def main():
             "year_source",
             "input_kind",
             "path",
-            "axis_side",
-            "overall_side",
         ],
     )
 
-    print("[5/5] done")
+    print("[4/5] done")
     print(f"wrote {OUTPUT_TSV}")
     print(
         {dataset: len(by_dataset[dataset]) for dataset in ["asap", "music21", "ewld"]}

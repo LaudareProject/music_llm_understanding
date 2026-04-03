@@ -264,3 +264,34 @@ def save_grouped_bar_chart(path, categories, series, title, ylabel):
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)
+
+
+def save_multi_line_chart(path, x_values, series, title, xlabel, ylabel):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    x_values = np.asarray(x_values, dtype=np.float64)
+    fig, ax = plt.subplots(figsize=(7.2, 4.8))
+    markers = ["o", "s", "^", "D", "v", "P", "X", "*"]
+    for i, (label, y_values) in enumerate(series):
+        y_values = np.asarray(y_values, dtype=np.float64)
+        ax.plot(
+            x_values,
+            y_values,
+            marker=markers[i % len(markers)],
+            linewidth=1.8,
+            markersize=5,
+            label=label,
+        )
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xticks(x_values)
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(loc="best", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)

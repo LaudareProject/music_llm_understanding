@@ -3,14 +3,14 @@ import random
 import numpy as np
 
 
-def use_anchor_column(relevant_rows, anchor_column):
-    anchor_a_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "a"
-    ]
-    anchor_b_ids = [
-        row["query_id"] for row in relevant_rows if row[anchor_column] == "b"
-    ]
-    eval_rows = [row for row in relevant_rows if row[anchor_column] not in {"a", "b"}]
+def first_vs_last(relevant_rows, target_key, n=10):
+    n_anchors = min(int(n), len(relevant_rows) // 2)
+    ranked_rows = sorted(relevant_rows, key=lambda row: float(row[target_key]))
+    anchor_a_rows = ranked_rows[:n_anchors]
+    anchor_b_rows = ranked_rows[-n_anchors:]
+    anchor_a_ids = [row["query_id"] for row in anchor_a_rows]
+    anchor_b_ids = [row["query_id"] for row in anchor_b_rows]
+    eval_rows = ranked_rows[n_anchors:-n_anchors]
     return anchor_a_ids, anchor_b_ids, eval_rows
 
 
@@ -20,8 +20,8 @@ def _target_values(relevant_rows, target_key):
     )
 
 
-def random_after_and_before_median(relevant_rows, target_key, n=0.15, seed=42):
-    n_anchors = n if isinstance(n, int) else int(len(relevant_rows) * n)
+def random_after_and_before_median(relevant_rows, target_key, n=10, seed=42):
+    n_anchors = int(n)
     midpoint_median = np.median(_target_values(relevant_rows, target_key))
     anchor_a_ids = [
         row["query_id"]
@@ -69,8 +69,21 @@ def n_best_pairs_target_separation(
                 )
             )
     pairs.sort(key=lambda pair: abs(pair[2] - separation))
-    anchor_a_ids = [pair[0]["query_id"] for pair in pairs[:n]]
-    anchor_b_ids = [pair[1]["query_id"] for pair in pairs[:n]]
+    anchor_a_ids = []
+    anchor_b_ids = []
+    used_a_ids = set()
+    used_b_ids = set()
+    for first_item, last_item, _ in pairs:
+        first_id = first_item["query_id"]
+        last_id = last_item["query_id"]
+        if first_id in used_a_ids or last_id in used_b_ids:
+            continue
+        anchor_a_ids.append(first_id)
+        anchor_b_ids.append(last_id)
+        used_a_ids.add(first_id)
+        used_b_ids.add(last_id)
+        if len(anchor_a_ids) >= int(n):
+            break
     if include_anchors_in_eval:
         eval_rows = list(relevant_rows)
     else:
@@ -84,22 +97,20 @@ def n_best_pairs_target_separation(
 
 def select_anchors(
     relevant_rows,
-    anchor_column,
     method,
     target_key,
-    random_n=0.15,
-    best_pairs_n=10,
+    n=10,
     best_pairs_separation=100,
 ):
-    if method == "anchor_column":
-        return use_anchor_column(relevant_rows, anchor_column)
+    if method in {"first_vs_last", "anchor_column"}:
+        return first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_median":
-        return random_after_and_before_median(relevant_rows, target_key, n=random_n)
+        return random_after_and_before_median(relevant_rows, target_key, n=n)
     if method == "best_pairs":
         return n_best_pairs_target_separation(
             relevant_rows,
             target_key,
             separation=best_pairs_separation,
-            n=best_pairs_n,
+            n=n,
         )
     raise ValueError(f"Unknown anchor selection method: {method}")

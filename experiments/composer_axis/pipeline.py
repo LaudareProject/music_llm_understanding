@@ -123,16 +123,15 @@ def relevant_rows_for_dataset(rows, dataset):
     )
 
 
-def evaluate_dataset(matrix, rows, query_to_index, dataset, anchor_selection_method):
+def evaluate_dataset(
+    matrix, rows, query_to_index, dataset, anchor_selection_method, anchor_n
+):
     relevant_rows = relevant_rows_for_dataset(rows, dataset)
-    anchor_column = "overall_side" if dataset == "overall" else "axis_side"
     anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
         relevant_rows,
-        anchor_column,
         anchor_selection_method,
         target_key="midpoint_year",
-        random_n=10,
-        best_pairs_n=10,
+        n=anchor_n,
         best_pairs_separation=100,
     )
     if len(eval_rows) < 2:
@@ -581,8 +580,9 @@ def write_outputs(
     )
 
 
-def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
+def main(use_hann_selection=False, anchor_selection_method="first_vs_last"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
+    anchor_n = int(os.environ.get("ANCHOR_N", "10").strip() or "10")
     feature_cols = parse_feature_cols_env()
     feature_space = feature_selection_space_env()
     combos = selected_combos(forced_combo_name)
@@ -593,6 +593,7 @@ def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
             "feature_selection_combo": forced_combo_name or None,
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
+            "anchor_n": anchor_n,
             "use_hann_selection": use_hann_selection,
         },
     )
@@ -629,7 +630,12 @@ def main(use_hann_selection=False, anchor_selection_method="anchor_column"):
         )
         payload = {
             dataset: evaluate_dataset(
-                transformed, rows, query_to_index, dataset, anchor_selection_method
+                transformed,
+                rows,
+                query_to_index,
+                dataset,
+                anchor_selection_method,
+                anchor_n,
             )
             for dataset in DATASETS
         }

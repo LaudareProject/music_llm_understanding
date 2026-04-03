@@ -17,6 +17,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.anchor_selection import select_anchors
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
     COMBOS,
@@ -41,6 +42,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
+ANCHOR_N = 10
 
 
 def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
@@ -277,13 +279,15 @@ def run_feature_selection(selection_space="transformed"):
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 
-    anchor_a_idx = [
-        query_to_index[row["query_id"]] for row in rows if row["axis_side"] == "a"
-    ]
-    anchor_b_idx = [
-        query_to_index[row["query_id"]] for row in rows if row["axis_side"] == "b"
-    ]
-    eval_rows = [row for row in rows if row["axis_side"] not in {"a", "b"}]
+    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
+        rows,
+        "first_vs_last",
+        target_key="midi_note",
+        n=ANCHOR_N,
+        best_pairs_separation=12,
+    )
+    anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
+    anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
     eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
     real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
     target_scores = np.asarray(

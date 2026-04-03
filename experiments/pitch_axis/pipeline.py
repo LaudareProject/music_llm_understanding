@@ -143,7 +143,7 @@ def build_payload(transformed, rows, query_to_index, anchor_selection_method, an
         )
         payload[mapping_name] = {
             "real": real,
-            "predicted": summary["lolo_predicted"],
+            "predicted": summary["groupkfold_predicted"],
             "averaged_model_predicted": summary["predicted"],
             "groups": groups,
             "pearson": summary["pearson"],

@@ -13,7 +13,7 @@ from experiments.common.folder_handling import create_folder
 from experiments.common.plots import (
     save_heatmap,
     save_image_matrix,
-    save_multi_line_chart,
+    save_multi_line_grid_chart,
     save_stacked_bar_chart,
 )
 
@@ -319,7 +319,7 @@ def best_combo_mapping_by_dataset(mode_results_by_n):
 
 
 def anchor_n_curves_for_dataset(
-    dataset, target_combo, target_mapping, mode_results_by_n
+    dataset, target_combo, target_mapping, mode_results_by_n, metric_name
 ):
     series = []
     for spec in RUN_SPECS:
@@ -337,7 +337,12 @@ def anchor_n_curves_for_dataset(
                 and row["combo"] == target_combo
                 and row["mapping"] == target_mapping
             ]
-            y_values.append(row_l1(candidates[0]) if candidates else float("nan"))
+            if not candidates:
+                y_values.append(float("nan"))
+            elif metric_name == "spearman":
+                y_values.append(row_spearman(candidates[0]))
+            else:
+                y_values.append(row_l1(candidates[0]))
         series.append((spec["label"], y_values))
     return series
 
@@ -496,40 +501,59 @@ def main():
     )
 
     best_combo_mapping = best_combo_mapping_by_dataset(mode_results_by_n)
-    line_plot_paths = []
-    line_plot_texts = []
+    l1_panels = []
+    spearman_panels = []
     for dataset in DATASETS:
         if dataset not in best_combo_mapping:
-            line_plot_paths.append(None)
-            line_plot_texts.append("")
             continue
         target_combo = best_combo_mapping[dataset]["combo"]
         target_mapping = best_combo_mapping[dataset]["mapping"]
-        path = output_dir / f"anchor_n_l1_{dataset}.png"
-        save_multi_line_chart(
-            path,
-            ANCHOR_N_SWEEP,
-            anchor_n_curves_for_dataset(
-                dataset,
-                target_combo,
-                target_mapping,
-                mode_results_by_n,
-            ),
-            f"{dataset}: L1 vs anchor n ({target_combo} + {target_mapping})",
-            "Anchor n",
-            "L1",
+        panel_title = f"{dataset} | combo={target_combo} | mapping={target_mapping}"
+        l1_panels.append(
+            (
+                panel_title,
+                ANCHOR_N_SWEEP,
+                anchor_n_curves_for_dataset(
+                    dataset,
+                    target_combo,
+                    target_mapping,
+                    mode_results_by_n,
+                    "l1",
+                ),
+            )
         )
-        line_plot_paths.append(path)
-        line_plot_texts.append(f"combo={target_combo} | mapping={target_mapping}")
+        spearman_panels.append(
+            (
+                panel_title,
+                ANCHOR_N_SWEEP,
+                anchor_n_curves_for_dataset(
+                    dataset,
+                    target_combo,
+                    target_mapping,
+                    mode_results_by_n,
+                    "spearman",
+                ),
+            )
+        )
 
-    save_image_matrix(
-        output_dir / "anchor_n_l1_grid.png",
-        [line_plot_paths],
-        ["datasets"],
-        DATASETS,
-        "L1 vs anchor n by dataset and method",
-        cell_texts=[line_plot_texts],
-    )
+    if l1_panels:
+        save_multi_line_grid_chart(
+            output_dir / "anchor_n_l1_grid.png",
+            l1_panels,
+            ncols=2,
+            title="L1 vs anchor n by dataset and method",
+            xlabel="Anchor n",
+            ylabel="L1",
+        )
+    if spearman_panels:
+        save_multi_line_grid_chart(
+            output_dir / "anchor_n_spearman_grid.png",
+            spearman_panels,
+            ncols=2,
+            title="Spearman vs anchor n by dataset and method",
+            xlabel="Anchor n",
+            ylabel="Spearman",
+        )
     print(output_dir)
 
 

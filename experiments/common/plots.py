@@ -326,3 +326,50 @@ def save_multi_line_chart(path, x_values, series, title, xlabel, ylabel):
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)
+
+
+def save_multi_line_grid_chart(path, panels, ncols, title, xlabel, ylabel):
+    import math
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    panel_count = max(len(panels), 1)
+    ncols = max(1, int(ncols))
+    nrows = int(math.ceil(panel_count / ncols))
+    fig, axes = plt.subplots(
+        nrows,
+        ncols,
+        figsize=(max(6.0, ncols * 5.2), max(4.0, nrows * 3.8)),
+        squeeze=False,
+    )
+    markers = ["o", "s", "^", "D", "v", "P", "X", "*"]
+    for idx in range(nrows * ncols):
+        ax = axes[idx // ncols][idx % ncols]
+        if idx >= len(panels):
+            ax.axis("off")
+            continue
+        panel_title, x_values, series = panels[idx]
+        x_values = np.asarray(x_values, dtype=np.float64)
+        for i, (label, y_values) in enumerate(series):
+            y_values = np.asarray(y_values, dtype=np.float64)
+            ax.plot(
+                x_values,
+                y_values,
+                marker=markers[i % len(markers)],
+                linewidth=1.8,
+                markersize=4.5,
+                label=label,
+            )
+        ax.set_title(panel_title, fontsize=9)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(x_values)
+        ax.grid(True, linestyle="--", alpha=0.35)
+        ax.legend(loc="best", fontsize=7)
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)

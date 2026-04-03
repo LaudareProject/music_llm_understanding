@@ -180,7 +180,7 @@ def evaluate_dataset(
         predicted = np.asarray(summary["predicted"], dtype=np.float64)
         payload[mapping_name] = {
             "real": real,
-            "predicted": np.asarray(summary["lolo_predicted"], dtype=np.float64),
+            "predicted": np.asarray(summary["groupkfold_predicted"], dtype=np.float64),
             "averaged_model_predicted": predicted,
             "groups": groups,
             "pearson": summary["pearson"],

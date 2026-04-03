@@ -13,7 +13,7 @@ from experiments.common.folder_handling import create_folder
 from experiments.common.plots import (
     save_heatmap,
     save_image_matrix,
-    save_multi_line_chart,
+    save_multi_line_grid_chart,
 )
 
 import numpy as np
@@ -253,7 +253,7 @@ def best_combo_mapping(mode_results_by_n):
     return {"combo": combo, "mapping": mapping}
 
 
-def anchor_n_curves(target_combo, target_mapping, mode_results_by_n):
+def anchor_n_curves(target_combo, target_mapping, mode_results_by_n, metric_name):
     series = []
     for spec in RUN_SPECS:
         y_values = []
@@ -268,7 +268,12 @@ def anchor_n_curves(target_combo, target_mapping, mode_results_by_n):
                 for row in mode["rows"]
                 if row["combo"] == target_combo and row["mapping"] == target_mapping
             ]
-            y_values.append(row_l1(candidates[0]) if candidates else float("nan"))
+            if not candidates:
+                y_values.append(float("nan"))
+            elif metric_name == "spearman":
+                y_values.append(row_spearman(candidates[0]))
+            else:
+                y_values.append(row_l1(candidates[0]))
         series.append((spec["label"], y_values))
     return series
 
@@ -383,22 +388,44 @@ def main():
 
     target = best_combo_mapping(mode_results_by_n)
     if target is not None:
-        line_path = output_dir / "anchor_n_l1_pitch.png"
-        save_multi_line_chart(
-            line_path,
-            ANCHOR_N_SWEEP,
-            anchor_n_curves(target["combo"], target["mapping"], mode_results_by_n),
-            f"pitch: L1 vs anchor n ({target['combo']} + {target['mapping']})",
-            "Anchor n",
-            "L1",
-        )
-        save_image_matrix(
+        panel_title = f"pitch | combo={target['combo']} | mapping={target['mapping']}"
+        save_multi_line_grid_chart(
             output_dir / "anchor_n_l1_grid.png",
-            [[line_path]],
-            ["datasets"],
-            ["pitch"],
-            "L1 vs anchor n by dataset and method",
-            cell_texts=[[f"combo={target['combo']} | mapping={target['mapping']}"]],
+            [
+                (
+                    panel_title,
+                    ANCHOR_N_SWEEP,
+                    anchor_n_curves(
+                        target["combo"],
+                        target["mapping"],
+                        mode_results_by_n,
+                        "l1",
+                    ),
+                )
+            ],
+            ncols=1,
+            title="L1 vs anchor n by dataset and method",
+            xlabel="Anchor n",
+            ylabel="L1",
+        )
+        save_multi_line_grid_chart(
+            output_dir / "anchor_n_spearman_grid.png",
+            [
+                (
+                    panel_title,
+                    ANCHOR_N_SWEEP,
+                    anchor_n_curves(
+                        target["combo"],
+                        target["mapping"],
+                        mode_results_by_n,
+                        "spearman",
+                    ),
+                )
+            ],
+            ncols=1,
+            title="Spearman vs anchor n by dataset and method",
+            xlabel="Anchor n",
+            ylabel="Spearman",
         )
     print(output_dir)
 

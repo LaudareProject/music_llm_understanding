@@ -269,7 +269,7 @@ def mean_ci95(values):
     )
 
 
-def grouped_kfold_splits(groups, n_splits=10):
+def grouped_kfold_splits(groups, n_splits=5):
     groups = np.asarray(groups)
     unique_groups = np.unique(groups)
     if unique_groups.shape[0] < 2:
@@ -281,7 +281,7 @@ def grouped_kfold_splits(groups, n_splits=10):
     return list(splitter.split(indices, groups=groups))
 
 
-def lolo_predictions(raw_projection, real, groups, mapping_name):
+def grouped_kfold_predictions(raw_projection, real, groups, mapping_name, n_splits=5):
     raw_projection = np.asarray(raw_projection, dtype=np.float64)
     real = np.asarray(real, dtype=np.float64)
     groups = np.asarray(groups)
@@ -291,12 +291,8 @@ def lolo_predictions(raw_projection, real, groups, mapping_name):
         return np.asarray(
             predict_mapping_model(model, raw_projection), dtype=np.float64
         )
-    from sklearn.model_selection import LeaveOneGroupOut
-
     predicted = np.full(raw_projection.shape[0], np.nan, dtype=np.float64)
-    splitter = LeaveOneGroupOut()
-    indices = np.arange(raw_projection.shape[0])
-    for train_idx, test_idx in splitter.split(indices, groups=groups):
+    for train_idx, test_idx in grouped_kfold_splits(groups, n_splits=n_splits):
         model = fit_mapping_model(
             mapping_name, raw_projection[train_idx], real[train_idx]
         )
@@ -333,10 +329,18 @@ def cross_validated_mapping_summary(
             fold_metrics[name].append(metric_fn(test_idx, predicted))
     averaged_model = average_mapping_models(models)
     full_predicted = predict_mapping_model(averaged_model, raw_projection)
+    oof_predicted = grouped_kfold_predictions(
+        raw_projection,
+        real,
+        groups,
+        mapping_name,
+        n_splits=5,
+    )
     summary = {
         "model": averaged_model,
         "predicted": np.asarray(full_predicted, dtype=np.float64),
-        "lolo_predicted": lolo_predictions(raw_projection, real, groups, mapping_name),
+        "groupkfold_predicted": oof_predicted,
+        "lolo_predicted": oof_predicted,
         "fold_count": len(fold_metrics["spearman"]),
     }
     for name, values in fold_metrics.items():

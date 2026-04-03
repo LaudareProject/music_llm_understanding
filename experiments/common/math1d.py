@@ -311,7 +311,7 @@ def cross_validated_mapping_summary(
     real = np.asarray(real, dtype=np.float64)
     groups = np.asarray(groups)
     extra_metric_fns = {} if extra_metric_fns is None else dict(extra_metric_fns)
-    fold_metrics = {"pearson": [], "spearman": [], "l1": []}
+    fold_metrics = {"pearson": [], "spearman": [], "r2": [], "l1": []}
     fold_metrics.update({name: [] for name in extra_metric_fns})
     models = []
     for train_idx, test_idx in grouped_kfold_splits(groups, n_splits=10):
@@ -322,6 +322,7 @@ def cross_validated_mapping_summary(
         predicted = predict_mapping_model(model, raw_projection[test_idx])
         fold_metrics["pearson"].append(pearson(real[test_idx], predicted))
         fold_metrics["spearman"].append(spearman(real[test_idx], predicted))
+        fold_metrics["r2"].append(r2(real[test_idx], predicted))
         fold_metrics["l1"].append(
             float("nan") if mapping_name == "raw" else l1(real[test_idx], predicted)
         )
@@ -392,6 +393,18 @@ def l1(y_true, y_pred):
     y_true = np.asarray(y_true, dtype=np.float64)
     y_pred = np.asarray(y_pred, dtype=np.float64)
     return float(np.mean(np.abs(y_true - y_pred)))
+
+
+def r2(y_true, y_pred):
+    y_true = np.asarray(y_true, dtype=np.float64)
+    y_pred = np.asarray(y_pred, dtype=np.float64)
+    if y_true.shape[0] < 2:
+        return float("nan")
+    ss_tot = float(np.sum((y_true - np.mean(y_true)) ** 2))
+    if ss_tot <= 1e-12:
+        return float("nan")
+    ss_res = float(np.sum((y_true - y_pred) ** 2))
+    return 1.0 - (ss_res / ss_tot)
 
 
 def random_l1_baseline(y_true):

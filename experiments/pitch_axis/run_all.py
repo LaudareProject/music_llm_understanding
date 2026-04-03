@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import sys
 
 
@@ -28,6 +29,10 @@ DATASETS = ["pitch"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 BASE_ANCHOR_N = 10
 ANCHOR_N_SWEEP = [1, 2, 4, 8, 16, 32]
+BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
+VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
+if BEST_METRIC not in VALID_BEST_METRICS:
+    raise ValueError(f"BEST_METRIC must be one of {sorted(VALID_BEST_METRICS)}")
 PITCH_COVARIATE_COLUMNS = ["duration_ticks", "velocity"]
 
 RUN_SPECS = [
@@ -52,20 +57,32 @@ def load_mode_result(spec, output_dir):
     return {**spec, "output_dir": output_dir, "rows": rows}
 
 
+def row_metric(row, metric_name=BEST_METRIC):
+    return to_float(row[metric_name])
+
+
+def metric_maximize(metric_name):
+    return metric_name != "l1"
+
+
 def mode_score(rows, combo):
     values = [
-        -to_float(row["l1"])
+        row_metric(row)
         for row in rows
-        if row["combo"] == combo
-        and row["mapping"] in MAPPINGS[1:]
-        and not np.isnan(to_float(row["l1"]))
+        if row["combo"] == combo and not np.isnan(row_metric(row))
     ]
-    return max(values) if values else float("-inf")
+    if not values:
+        return float("-inf") if metric_maximize(BEST_METRIC) else float("inf")
+    return max(values) if metric_maximize(BEST_METRIC) else min(values)
 
 
 def best_rows(mode_result):
     combos = sorted({row["combo"] for row in mode_result["rows"]})
-    best_combo = max(combos, key=lambda combo: mode_score(mode_result["rows"], combo))
+    best_combo = (
+        max(combos, key=lambda combo: mode_score(mode_result["rows"], combo))
+        if metric_maximize(BEST_METRIC)
+        else min(combos, key=lambda combo: mode_score(mode_result["rows"], combo))
+    )
     return {
         mapping: next(
             row
@@ -93,7 +110,10 @@ def row_l1_ratio(row):
 
 
 def cell_label(row):
+    best_value = row_metric(row)
+    best_text = "nan" if np.isnan(best_value) else f"{best_value:.3f}"
     return (
+        f"best({BEST_METRIC})={best_text}\n"
         f"rho={to_float(row['spearman']):.3f}+/-{to_float(row.get('spearman_ci95', 'nan')):.3f}"
         f"\nl1={to_float(row['l1']):.3f}+/-{to_float(row.get('l1_ci95', 'nan')):.3f}"
     )
@@ -118,11 +138,18 @@ def dataset_mapping_image_matrix(mode_results):
     texts = [[]]
     for mapping in MAPPINGS:
         candidates = [
-            (-row_l1(mode["best_rows"][mapping]), mode)
+            (row_metric(mode["best_rows"][mapping]), mode)
             for mode in mode_results
-            if not np.isnan(row_l1(mode["best_rows"][mapping]))
+            if not np.isnan(row_metric(mode["best_rows"][mapping]))
         ]
-        best_mode = max(candidates, key=lambda item: item[0])[1] if candidates else None
+        if candidates:
+            best_mode = (
+                max(candidates, key=lambda item: item[0])[1]
+                if metric_maximize(BEST_METRIC)
+                else min(candidates, key=lambda item: item[0])[1]
+            )
+        else:
+            best_mode = None
         images[0].append(
             None
             if best_mode is None
@@ -155,15 +182,22 @@ def anchor_dataset_image_matrix(mode_results):
         candidate_mappings = [
             mapping
             for mapping in MAPPINGS
-            if not np.isnan(row_l1(mode["best_rows"][mapping]))
+            if not np.isnan(row_metric(mode["best_rows"][mapping]))
         ]
         if not candidate_mappings:
             images[0].append(None)
             texts[0].append("")
             continue
-        best_mapping = min(
-            candidate_mappings,
-            key=lambda mapping: row_l1(mode["best_rows"][mapping]),
+        best_mapping = (
+            max(
+                candidate_mappings,
+                key=lambda mapping: row_metric(mode["best_rows"][mapping]),
+            )
+            if metric_maximize(BEST_METRIC)
+            else min(
+                candidate_mappings,
+                key=lambda mapping: row_metric(mode["best_rows"][mapping]),
+            )
         )
         images[0].append(mode["output_dir"] / f"scatter_pitch_{best_mapping}.png")
         texts[0].append(cell_label(mode["best_rows"][best_mapping]))
@@ -174,12 +208,7 @@ def anchor_dataset_value_matrix(mode_results, metric_name, maximize):
     values = [
         [
             best_value(
-                [
-                    mode["best_rows"][mapping]
-                    for mapping in (
-                        MAPPINGS if metric_name == "spearman" else MAPPINGS[1:]
-                    )
-                ],
+                [mode["best_rows"][mapping] for mapping in MAPPINGS],
                 metric_name,
                 maximize,
             )
@@ -200,10 +229,17 @@ def dataset_transformation_image_matrix(mode_results):
         for mode in mode_results:
             for row in mode["rows"]:
                 if row["combo"] == combo:
-                    l1_value = row_l1(row)
-                    if not np.isnan(l1_value):
-                        candidates.append((-l1_value, mode, row))
-        best = max(candidates, key=lambda item: item[0]) if candidates else None
+                    value = row_metric(row)
+                    if not np.isnan(value):
+                        candidates.append((value, mode, row))
+        if candidates:
+            best = (
+                max(candidates, key=lambda item: item[0])
+                if metric_maximize(BEST_METRIC)
+                else min(candidates, key=lambda item: item[0])
+            )
+        else:
+            best = None
         if best is None:
             images[0].append(None)
             texts[0].append("")
@@ -245,7 +281,7 @@ def run_modes(anchor_n):
         run_output_dir = run_script_and_capture_output_dir(
             script_path,
             OUTPUT_ROOT,
-            extra_env={"ANCHOR_N": str(anchor_n)},
+            extra_env={"ANCHOR_N": str(anchor_n), "BEST_METRIC": BEST_METRIC},
         )
         mode_result = load_mode_result({**spec, "anchor_n": anchor_n}, run_output_dir)
         mode_result["best_rows"] = best_rows(mode_result)
@@ -258,13 +294,14 @@ def best_combo_mapping(mode_results_by_n):
     for anchor_n in ANCHOR_N_SWEEP:
         for mode in mode_results_by_n[anchor_n]:
             for row in mode["rows"]:
-                l1_value = row_l1(row)
-                if np.isnan(l1_value):
+                value = row_metric(row)
+                if np.isnan(value):
                     continue
-                candidates.append((l1_value, row["combo"], row["mapping"]))
+                candidates.append((value, row["combo"], row["mapping"]))
     if not candidates:
         return None
-    _, combo, mapping = min(candidates, key=lambda item: item[0])
+    chooser = max if metric_maximize(BEST_METRIC) else min
+    _, combo, mapping = chooser(candidates, key=lambda item: item[0])
     return {"combo": combo, "mapping": mapping}
 
 
@@ -285,10 +322,8 @@ def anchor_n_curves(target_combo, target_mapping, mode_results_by_n, metric_name
             ]
             if not candidates:
                 y_values.append(float("nan"))
-            elif metric_name == "spearman":
-                y_values.append(row_spearman(candidates[0]))
             else:
-                y_values.append(row_l1(candidates[0]))
+                y_values.append(to_float(candidates[0][metric_name]))
         series.append((spec["label"], y_values))
     return series
 
@@ -298,21 +333,20 @@ def best_combo_mapping_anchor(mode_results_by_n):
     for anchor_n in ANCHOR_N_SWEEP:
         for mode in mode_results_by_n[anchor_n]:
             for row in mode["rows"]:
-                if row["mapping"] == "raw":
+                value = row_metric(row)
+                if np.isnan(value):
                     continue
-                l1_value = row_l1(row)
-                if np.isnan(l1_value):
-                    continue
-                candidates.append((l1_value, anchor_n, mode, row))
+                candidates.append((value, anchor_n, mode, row))
     if not candidates:
         return None
-    l1_value, anchor_n, mode, row = min(candidates, key=lambda item: item[0])
+    chooser = max if metric_maximize(BEST_METRIC) else min
+    score, anchor_n, mode, row = chooser(candidates, key=lambda item: item[0])
     return {
         "anchor_n": anchor_n,
         "anchor": mode["anchor"],
         "combo": row["combo"],
         "mapping": row["mapping"],
-        "l1": l1_value,
+        "best_metric": score,
         "mode_output_dir": mode["output_dir"],
     }
 
@@ -358,7 +392,8 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
                 "anchor_n": best["anchor_n"],
                 "combo": best["combo"],
                 "mapping": best["mapping"],
-                "l1": f"{best['l1']:.10f}",
+                "best_metric_name": BEST_METRIC,
+                "best_metric": f"{best['best_metric']:.10f}",
                 "covariate": covariate,
                 "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
                 "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
@@ -375,7 +410,8 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
             "anchor_n",
             "combo",
             "mapping",
-            "l1",
+            "best_metric_name",
+            "best_metric",
             "covariate",
             "pearson",
             "spearman",
@@ -408,6 +444,7 @@ def main():
             "scripts": [spec["script"] for spec in RUN_SPECS],
             "base_anchor_n": BASE_ANCHOR_N,
             "anchor_n_sweep": ANCHOR_N_SWEEP,
+            "best_metric": BEST_METRIC,
         },
     )
     mode_results = run_modes(BASE_ANCHOR_N)
@@ -490,7 +527,7 @@ def main():
         dataset_mapping_images,
         DATASETS,
         mapping_columns,
-        "Pitch dataset x mapping | best anchor by L1",
+        f"Pitch dataset x mapping | best anchor by {BEST_METRIC}",
         cell_texts=dataset_mapping_texts,
     )
     save_image_matrix(
@@ -498,7 +535,7 @@ def main():
         anchor_dataset_images,
         DATASETS,
         anchor_columns,
-        "Pitch dataset x anchor mode | best mapping by L1",
+        f"Pitch dataset x anchor mode | best mapping by {BEST_METRIC}",
         cell_texts=anchor_dataset_texts,
     )
     save_image_matrix(
@@ -506,7 +543,7 @@ def main():
         transformation_images,
         DATASETS,
         transformation_columns,
-        "Pitch dataset x transformation | best mode by L1",
+        f"Pitch dataset x transformation | best mode by {BEST_METRIC}",
         cell_texts=transformation_texts,
     )
 

@@ -18,6 +18,7 @@ from experiments.common.math1d import (
     project_1d,
     project_1d_regression_direction,
     random_l1_baseline,
+    r2,
     spearman,
 )
 from experiments.common.plots import save_scatter
@@ -37,6 +38,22 @@ OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
 
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
+BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
+VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
+if BEST_METRIC not in VALID_BEST_METRICS:
+    raise ValueError(f"BEST_METRIC must be one of {sorted(VALID_BEST_METRICS)}")
+
+
+def metric_value(metrics, metric_name):
+    if metric_name == "l1":
+        return float(metrics["l1"])
+    if metric_name == "spearman":
+        return float(metrics["spearman"])
+    if metric_name == "pearson":
+        return float(metrics["pearson"])
+    if metric_name == "r2":
+        return float(metrics["r2"])
+    raise ValueError(metric_name)
 
 
 def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
@@ -73,11 +90,13 @@ def load_or_compute_embedding(query_id, midi_path):
 
 def combo_selection_score(payload):
     scores = [
-        -payload[mapping_name]["l1"]
-        for mapping_name in MAPPINGS[1:]
-        if not np.isnan(payload[mapping_name]["l1"])
+        metric_value(payload[mapping_name], BEST_METRIC)
+        for mapping_name in MAPPINGS
+        if not np.isnan(metric_value(payload[mapping_name], BEST_METRIC))
     ]
-    return max(scores) if scores else float("-inf")
+    if not scores:
+        return float("inf") if BEST_METRIC == "l1" else float("-inf")
+    return min(scores) if BEST_METRIC == "l1" else max(scores)
 
 
 def prepare_rows(output_dir):
@@ -150,6 +169,8 @@ def build_payload(transformed, rows, query_to_index, anchor_selection_method, an
             "pearson_ci95": summary["pearson_ci95"],
             "spearman": summary["spearman"],
             "spearman_ci95": summary["spearman_ci95"],
+            "r2": summary["r2"],
+            "r2_ci95": summary["r2_ci95"],
             "l1": summary["l1"],
             "l1_ci95": summary["l1_ci95"],
             "random": baseline_l1,
@@ -171,6 +192,8 @@ def metric_rows_for_combo(combo_name, payload):
             "pearson_ci95": payload[mapping_name]["pearson_ci95"],
             "spearman": payload[mapping_name]["spearman"],
             "spearman_ci95": payload[mapping_name]["spearman_ci95"],
+            "r2": payload[mapping_name]["r2"],
+            "r2_ci95": payload[mapping_name]["r2_ci95"],
             "l1": payload[mapping_name]["l1"],
             "l1_ci95": payload[mapping_name]["l1_ci95"],
             "random": payload[mapping_name]["random"],
@@ -238,6 +261,10 @@ def write_outputs(
                 "spearman_ci95": f"{row['spearman_ci95']:.10f}"
                 if not np.isnan(row["spearman_ci95"])
                 else "nan",
+                "r2": f"{row['r2']:.10f}" if not np.isnan(row["r2"]) else "nan",
+                "r2_ci95": f"{row['r2_ci95']:.10f}"
+                if not np.isnan(row["r2_ci95"])
+                else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
                 "l1_ci95": f"{row['l1_ci95']:.10f}"
                 if not np.isnan(row["l1_ci95"])
@@ -257,6 +284,8 @@ def write_outputs(
             "pearson_ci95",
             "spearman",
             "spearman_ci95",
+            "r2",
+            "r2_ci95",
             "l1",
             "l1_ci95",
             "random",
@@ -378,6 +407,7 @@ def main(anchor_selection_method="first_vs_last"):
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
             "anchor_n": anchor_n,
+            "best_metric": BEST_METRIC,
         },
     )
     rows, midi_paths = prepare_rows(output_dir)
@@ -421,7 +451,11 @@ def main(anchor_selection_method="first_vs_last"):
         metric_rows.extend(metric_rows_for_combo(combo["name"], payload))
         combo_scores.append(combo_score_row(combo["name"], payload))
         score = combo_selection_score(payload)
-        if best_score is None or score > best_score:
+        if (
+            best_score is None
+            or (BEST_METRIC == "l1" and score < best_score)
+            or (BEST_METRIC != "l1" and score > best_score)
+        ):
             best_score = score
             best_payload = payload
             best_combo_name = combo["name"]

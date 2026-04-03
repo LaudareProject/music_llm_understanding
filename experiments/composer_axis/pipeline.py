@@ -18,6 +18,7 @@ from experiments.common.math1d import (
     project_1d,
     project_1d_regression_direction,
     random_l1_baseline,
+    r2,
     spearman,
 )
 from experiments.common.plots import save_scatter
@@ -39,6 +40,32 @@ BIN_DIR = REPO_ROOT / "bin"
 
 DATASETS = ["asap", "music21", "ewld", "overall"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
+BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
+VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
+if BEST_METRIC not in VALID_BEST_METRICS:
+    raise ValueError(f"BEST_METRIC must be one of {sorted(VALID_BEST_METRICS)}")
+
+
+def metric_value(metrics, metric_name):
+    if metric_name == "l1":
+        return float(metrics["l1"])
+    if metric_name == "spearman":
+        return float(metrics["spearman"])
+    if metric_name == "pearson":
+        return float(metrics["pearson"])
+    if metric_name == "r2":
+        return float(metrics["r2"])
+    raise ValueError(metric_name)
+
+
+def better_score(value, best_value, metric_name):
+    if np.isnan(value):
+        return False
+    if best_value is None:
+        return True
+    if metric_name == "l1":
+        return value < best_value
+    return value > best_value
 
 
 def prepare_midi(row, midi_dir):
@@ -67,25 +94,29 @@ def load_or_compute_embedding(query_id, midi_path):
 
 def combo_selection_score(payload):
     scores = []
-    for mapping_name in MAPPINGS[1:]:
+    for mapping_name in MAPPINGS:
         values = [
-            payload[dataset][mapping_name]["l1"]
+            metric_value(payload[dataset][mapping_name], BEST_METRIC)
             for dataset in DATASETS
             if payload[dataset] is not None
-            and not np.isnan(payload[dataset][mapping_name]["l1"])
+            and not np.isnan(metric_value(payload[dataset][mapping_name], BEST_METRIC))
         ]
         if values:
-            scores.append(-float(np.mean(values)))
-    return max(scores) if scores else float("-inf")
+            scores.append(float(np.mean(values)))
+    if not scores:
+        return float("inf") if BEST_METRIC == "l1" else float("-inf")
+    return min(scores) if BEST_METRIC == "l1" else max(scores)
 
 
 def dataset_combo_selection_score(dataset_payload):
     scores = [
-        -dataset_payload[mapping_name]["l1"]
-        for mapping_name in MAPPINGS[1:]
-        if not np.isnan(dataset_payload[mapping_name]["l1"])
+        metric_value(dataset_payload[mapping_name], BEST_METRIC)
+        for mapping_name in MAPPINGS
+        if not np.isnan(metric_value(dataset_payload[mapping_name], BEST_METRIC))
     ]
-    return max(scores) if scores else float("-inf")
+    if not scores:
+        return float("inf") if BEST_METRIC == "l1" else float("-inf")
+    return min(scores) if BEST_METRIC == "l1" else max(scores)
 
 
 def prepare_rows(output_dir):
@@ -187,6 +218,8 @@ def evaluate_dataset(
             "pearson_ci95": summary["pearson_ci95"],
             "spearman": summary["spearman"],
             "spearman_ci95": summary["spearman_ci95"],
+            "r2": summary["r2"],
+            "r2_ci95": summary["r2_ci95"],
             "l1": summary["l1"],
             "l1_ci95": summary["l1_ci95"],
             "random": baseline_l1,
@@ -215,6 +248,8 @@ def metric_rows_for_combo(combo_name, payload):
                     "pearson_ci95": metrics["pearson_ci95"],
                     "spearman": metrics["spearman"],
                     "spearman_ci95": metrics["spearman_ci95"],
+                    "r2": metrics["r2"],
+                    "r2_ci95": metrics["r2_ci95"],
                     "l1": metrics["l1"],
                     "l1_ci95": metrics["l1_ci95"],
                     "random": metrics["random"],
@@ -290,6 +325,10 @@ def write_outputs(
                 "spearman_ci95": f"{row['spearman_ci95']:.10f}"
                 if not np.isnan(row["spearman_ci95"])
                 else "nan",
+                "r2": f"{row['r2']:.10f}" if not np.isnan(row["r2"]) else "nan",
+                "r2_ci95": f"{row['r2_ci95']:.10f}"
+                if not np.isnan(row["r2_ci95"])
+                else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
                 "l1_ci95": f"{row['l1_ci95']:.10f}"
                 if not np.isnan(row["l1_ci95"])
@@ -310,6 +349,8 @@ def write_outputs(
             "pearson_ci95",
             "spearman",
             "spearman_ci95",
+            "r2",
+            "r2_ci95",
             "l1",
             "l1_ci95",
             "random",
@@ -415,10 +456,12 @@ def write_outputs(
         ]
         if not candidates:
             continue
-        combo_name, dataset_payload = max(
+        scored = sorted(
             candidates,
             key=lambda item: dataset_combo_selection_score(item[1]),
+            reverse=BEST_METRIC != "l1",
         )
+        combo_name, dataset_payload = scored[0]
         best_by_dataset[dataset] = {"combo": combo_name, "payload": dataset_payload}
 
     projection_rows = []
@@ -477,6 +520,7 @@ def main(anchor_selection_method="first_vs_last"):
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
             "anchor_n": anchor_n,
+            "best_metric": BEST_METRIC,
         },
     )
     rows, midi_paths = prepare_rows(output_dir)

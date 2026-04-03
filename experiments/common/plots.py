@@ -266,6 +266,37 @@ def save_grouped_bar_chart(path, categories, series, title, ylabel):
     plt.close(fig)
 
 
+def save_stacked_bar_chart(path, categories, series, title, ylabel):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    categories = list(categories)
+    xs = np.arange(len(categories), dtype=np.float64)
+    fig, ax = plt.subplots(figsize=(max(8.0, len(categories) * 0.7), 4.8))
+    bottoms = np.zeros(len(categories), dtype=np.float64)
+    for item in series:
+        if len(item) == 3:
+            label, values, color = item
+        else:
+            label, values = item
+            color = None
+        values = np.asarray(values, dtype=np.float64)
+        ax.bar(xs, values, bottom=bottoms, label=label, color=color, alpha=0.9)
+        bottoms = bottoms + values
+    ax.set_xticks(xs)
+    ax.set_xticklabels(categories, rotation=45, ha="right")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(True, axis="y", linestyle="--", alpha=0.35)
+    ax.legend(loc="best", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=300)
+    plt.close(fig)
+
+
 def save_multi_line_chart(path, x_values, series, title, xlabel, ylabel):
     import matplotlib
 

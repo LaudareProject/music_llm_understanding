@@ -20,7 +20,7 @@ from experiments.common.math1d import (
     random_l1_baseline,
     spearman,
 )
-from experiments.common.plots import save_grouped_bar_chart, save_scatter
+from experiments.common.plots import save_scatter
 from experiments.common.run_helpers import (
     feature_selection_space_env,
     parse_feature_cols_env,
@@ -250,35 +250,6 @@ def combo_score_row(combo_name, payload):
     }
 
 
-def save_year_source_histograms(output_dir, rows):
-    for dataset in [dataset for dataset in DATASETS if dataset != "overall"]:
-        dataset_rows = [row for row in rows if row["dataset"] == dataset]
-        composers = sorted({row["composer"] for row in dataset_rows})
-        scraped_counts = []
-        lifespan_counts = []
-        for composer in composers:
-            composer_rows = [row for row in dataset_rows if row["composer"] == composer]
-            scraped_counts.append(
-                sum(
-                    row["year_source"].startswith(("imslp_", "wikipedia_", "rism_"))
-                    for row in composer_rows
-                )
-            )
-            lifespan_counts.append(
-                sum(row["year_source"] == "lifespan_midpoint" for row in composer_rows)
-            )
-        save_grouped_bar_chart(
-            output_dir / f"year_source_histogram_{dataset}.png",
-            composers,
-            [
-                ("scraped", scraped_counts, "#4c78a8"),
-                ("lifespan_midpoint", lifespan_counts, "#f58518"),
-            ],
-            f"{dataset} year sources by composer",
-            "Count",
-        )
-
-
 def scatter_title(dataset, combo_name, mapping_name, metrics):
     title = (
         f"{dataset} | {mapping_name} | {combo_name}\n"
@@ -295,13 +266,11 @@ def scatter_title(dataset, combo_name, mapping_name, metrics):
 
 def write_outputs(
     output_dir,
-    rows,
     combos,
     metric_rows,
     combo_scores,
     payloads_by_combo,
 ):
-    save_year_source_histograms(output_dir, rows)
     write_tsv(
         output_dir / "metrics.tsv",
         [
@@ -410,23 +379,32 @@ def write_outputs(
         for dataset in DATASETS:
             if payload[dataset] is None:
                 continue
-            for mapping_name in MAPPINGS:
-                metrics = payload[dataset][mapping_name]
-                save_scatter(
-                    scatter_dir
-                    / f"scatter_{dataset}__{combo_name}__{mapping_name}.png",
-                    metrics["real"],
-                    metrics["predicted"],
-                    metrics["groups"],
-                    scatter_title(dataset, combo_name, mapping_name, metrics),
-                    "Real value (composer midpoint year)",
-                    "Projected value"
-                    if mapping_name == "raw"
-                    else "Mapped projected value",
-                    ref_line=mapping_name != "raw",
-                    anchors_a=metrics["anchors_a"] if mapping_name != "raw" else None,
-                    anchors_b=metrics["anchors_b"] if mapping_name != "raw" else None,
-                )
+            candidate_mappings = [
+                mapping_name
+                for mapping_name in MAPPINGS
+                if not np.isnan(payload[dataset][mapping_name]["l1"])
+            ]
+            if not candidate_mappings:
+                continue
+            mapping_name = min(
+                candidate_mappings,
+                key=lambda mapping: payload[dataset][mapping]["l1"],
+            )
+            metrics = payload[dataset][mapping_name]
+            save_scatter(
+                scatter_dir / f"scatter_{dataset}__{combo_name}__{mapping_name}.png",
+                metrics["real"],
+                metrics["predicted"],
+                metrics["groups"],
+                scatter_title(dataset, combo_name, mapping_name, metrics),
+                "Real value (composer midpoint year)",
+                "Projected value"
+                if mapping_name == "raw"
+                else "Mapped projected value",
+                ref_line=mapping_name != "raw",
+                anchors_a=metrics["anchors_a"] if mapping_name != "raw" else None,
+                anchors_b=metrics["anchors_b"] if mapping_name != "raw" else None,
+            )
 
     best_by_dataset = {}
     for dataset in DATASETS:
@@ -550,7 +528,6 @@ def main(anchor_selection_method="first_vs_last"):
     print("[4/5] writing outputs")
     write_outputs(
         output_dir,
-        rows,
         combos,
         metric_rows,
         combo_scores,

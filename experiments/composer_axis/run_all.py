@@ -14,6 +14,7 @@ from experiments.common.plots import (
     save_heatmap,
     save_image_matrix,
     save_multi_line_chart,
+    save_stacked_bar_chart,
 )
 
 import numpy as np
@@ -21,6 +22,7 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "composer_axis"
+SONGS_TSV = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
 DATASETS = ["asap", "music21", "ewld", "overall"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 BASE_ANCHOR_N = 10
@@ -340,6 +342,50 @@ def anchor_n_curves_for_dataset(
     return series
 
 
+def year_source_group(source):
+    if source.startswith("imslp_"):
+        return "imslp"
+    if source.startswith("wikipedia_"):
+        return "wikipedia"
+    if source.startswith("rism_"):
+        return "rism"
+    if source == "ewld_first_performance_date":
+        return "ewld"
+    return "lifespan"
+
+
+def save_year_source_stacked_histograms(output_dir):
+    rows = read_tsv(SONGS_TSV)
+    for dataset in ["asap", "music21", "ewld"]:
+        dataset_rows = [row for row in rows if row["dataset"] == dataset]
+        composers = sorted({row["composer"] for row in dataset_rows})
+        counts = {
+            group: [] for group in ["imslp", "wikipedia", "rism", "ewld", "lifespan"]
+        }
+        for composer in composers:
+            composer_rows = [row for row in dataset_rows if row["composer"] == composer]
+            group_counts = {group: 0 for group in counts}
+            for row in composer_rows:
+                group = year_source_group(row["year_source"])
+                group_counts[group] += 1
+            for group in counts:
+                if dataset != "ewld" and group == "ewld":
+                    counts[group].append(0)
+                else:
+                    counts[group].append(group_counts[group])
+        groups = ["imslp", "wikipedia", "rism", "ewld", "lifespan"]
+        if dataset != "ewld":
+            groups = ["imslp", "wikipedia", "rism", "lifespan"]
+        series = [(group, counts[group]) for group in groups]
+        save_stacked_bar_chart(
+            output_dir / f"year_source_histogram_{dataset}.png",
+            composers,
+            series,
+            f"{dataset} year sources by composer",
+            "Count",
+        )
+
+
 def main():
     output_dir = create_folder(
         OUTPUT_ROOT,
@@ -350,6 +396,7 @@ def main():
             "anchor_n_sweep": ANCHOR_N_SWEEP,
         },
     )
+    save_year_source_stacked_histograms(output_dir)
     mode_results = run_modes(BASE_ANCHOR_N)
     mode_results_by_n = {anchor_n: run_modes(anchor_n) for anchor_n in ANCHOR_N_SWEEP}
 

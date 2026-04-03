@@ -42,6 +42,16 @@ RUN_SPECS = [
         "anchor": "best_pairs",
         "label": "pairs",
     },
+    {
+        "script": "run_random_sample_first_last.py",
+        "anchor": "random_sample_first_last",
+        "label": "random_sample_first_last",
+    },
+    {
+        "script": "run_random_sample_regression.py",
+        "anchor": "random_sample_regression",
+        "label": "random_sample_regression",
+    },
 ]
 
 

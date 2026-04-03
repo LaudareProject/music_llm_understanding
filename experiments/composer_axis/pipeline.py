@@ -16,6 +16,7 @@ from experiments.common.math1d import (
     l1,
     pearson,
     project_1d,
+    project_1d_regression_direction,
     random_l1_baseline,
     spearman,
 )
@@ -134,7 +135,21 @@ def evaluate_dataset(
     real = np.asarray(
         [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
     )
-    raw_projection = project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx)
+    if anchor_selection_method == "random_sample_regression":
+        sample_ids = anchor_a_ids + anchor_b_ids
+        sample_idx = [query_to_index[query_id] for query_id in sample_ids]
+        query_to_row = {row["query_id"]: row for row in relevant_rows}
+        sample_targets = [
+            float(query_to_row[query_id]["midpoint_year"]) for query_id in sample_ids
+        ]
+        raw_projection = project_1d_regression_direction(
+            matrix,
+            sample_idx,
+            sample_targets,
+            eval_idx,
+        )
+    else:
+        raw_projection = project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx)
     anchors_a = np.asarray(
         [
             float(row["midpoint_year"])

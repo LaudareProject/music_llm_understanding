@@ -14,6 +14,19 @@ def first_vs_last(relevant_rows, target_key, n=10):
     return anchor_a_ids, anchor_b_ids, eval_rows
 
 
+def random_sample_first_vs_last(relevant_rows, target_key, n=10, seed=42):
+    n_anchors = min(int(n), len(relevant_rows) // 2)
+    sample_size = 2 * n_anchors
+    rng = random.Random(seed)
+    sampled_rows = rng.sample(relevant_rows, sample_size)
+    ranked_sample = sorted(sampled_rows, key=lambda row: float(row[target_key]))
+    anchor_a_ids = [row["query_id"] for row in ranked_sample[:n_anchors]]
+    anchor_b_ids = [row["query_id"] for row in ranked_sample[-n_anchors:]]
+    sampled_ids = set(anchor_a_ids + anchor_b_ids)
+    eval_rows = [row for row in relevant_rows if row["query_id"] not in sampled_ids]
+    return anchor_a_ids, anchor_b_ids, eval_rows
+
+
 def _target_values(relevant_rows, target_key):
     return np.asarray(
         [float(row[target_key]) for row in relevant_rows], dtype=np.float64
@@ -104,6 +117,10 @@ def select_anchors(
 ):
     if method in {"first_vs_last", "anchor_column"}:
         return first_vs_last(relevant_rows, target_key, n=n)
+    if method == "random_sample_first_last":
+        return random_sample_first_vs_last(relevant_rows, target_key, n=n)
+    if method == "random_sample_regression":
+        return random_sample_first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_median":
         return random_after_and_before_median(relevant_rows, target_key, n=n)
     if method == "best_pairs":

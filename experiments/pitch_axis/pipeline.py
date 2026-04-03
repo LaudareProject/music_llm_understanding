@@ -16,6 +16,7 @@ from experiments.common.math1d import (
     l1,
     pearson,
     project_1d,
+    project_1d_regression_direction,
     random_l1_baseline,
     spearman,
 )
@@ -109,7 +110,21 @@ def build_payload(transformed, rows, query_to_index, anchor_selection_method, an
     anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
     eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
     real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
-    raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
+    if anchor_selection_method == "random_sample_regression":
+        sample_ids = anchor_a_ids + anchor_b_ids
+        sample_idx = [query_to_index[query_id] for query_id in sample_ids]
+        query_to_row = {row["query_id"]: row for row in rows}
+        sample_targets = [
+            float(query_to_row[query_id]["midi_note"]) for query_id in sample_ids
+        ]
+        raw_projection = project_1d_regression_direction(
+            transformed,
+            sample_idx,
+            sample_targets,
+            eval_idx,
+        )
+    else:
+        raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
     groups = [row["name"] for row in eval_rows]
     cv_groups = np.asarray([row["midi_note"] for row in eval_rows])
     anchors_a = np.asarray(

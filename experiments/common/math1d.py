@@ -158,6 +158,24 @@ def project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx):
     return numerator / (centered_norms * direction_norm)
 
 
+def project_1d_regression_direction(matrix, sample_idx, sample_targets, eval_idx):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    sample_idx = np.asarray(sample_idx, dtype=int)
+    eval_idx = np.asarray(eval_idx, dtype=int)
+    sample_targets = np.asarray(sample_targets, dtype=np.float64)
+    from sklearn.linear_model import LinearRegression
+
+    model = LinearRegression()
+    model.fit(matrix[sample_idx], sample_targets)
+    direction = np.asarray(model.coef_, dtype=np.float64)
+    center = np.mean(matrix[sample_idx], axis=0)
+    centered = matrix[eval_idx] - center
+    numerator = centered @ direction
+    direction_norm = max(float(np.linalg.norm(direction)), 1e-12)
+    centered_norms = np.maximum(np.linalg.norm(centered, axis=1), 1e-12)
+    return numerator / (centered_norms * direction_norm)
+
+
 def _fit_affine(feature_values, y):
     feature_values = np.asarray(feature_values, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)

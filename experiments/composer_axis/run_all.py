@@ -113,6 +113,14 @@ def row_l1(row):
     return to_float(row["l1"])
 
 
+def row_l1_ratio(row):
+    l1_value = to_float(row["l1"])
+    random_value = to_float(row["random"])
+    if np.isnan(l1_value) or np.isnan(random_value) or random_value <= 1e-12:
+        return float("nan")
+    return l1_value / random_value
+
+
 def cell_label(row):
     return (
         f"rho={to_float(row['spearman']):.3f}+/-{to_float(row.get('spearman_ci95', 'nan')):.3f}"
@@ -121,11 +129,14 @@ def cell_label(row):
 
 
 def best_value(rows, metric_name, maximize):
-    values = [
-        to_float(row[metric_name])
-        for row in rows
-        if not np.isnan(to_float(row[metric_name]))
-    ]
+    if metric_name == "l1_ratio":
+        values = [row_l1_ratio(row) for row in rows if not np.isnan(row_l1_ratio(row))]
+    else:
+        values = [
+            to_float(row[metric_name])
+            for row in rows
+            if not np.isnan(to_float(row[metric_name]))
+        ]
     if not values:
         return float("nan")
     return max(values) if maximize else min(values)
@@ -408,14 +419,16 @@ def main():
     mapping_columns, dataset_mapping_images, dataset_mapping_texts = (
         dataset_mapping_image_matrix(mode_results)
     )
-    _, dataset_mapping_l1 = dataset_mapping_value_matrix(mode_results, "l1", False)
+    _, dataset_mapping_l1 = dataset_mapping_value_matrix(
+        mode_results, "l1_ratio", False
+    )
     _, dataset_mapping_spearman = dataset_mapping_value_matrix(
         mode_results, "spearman", True
     )
     anchor_columns, anchor_dataset_images, anchor_dataset_texts = (
         anchor_dataset_image_matrix(mode_results)
     )
-    _, anchor_dataset_l1 = anchor_dataset_value_matrix(mode_results, "l1", False)
+    _, anchor_dataset_l1 = anchor_dataset_value_matrix(mode_results, "l1_ratio", False)
     _, anchor_dataset_spearman = anchor_dataset_value_matrix(
         mode_results, "spearman", True
     )
@@ -423,7 +436,7 @@ def main():
         dataset_transformation_image_matrix(mode_results)
     )
     _, transformation_l1 = dataset_transformation_value_matrix(
-        mode_results, "l1", False
+        mode_results, "l1_ratio", False
     )
     _, transformation_spearman = dataset_transformation_value_matrix(
         mode_results, "spearman", True
@@ -434,7 +447,7 @@ def main():
         DATASETS,
         mapping_columns,
         dataset_mapping_l1,
-        "Composer dataset x mapping | best anchor by cell | L1",
+        "Composer dataset x mapping | best anchor by cell | l1 ratio (inference over random guessing)",
         cmap="magma_r",
     )
     save_heatmap(
@@ -449,7 +462,7 @@ def main():
         DATASETS,
         anchor_columns,
         anchor_dataset_l1,
-        "Composer dataset x anchor mode | best mapping by cell | L1",
+        "Composer dataset x anchor mode | best mapping by cell | l1 ratio (inference over random guessing)",
         cmap="magma_r",
     )
     save_heatmap(
@@ -464,7 +477,7 @@ def main():
         DATASETS,
         transformation_columns,
         transformation_l1,
-        "Composer dataset x transformation | best mode by cell | L1",
+        "Composer dataset x transformation | best mode by cell | l1 ratio (inference over random guessing)",
         cmap="magma_r",
     )
     save_heatmap(

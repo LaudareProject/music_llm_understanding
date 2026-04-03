@@ -537,51 +537,79 @@ def write_outputs(
 
     query_to_row = {row["query_id"]: row for row in rows}
     covariate_rows = []
-    pearson_values = []
-    spearman_values = []
+    heatmap_datasets = []
+    projection_pearson_values = []
+    projection_spearman_values = []
+    target_pearson_values = []
+    target_spearman_values = []
     for dataset in DATASETS:
         best = best_by_dataset.get(dataset)
         if best is None:
-            pearson_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
-            spearman_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
             continue
         mapping_name = best_mapping_name(best["payload"], BEST_METRIC)
         if mapping_name is None:
-            pearson_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
-            spearman_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
             continue
-        metrics = best["payload"][mapping_name]
-        predicted = np.asarray(metrics["predicted"], dtype=np.float64)
-        dataset_pearson = []
-        dataset_spearman = []
+        heatmap_datasets.append(dataset)
+        projection_metrics = best["payload"]["raw"]
+        projected = np.asarray(projection_metrics["predicted"], dtype=np.float64)
+        target = np.asarray(projection_metrics["real"], dtype=np.float64)
+        dataset_projection_pearson = []
+        dataset_projection_spearman = []
+        dataset_target_pearson = []
+        dataset_target_spearman = []
         for covariate in COMPOSER_COVARIATE_COLUMNS:
             covariate_values = np.asarray(
                 [
                     float(query_to_row[query_id].get(covariate, "nan"))
-                    for query_id in metrics["query_ids"]
+                    for query_id in projection_metrics["query_ids"]
                 ],
                 dtype=np.float64,
             )
-            mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
-            p_value = pearson(predicted[mask], covariate_values[mask])
-            s_value = spearman(predicted[mask], covariate_values[mask])
-            dataset_pearson.append(p_value)
-            dataset_spearman.append(s_value)
+            projection_mask = (~np.isnan(projected)) & (~np.isnan(covariate_values))
+            target_mask = (~np.isnan(target)) & (~np.isnan(covariate_values))
+            projection_p_value = pearson(
+                projected[projection_mask], covariate_values[projection_mask]
+            )
+            projection_s_value = spearman(
+                projected[projection_mask], covariate_values[projection_mask]
+            )
+            target_p_value = pearson(target[target_mask], covariate_values[target_mask])
+            target_s_value = spearman(
+                target[target_mask], covariate_values[target_mask]
+            )
+            dataset_projection_pearson.append(projection_p_value)
+            dataset_projection_spearman.append(projection_s_value)
+            dataset_target_pearson.append(target_p_value)
+            dataset_target_spearman.append(target_s_value)
             covariate_rows.append(
                 {
                     "dataset": dataset,
                     "combo": best["combo"],
                     "mapping": mapping_name,
+                    "projection_mapping": "raw",
                     "best_metric_name": BEST_METRIC,
-                    "best_metric": f"{metric_value(metrics, BEST_METRIC):.10f}",
+                    "best_metric": f"{metric_value(best['payload'][mapping_name], BEST_METRIC):.10f}",
                     "covariate": covariate,
-                    "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
-                    "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
-                    "count": int(np.sum(mask)),
+                    "projection_pearson": "nan"
+                    if np.isnan(projection_p_value)
+                    else f"{projection_p_value:.10f}",
+                    "projection_spearman": "nan"
+                    if np.isnan(projection_s_value)
+                    else f"{projection_s_value:.10f}",
+                    "target_pearson": "nan"
+                    if np.isnan(target_p_value)
+                    else f"{target_p_value:.10f}",
+                    "target_spearman": "nan"
+                    if np.isnan(target_s_value)
+                    else f"{target_s_value:.10f}",
+                    "projection_count": int(np.sum(projection_mask)),
+                    "target_count": int(np.sum(target_mask)),
                 }
             )
-        pearson_values.append(dataset_pearson)
-        spearman_values.append(dataset_spearman)
+        projection_pearson_values.append(dataset_projection_pearson)
+        projection_spearman_values.append(dataset_projection_spearman)
+        target_pearson_values.append(dataset_target_pearson)
+        target_spearman_values.append(dataset_target_spearman)
 
     write_tsv(
         output_dir / "covariate_correlations.tsv",
@@ -590,28 +618,73 @@ def write_outputs(
             "dataset",
             "combo",
             "mapping",
+            "projection_mapping",
             "best_metric_name",
             "best_metric",
             "covariate",
-            "pearson",
-            "spearman",
-            "count",
+            "projection_pearson",
+            "projection_spearman",
+            "target_pearson",
+            "target_spearman",
+            "projection_count",
+            "target_count",
         ],
     )
+    projection_pearson_matrix = np.asarray(projection_pearson_values, dtype=np.float64)
+    projection_spearman_matrix = np.asarray(
+        projection_spearman_values, dtype=np.float64
+    )
+    target_pearson_matrix = np.asarray(target_pearson_values, dtype=np.float64)
+    target_spearman_matrix = np.asarray(target_spearman_values, dtype=np.float64)
+    if not heatmap_datasets:
+        return
+
     save_heatmap(
         output_dir / "covariate_pearson_heatmap.png",
-        DATASETS,
+        heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        np.asarray(pearson_values, dtype=np.float64),
-        "Composer covariates vs mapped projection | Pearson",
+        projection_pearson_matrix,
+        "Composer covariates vs projection | Pearson",
         cmap="coolwarm",
     )
     save_heatmap(
         output_dir / "covariate_spearman_heatmap.png",
-        DATASETS,
+        heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        np.asarray(spearman_values, dtype=np.float64),
-        "Composer covariates vs mapped projection | Spearman",
+        projection_spearman_matrix,
+        "Composer covariates vs projection | Spearman",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "main_target_covariate_pearson_heatmap.png",
+        heatmap_datasets,
+        COMPOSER_COVARIATE_COLUMNS,
+        target_pearson_matrix,
+        "Composer covariates vs main target (year) | Pearson",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "main_target_covariate_spearman_heatmap.png",
+        heatmap_datasets,
+        COMPOSER_COVARIATE_COLUMNS,
+        target_spearman_matrix,
+        "Composer covariates vs main target (year) | Spearman",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "covariate_pearson_fuzzy_masked_heatmap.png",
+        heatmap_datasets,
+        COMPOSER_COVARIATE_COLUMNS,
+        (1.0 - target_pearson_matrix) * projection_pearson_matrix,
+        "Composer covariates vs projection (fuzzy-masked by year) | Pearson",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "covariate_spearman_fuzzy_masked_heatmap.png",
+        heatmap_datasets,
+        COMPOSER_COVARIATE_COLUMNS,
+        (1.0 - target_spearman_matrix) * projection_spearman_matrix,
+        "Composer covariates vs projection (fuzzy-masked by year) | Spearman",
         cmap="coolwarm",
     )
 

@@ -411,35 +411,61 @@ def write_outputs(
     query_to_row = {row["query_id"]: row for row in rows}
     mapping_name = best_mapping_name(best_payload, BEST_METRIC)
     if mapping_name is not None:
-        metrics = best_payload[mapping_name]
-        predicted = np.asarray(metrics["predicted"], dtype=np.float64)
-        pearson_row = []
-        spearman_row = []
+        projection_metrics = best_payload["raw"]
+        projected = np.asarray(projection_metrics["predicted"], dtype=np.float64)
+        target = np.asarray(projection_metrics["real"], dtype=np.float64)
+        projection_pearson_row = []
+        projection_spearman_row = []
+        target_pearson_row = []
+        target_spearman_row = []
         covariate_rows = []
         for covariate in PITCH_COVARIATE_COLUMNS:
             covariate_values = np.asarray(
                 [
                     float(query_to_row[query_id].get(covariate, "nan"))
-                    for query_id in metrics["query_ids"]
+                    for query_id in projection_metrics["query_ids"]
                 ],
                 dtype=np.float64,
             )
-            mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
-            p_value = pearson(predicted[mask], covariate_values[mask])
-            s_value = spearman(predicted[mask], covariate_values[mask])
-            pearson_row.append(p_value)
-            spearman_row.append(s_value)
+            projection_mask = (~np.isnan(projected)) & (~np.isnan(covariate_values))
+            target_mask = (~np.isnan(target)) & (~np.isnan(covariate_values))
+            projection_p_value = pearson(
+                projected[projection_mask], covariate_values[projection_mask]
+            )
+            projection_s_value = spearman(
+                projected[projection_mask], covariate_values[projection_mask]
+            )
+            target_p_value = pearson(target[target_mask], covariate_values[target_mask])
+            target_s_value = spearman(
+                target[target_mask], covariate_values[target_mask]
+            )
+            projection_pearson_row.append(projection_p_value)
+            projection_spearman_row.append(projection_s_value)
+            target_pearson_row.append(target_p_value)
+            target_spearman_row.append(target_s_value)
             covariate_rows.append(
                 {
                     "dataset": "pitch",
                     "combo": best_combo_name,
                     "mapping": mapping_name,
+                    "projection_mapping": "raw",
                     "best_metric_name": BEST_METRIC,
-                    "best_metric": f"{metric_value(metrics, BEST_METRIC):.10f}",
+                    "best_metric": f"{metric_value(best_payload[mapping_name], BEST_METRIC):.10f}",
                     "covariate": covariate,
-                    "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
-                    "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
-                    "count": int(np.sum(mask)),
+                    "projection_pearson": "nan"
+                    if np.isnan(projection_p_value)
+                    else f"{projection_p_value:.10f}",
+                    "projection_spearman": "nan"
+                    if np.isnan(projection_s_value)
+                    else f"{projection_s_value:.10f}",
+                    "target_pearson": "nan"
+                    if np.isnan(target_p_value)
+                    else f"{target_p_value:.10f}",
+                    "target_spearman": "nan"
+                    if np.isnan(target_s_value)
+                    else f"{target_s_value:.10f}",
+                    "projection_count": int(np.sum(projection_mask)),
+                    "target_count": int(np.sum(target_mask)),
                 }
             )
         write_tsv(
@@ -449,28 +475,73 @@ def write_outputs(
                 "dataset",
                 "combo",
                 "mapping",
+                "projection_mapping",
                 "best_metric_name",
                 "best_metric",
                 "covariate",
-                "pearson",
-                "spearman",
-                "count",
+                "projection_pearson",
+                "projection_spearman",
+                "target_pearson",
+                "target_spearman",
+                "projection_count",
+                "target_count",
             ],
         )
+        projection_pearson_matrix = np.asarray(
+            [projection_pearson_row], dtype=np.float64
+        )
+        projection_spearman_matrix = np.asarray(
+            [projection_spearman_row], dtype=np.float64
+        )
+        target_pearson_matrix = np.asarray([target_pearson_row], dtype=np.float64)
+        target_spearman_matrix = np.asarray([target_spearman_row], dtype=np.float64)
+
         save_heatmap(
             output_dir / "covariate_pearson_heatmap.png",
             ["pitch"],
             PITCH_COVARIATE_COLUMNS,
-            np.asarray([pearson_row], dtype=np.float64),
-            "Pitch covariates vs mapped projection | Pearson",
+            projection_pearson_matrix,
+            "Pitch covariates vs projection | Pearson",
             cmap="coolwarm",
         )
         save_heatmap(
             output_dir / "covariate_spearman_heatmap.png",
             ["pitch"],
             PITCH_COVARIATE_COLUMNS,
-            np.asarray([spearman_row], dtype=np.float64),
-            "Pitch covariates vs mapped projection | Spearman",
+            projection_spearman_matrix,
+            "Pitch covariates vs projection | Spearman",
+            cmap="coolwarm",
+        )
+        save_heatmap(
+            output_dir / "main_target_covariate_pearson_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            target_pearson_matrix,
+            "Pitch covariates vs main target (pitch) | Pearson",
+            cmap="coolwarm",
+        )
+        save_heatmap(
+            output_dir / "main_target_covariate_spearman_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            target_spearman_matrix,
+            "Pitch covariates vs main target (pitch) | Spearman",
+            cmap="coolwarm",
+        )
+        save_heatmap(
+            output_dir / "covariate_pearson_fuzzy_masked_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            (1.0 - target_pearson_matrix) * projection_pearson_matrix,
+            "Pitch covariates vs projection (fuzzy-masked by pitch) | Pearson",
+            cmap="coolwarm",
+        )
+        save_heatmap(
+            output_dir / "covariate_spearman_fuzzy_masked_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            (1.0 - target_spearman_matrix) * projection_spearman_matrix,
+            "Pitch covariates vs projection (fuzzy-masked by pitch) | Spearman",
             cmap="coolwarm",
         )
 

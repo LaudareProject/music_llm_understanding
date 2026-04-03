@@ -675,7 +675,7 @@ def write_outputs(
         output_dir / "covariate_pearson_fuzzy_masked_heatmap.png",
         heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        (1.0 - np.abs(target_pearson_matrix)) * projection_pearson_matrix,
+        (projection_pearson_matrix - target_pearson_matrix)/2,
         "Composer covariates vs projection (fuzzy-masked by year) | Pearson",
         cmap="coolwarm",
     )
@@ -683,7 +683,7 @@ def write_outputs(
         output_dir / "covariate_spearman_fuzzy_masked_heatmap.png",
         heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        (1.0 - np.abs(target_spearman_matrix)) * projection_spearman_matrix,
+        (projection_spearman_matrix - target_spearman_matrix)/2,
         "Composer covariates vs projection (fuzzy-masked by year) | Spearman",
         cmap="coolwarm",
     )

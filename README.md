@@ -22,14 +22,6 @@ uv run python experiments/composer_axis/prepare_tsv.py
 uv run python experiments/composer_axis/run_all.py
 ```
 
-`prepare_tsv.py` builds `experiments/composer_axis/songs.tsv` with chronology metadata and MIDI covariates used for control analyses:
-
-- `midi_note_count`
-- `midi_duration_seconds`
-- `midi_track_count`
-- pitch quantiles: `midi_pitch_q0`, `midi_pitch_q25`, `midi_pitch_q50`, `midi_pitch_q75`, `midi_pitch_q100`
-- note-duration quantiles: `midi_note_duration_q0`, `midi_note_duration_q25`, `midi_note_duration_q50`, `midi_note_duration_q75`, `midi_note_duration_q100`
-
 ### Pitch axis C1-B6:
 
 ```bash

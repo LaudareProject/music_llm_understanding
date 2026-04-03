@@ -30,39 +30,18 @@ RUN_SPECS = [
     {
         "script": "run_base.py",
         "anchor": "first_vs_last",
-        "hann": False,
         "label": "first_last",
     },
     {
         "script": "run_random_median.py",
         "anchor": "random_median",
-        "hann": False,
         "label": "random",
     },
     {
         "script": "run_best_pairs.py",
         "anchor": "best_pairs",
-        "hann": False,
         "label": "pairs",
     },
-    # {
-    #     "script": "run_hann.py",
-    #     "anchor": "first_vs_last",
-    #     "hann": True,
-    #     "label": "first_last+hann",
-    # },
-    # {
-    #     "script": "run_random_median_hann.py",
-    #     "anchor": "random_median",
-    #     "hann": True,
-    #     "label": "random+hann",
-    # },
-    # {
-    #     "script": "run_best_pairs_hann.py",
-    #     "anchor": "best_pairs",
-    #     "hann": True,
-    #     "label": "pairs+hann",
-    # },
 ]
 
 
@@ -71,16 +50,14 @@ def load_mode_result(spec, output_dir):
     return {**spec, "output_dir": output_dir, "rows": rows}
 
 
-def mode_score(rows, dataset, combo, use_hann_selection):
-    key = "hann_score" if use_hann_selection else "l1"
-    sign = 1.0 if use_hann_selection else -1.0
+def mode_score(rows, dataset, combo):
     values = [
-        sign * to_float(row[key])
+        -to_float(row["l1"])
         for row in rows
         if row["dataset"] == dataset
         and row["combo"] == combo
         and row["mapping"] in MAPPINGS[1:]
-        and not np.isnan(to_float(row[key]))
+        and not np.isnan(to_float(row["l1"]))
     ]
     return max(values) if values else float("-inf")
 
@@ -101,9 +78,7 @@ def best_rows_by_dataset(mode_result):
             continue
         best_combo = max(
             available,
-            key=lambda combo: mode_score(
-                mode_result["rows"], dataset, combo, mode_result["hann"]
-            ),
+            key=lambda combo: mode_score(mode_result["rows"], dataset, combo),
         )
         result[dataset] = {
             mapping: next(
@@ -145,63 +120,51 @@ def best_value(rows, metric_name, maximize):
 
 
 def dataset_mapping_image_matrix(mode_results):
-    columns = [f"{mapping}" for mapping in MAPPINGS] + [
-        f"{mapping}+hann" for mapping in MAPPINGS
-    ]
+    columns = [f"{mapping}" for mapping in MAPPINGS]
     images = []
     texts = []
     for dataset in DATASETS:
         row_images = []
         row_texts = []
-        for hann_mode in [False, True]:
-            relevant_results = [
-                mode for mode in mode_results if mode["hann"] == hann_mode
-            ]
-            for mapping in MAPPINGS:
-                candidates = []
-                for mode in relevant_results:
-                    dataset_rows = mode["best_rows_by_dataset"].get(dataset)
-                    if dataset_rows is None:
-                        continue
-                    row = dataset_rows[mapping]
-                    if not np.isnan(row_l1(row)):
-                        candidates.append((-row_l1(row), mode))
-                best_mode = (
-                    max(candidates, key=lambda item: item[0])[1] if candidates else None
-                )
-                row_images.append(
-                    None
-                    if best_mode is None
-                    else best_mode["output_dir"] / f"scatter_{dataset}_{mapping}.png"
-                )
-                row_texts.append(
-                    ""
-                    if best_mode is None
-                    else cell_label(best_mode["best_rows_by_dataset"][dataset][mapping])
-                )
+        for mapping in MAPPINGS:
+            candidates = []
+            for mode in mode_results:
+                dataset_rows = mode["best_rows_by_dataset"].get(dataset)
+                if dataset_rows is None:
+                    continue
+                row = dataset_rows[mapping]
+                if not np.isnan(row_l1(row)):
+                    candidates.append((-row_l1(row), mode))
+            best_mode = (
+                max(candidates, key=lambda item: item[0])[1] if candidates else None
+            )
+            row_images.append(
+                None
+                if best_mode is None
+                else best_mode["output_dir"] / f"scatter_{dataset}_{mapping}.png"
+            )
+            row_texts.append(
+                ""
+                if best_mode is None
+                else cell_label(best_mode["best_rows_by_dataset"][dataset][mapping])
+            )
         images.append(row_images)
         texts.append(row_texts)
     return columns, images, texts
 
 
 def dataset_mapping_value_matrix(mode_results, metric_name, maximize):
-    columns = [f"{mapping}" for mapping in MAPPINGS] + [
-        f"{mapping}+hann" for mapping in MAPPINGS
-    ]
+    columns = [f"{mapping}" for mapping in MAPPINGS]
     values = []
     for dataset in DATASETS:
         row_values = []
-        for hann_mode in [False, True]:
-            relevant_results = [
-                mode for mode in mode_results if mode["hann"] == hann_mode
-            ]
-            for mapping in MAPPINGS:
-                candidates = []
-                for mode in relevant_results:
-                    dataset_rows = mode["best_rows_by_dataset"].get(dataset)
-                    if dataset_rows is not None:
-                        candidates.append(dataset_rows[mapping])
-                row_values.append(best_value(candidates, metric_name, maximize))
+        for mapping in MAPPINGS:
+            candidates = []
+            for mode in mode_results:
+                dataset_rows = mode["best_rows_by_dataset"].get(dataset)
+                if dataset_rows is not None:
+                    candidates.append(dataset_rows[mapping])
+            row_values.append(best_value(candidates, metric_name, maximize))
         values.append(row_values)
     return columns, np.asarray(values, dtype=np.float64)
 

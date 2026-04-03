@@ -8,4 +8,4 @@ from experiments.composer_axis.run_base import main
 
 
 if __name__ == "__main__":
-    main(use_hann_selection=False, anchor_selection_method="random_median")
+    main(anchor_selection_method="random_median")

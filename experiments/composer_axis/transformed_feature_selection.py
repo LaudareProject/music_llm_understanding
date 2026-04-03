@@ -25,7 +25,6 @@ from experiments.common.math1d import (
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
-    hann_density,
     l1,
     project_1d,
     spearman,
@@ -94,13 +93,7 @@ def dataset_index_sets(rows, query_to_index, dataset_name):
     real = np.asarray(
         [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
     )
-    birth_years = np.asarray(
-        [float(row["birth_year"]) for row in eval_rows], dtype=np.float64
-    )
-    death_years = np.asarray(
-        [float(row["death_year"]) for row in eval_rows], dtype=np.float64
-    )
-    return anchor_a_idx, anchor_b_idx, eval_idx, real, birth_years, death_years
+    return anchor_a_idx, anchor_b_idx, eval_idx, real
 
 
 def score_one_dataset(
@@ -109,8 +102,6 @@ def score_one_dataset(
     anchor_b_idx,
     eval_idx,
     real,
-    birth_years,
-    death_years,
     mapping_name,
 ):
     raw_proj = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
@@ -123,10 +114,10 @@ def score_one_dataset(
         "exp_linear": fit_exp_linear,
     }[mapping_name]
     predicted = fit_fn(raw_proj, real)
-    value = hann_density(predicted, birth_years, death_years)
+    value = l1(real, predicted)
     if np.isnan(value):
         return None
-    return value
+    return -value
 
 
 def combo_score(transformed, rows, query_to_index, mapping_name):
@@ -138,15 +129,13 @@ def combo_score(transformed, rows, query_to_index, mapping_name):
             index_sets[ds] = result
 
     scores = []
-    for ds, (aa, ab, ei, real, birth_years, death_years) in index_sets.items():
+    for ds, (aa, ab, ei, real) in index_sets.items():
         sc = score_one_dataset(
             transformed,
             aa,
             ab,
             ei,
             real,
-            birth_years,
-            death_years,
             mapping_name,
         )
         if sc is not None:

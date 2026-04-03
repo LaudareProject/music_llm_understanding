@@ -9,19 +9,15 @@ from experiments.common.embed_aria import encode_midi
 from experiments.common.folder_handling import create_folder
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.math1d import (
-    _hann_weights,
     cross_validated_mapping_summary,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
-    hann_density,
     l1,
     pearson,
     project_1d,
     random_l1_baseline,
     spearman,
-    weighted_pearson,
-    weighted_spearman,
 )
 from experiments.common.plots import save_grouped_bar_chart, save_scatter
 from experiments.common.run_helpers import (
@@ -68,29 +64,25 @@ def load_or_compute_embedding(query_id, midi_path):
     return embedding
 
 
-def combo_selection_score(payload, use_hann_selection):
-    key = "hann_score" if use_hann_selection else "l1"
-    sign = 1.0 if use_hann_selection else -1.0
+def combo_selection_score(payload):
     scores = []
     for mapping_name in MAPPINGS[1:]:
         values = [
-            payload[dataset][mapping_name][key]
+            payload[dataset][mapping_name]["l1"]
             for dataset in DATASETS
             if payload[dataset] is not None
-            and not np.isnan(payload[dataset][mapping_name][key])
+            and not np.isnan(payload[dataset][mapping_name]["l1"])
         ]
         if values:
-            scores.append(sign * float(np.mean(values)))
+            scores.append(-float(np.mean(values)))
     return max(scores) if scores else float("-inf")
 
 
-def dataset_combo_selection_score(dataset_payload, use_hann_selection):
-    key = "hann_score" if use_hann_selection else "l1"
-    sign = 1.0 if use_hann_selection else -1.0
+def dataset_combo_selection_score(dataset_payload):
     scores = [
-        sign * dataset_payload[mapping_name][key]
+        -dataset_payload[mapping_name]["l1"]
         for mapping_name in MAPPINGS[1:]
-        if not np.isnan(dataset_payload[mapping_name][key])
+        if not np.isnan(dataset_payload[mapping_name]["l1"])
     ]
     return max(scores) if scores else float("-inf")
 
@@ -143,12 +135,6 @@ def evaluate_dataset(
         [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
     )
     raw_projection = project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx)
-    birth_years = np.asarray(
-        [float(row["birth_year"]) for row in eval_rows], dtype=np.float64
-    )
-    death_years = np.asarray(
-        [float(row["death_year"]) for row in eval_rows], dtype=np.float64
-    )
     anchors_a = np.asarray(
         [
             float(row["midpoint_year"])
@@ -175,27 +161,6 @@ def evaluate_dataset(
             real,
             cv_groups,
             mapping_name,
-            extra_metric_fns={
-                "hann_pearson": lambda test_idx, predicted: weighted_pearson(
-                    real[test_idx],
-                    predicted,
-                    _hann_weights(
-                        predicted, birth_years[test_idx], death_years[test_idx]
-                    ),
-                ),
-                "hann_spearman": lambda test_idx, predicted: weighted_spearman(
-                    real[test_idx],
-                    predicted,
-                    _hann_weights(
-                        predicted, birth_years[test_idx], death_years[test_idx]
-                    ),
-                ),
-                "hann_score": lambda test_idx, predicted: hann_density(
-                    predicted,
-                    birth_years[test_idx],
-                    death_years[test_idx],
-                ),
-            },
         )
         predicted = np.asarray(summary["predicted"], dtype=np.float64)
         payload[mapping_name] = {
@@ -207,12 +172,6 @@ def evaluate_dataset(
             "pearson_ci95": summary["pearson_ci95"],
             "spearman": summary["spearman"],
             "spearman_ci95": summary["spearman_ci95"],
-            "hann_pearson": summary["hann_pearson"],
-            "hann_pearson_ci95": summary["hann_pearson_ci95"],
-            "hann_spearman": summary["hann_spearman"],
-            "hann_spearman_ci95": summary["hann_spearman_ci95"],
-            "hann_score": summary["hann_score"],
-            "hann_score_ci95": summary["hann_score_ci95"],
             "l1": summary["l1"],
             "l1_ci95": summary["l1_ci95"],
             "random": baseline_l1,
@@ -241,12 +200,6 @@ def metric_rows_for_combo(combo_name, payload):
                     "pearson_ci95": metrics["pearson_ci95"],
                     "spearman": metrics["spearman"],
                     "spearman_ci95": metrics["spearman_ci95"],
-                    "hann_pearson": metrics["hann_pearson"],
-                    "hann_pearson_ci95": metrics["hann_pearson_ci95"],
-                    "hann_spearman": metrics["hann_spearman"],
-                    "hann_spearman_ci95": metrics["hann_spearman_ci95"],
-                    "hann_score": metrics["hann_score"],
-                    "hann_score_ci95": metrics["hann_score_ci95"],
                     "l1": metrics["l1"],
                     "l1_ci95": metrics["l1_ci95"],
                     "random": metrics["random"],
@@ -260,7 +213,6 @@ def metric_rows_for_combo(combo_name, payload):
 def combo_score_row(combo_name, payload):
     raw_scores = []
     mapped_l1_values = []
-    hann_score_values = []
     random_values = []
     for dataset in DATASETS:
         if payload[dataset] is None:
@@ -271,8 +223,6 @@ def combo_score_row(combo_name, payload):
             metrics = payload[dataset][mapping_name]
             if not np.isnan(metrics["l1"]):
                 mapped_l1_values.append(metrics["l1"])
-            if not np.isnan(metrics["hann_score"]):
-                hann_score_values.append(metrics["hann_score"])
     return {
         "combo": combo_name,
         "raw_spearman_abs_mean": float(np.mean(raw_scores))
@@ -280,9 +230,6 @@ def combo_score_row(combo_name, payload):
         else float("-inf"),
         "mapped_l1_mean": float(np.mean(mapped_l1_values))
         if mapped_l1_values
-        else float("nan"),
-        "mapped_hann_score_mean": float(np.mean(hann_score_values))
-        if hann_score_values
         else float("nan"),
         "random": float(np.mean(random_values)) if random_values else float("nan"),
     }
@@ -326,8 +273,7 @@ def scatter_title(dataset, combo_name, mapping_name, metrics):
     if mapping_name != "raw":
         title += (
             f"\nl1={metrics['l1']:.2f}+/-{metrics['l1_ci95']:.2f}, "
-            f"random={metrics['random']:.2f}, "
-            f"hann={metrics['hann_score']:.3f}+/-{metrics['hann_score_ci95']:.3f}"
+            f"random={metrics['random']:.2f}"
         )
     return title
 
@@ -339,7 +285,6 @@ def write_outputs(
     metric_rows,
     combo_scores,
     payloads_by_combo,
-    use_hann_selection,
 ):
     save_year_source_histograms(output_dir, rows)
     write_tsv(
@@ -361,24 +306,6 @@ def write_outputs(
                 "spearman_ci95": f"{row['spearman_ci95']:.10f}"
                 if not np.isnan(row["spearman_ci95"])
                 else "nan",
-                "hann_pearson": f"{row['hann_pearson']:.10f}"
-                if not np.isnan(row["hann_pearson"])
-                else "nan",
-                "hann_pearson_ci95": f"{row['hann_pearson_ci95']:.10f}"
-                if not np.isnan(row["hann_pearson_ci95"])
-                else "nan",
-                "hann_spearman": f"{row['hann_spearman']:.10f}"
-                if not np.isnan(row["hann_spearman"])
-                else "nan",
-                "hann_spearman_ci95": f"{row['hann_spearman_ci95']:.10f}"
-                if not np.isnan(row["hann_spearman_ci95"])
-                else "nan",
-                "hann_score": f"{row['hann_score']:.10f}"
-                if not np.isnan(row["hann_score"])
-                else "nan",
-                "hann_score_ci95": f"{row['hann_score_ci95']:.10f}"
-                if not np.isnan(row["hann_score_ci95"])
-                else "nan",
                 "l1": f"{row['l1']:.10f}" if not np.isnan(row["l1"]) else "nan",
                 "l1_ci95": f"{row['l1_ci95']:.10f}"
                 if not np.isnan(row["l1_ci95"])
@@ -399,12 +326,6 @@ def write_outputs(
             "pearson_ci95",
             "spearman",
             "spearman_ci95",
-            "hann_pearson",
-            "hann_pearson_ci95",
-            "hann_spearman",
-            "hann_spearman_ci95",
-            "hann_score",
-            "hann_score_ci95",
             "l1",
             "l1_ci95",
             "random",
@@ -423,9 +344,6 @@ def write_outputs(
                 "mapped_l1_mean": f"{row['mapped_l1_mean']:.10f}"
                 if not np.isnan(row["mapped_l1_mean"])
                 else "nan",
-                "mapped_hann_score_mean": f"{row['mapped_hann_score_mean']:.10f}"
-                if not np.isnan(row["mapped_hann_score_mean"])
-                else "nan",
                 "random": f"{row['random']:.10f}"
                 if not np.isnan(row["random"])
                 else "nan",
@@ -436,7 +354,6 @@ def write_outputs(
             "combo",
             "raw_spearman_abs_mean",
             "mapped_l1_mean",
-            "mapped_hann_score_mean",
             "random",
         ],
     )
@@ -471,33 +388,6 @@ def write_outputs(
         column_specs,
         "l1",
         "Composer chronology L1",
-    )
-    save_metric_table(
-        output_dir / "hann_pearson_table.png",
-        combos,
-        metric_rows,
-        ["combo", "dataset", "mapping"],
-        column_specs,
-        "hann_pearson",
-        "Composer chronology Hann-weighted Pearson",
-    )
-    save_metric_table(
-        output_dir / "hann_spearman_table.png",
-        combos,
-        metric_rows,
-        ["combo", "dataset", "mapping"],
-        column_specs,
-        "hann_spearman",
-        "Composer chronology Hann-weighted Spearman",
-    )
-    save_metric_table(
-        output_dir / "hann_score_table.png",
-        combos,
-        metric_rows,
-        ["combo", "dataset", "mapping"],
-        column_specs,
-        "hann_score",
-        "Composer chronology Hann overlap score",
     )
 
     scatter_dir = output_dir / "scatters_by_combo"
@@ -534,7 +424,7 @@ def write_outputs(
             continue
         combo_name, dataset_payload = max(
             candidates,
-            key=lambda item: dataset_combo_selection_score(item[1], use_hann_selection),
+            key=lambda item: dataset_combo_selection_score(item[1]),
         )
         best_by_dataset[dataset] = {"combo": combo_name, "payload": dataset_payload}
 
@@ -580,7 +470,7 @@ def write_outputs(
     )
 
 
-def main(use_hann_selection=False, anchor_selection_method="first_vs_last"):
+def main(anchor_selection_method="first_vs_last"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
     anchor_n = int(os.environ.get("ANCHOR_N", "10").strip() or "10")
     feature_cols = parse_feature_cols_env()
@@ -594,7 +484,6 @@ def main(use_hann_selection=False, anchor_selection_method="first_vs_last"):
             "feature_selection_cols": feature_cols,
             "anchor_selection": anchor_selection_method,
             "anchor_n": anchor_n,
-            "use_hann_selection": use_hann_selection,
         },
     )
     rows, midi_paths = prepare_rows(output_dir)
@@ -651,7 +540,6 @@ def main(use_hann_selection=False, anchor_selection_method="first_vs_last"):
         metric_rows,
         combo_scores,
         payloads_by_combo,
-        use_hann_selection,
     )
     print("[5/5] done")
     print(output_dir)

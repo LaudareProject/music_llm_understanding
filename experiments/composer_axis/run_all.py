@@ -16,6 +16,8 @@ from experiments.common.plots import (
     save_multi_line_grid_chart,
     save_stacked_bar_chart,
 )
+from experiments.common.math1d import pearson, spearman
+from experiments.common.tsv import write_tsv
 
 import numpy as np
 
@@ -27,6 +29,21 @@ DATASETS = ["asap", "music21", "ewld", "overall"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 BASE_ANCHOR_N = 10
 ANCHOR_N_SWEEP = [1, 2, 4, 8, 16, 32]
+COMPOSER_COVARIATE_COLUMNS = [
+    "midi_note_count",
+    "midi_duration_seconds",
+    "midi_track_count",
+    "midi_pitch_q0",
+    "midi_pitch_q25",
+    "midi_pitch_q50",
+    "midi_pitch_q75",
+    "midi_pitch_q100",
+    "midi_note_duration_q0",
+    "midi_note_duration_q25",
+    "midi_note_duration_q50",
+    "midi_note_duration_q75",
+    "midi_note_duration_q100",
+]
 
 RUN_SPECS = [
     {
@@ -358,6 +375,122 @@ def anchor_n_curves_for_dataset(
     return series
 
 
+def best_combo_mapping_anchor_by_dataset(mode_results_by_n):
+    best_by_dataset = {}
+    for dataset in DATASETS:
+        candidates = []
+        for anchor_n in ANCHOR_N_SWEEP:
+            for mode in mode_results_by_n[anchor_n]:
+                for row in mode["rows"]:
+                    if row["dataset"] != dataset or row["mapping"] == "raw":
+                        continue
+                    l1_value = row_l1(row)
+                    if np.isnan(l1_value):
+                        continue
+                    candidates.append((l1_value, anchor_n, mode, row))
+        if not candidates:
+            continue
+        l1_value, anchor_n, mode, row = min(candidates, key=lambda item: item[0])
+        best_by_dataset[dataset] = {
+            "anchor_n": anchor_n,
+            "anchor": mode["anchor"],
+            "combo": row["combo"],
+            "mapping": row["mapping"],
+            "l1": l1_value,
+            "mode_output_dir": mode["output_dir"],
+        }
+    return best_by_dataset
+
+
+def covariate_correlation_matrices(output_dir, mode_results_by_n):
+    songs = read_tsv(SONGS_TSV)
+    song_by_query_id = {row["query_id"]: row for row in songs}
+    best_by_dataset = best_combo_mapping_anchor_by_dataset(mode_results_by_n)
+    pearson_values = []
+    spearman_values = []
+    table_rows = []
+
+    for dataset in DATASETS:
+        best = best_by_dataset.get(dataset)
+        if best is None:
+            pearson_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            spearman_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            continue
+        projection_rows = read_tsv(best["mode_output_dir"] / "projections.tsv")
+        selected = [
+            row
+            for row in projection_rows
+            if row["dataset"] == dataset
+            and row["mapping"] == best["mapping"]
+            and row["combo"] == best["combo"]
+        ]
+        predicted = np.asarray([to_float(row["predicted"]) for row in selected])
+        dataset_pearson = []
+        dataset_spearman = []
+        for covariate in COMPOSER_COVARIATE_COLUMNS:
+            covariate_values = np.asarray(
+                [
+                    to_float(song_by_query_id[row["query_id"]].get(covariate, "nan"))
+                    for row in selected
+                ],
+                dtype=np.float64,
+            )
+            mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
+            p_value = pearson(predicted[mask], covariate_values[mask])
+            s_value = spearman(predicted[mask], covariate_values[mask])
+            dataset_pearson.append(p_value)
+            dataset_spearman.append(s_value)
+            table_rows.append(
+                {
+                    "dataset": dataset,
+                    "anchor": best["anchor"],
+                    "anchor_n": best["anchor_n"],
+                    "combo": best["combo"],
+                    "mapping": best["mapping"],
+                    "l1": f"{best['l1']:.10f}",
+                    "covariate": covariate,
+                    "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
+                    "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
+                    "count": int(np.sum(mask)),
+                }
+            )
+        pearson_values.append(dataset_pearson)
+        spearman_values.append(dataset_spearman)
+
+    write_tsv(
+        output_dir / "best_strategy_covariate_correlations.tsv",
+        table_rows,
+        [
+            "dataset",
+            "anchor",
+            "anchor_n",
+            "combo",
+            "mapping",
+            "l1",
+            "covariate",
+            "pearson",
+            "spearman",
+            "count",
+        ],
+    )
+    save_heatmap(
+        output_dir / "best_strategy_covariate_pearson_heatmap.png",
+        DATASETS,
+        COMPOSER_COVARIATE_COLUMNS,
+        np.asarray(pearson_values, dtype=np.float64),
+        "Composer best combo/mapping/anchor x covariates | Pearson",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "best_strategy_covariate_spearman_heatmap.png",
+        DATASETS,
+        COMPOSER_COVARIATE_COLUMNS,
+        np.asarray(spearman_values, dtype=np.float64),
+        "Composer best combo/mapping/anchor x covariates | Spearman",
+        cmap="coolwarm",
+    )
+
+
 def year_source_group(source):
     if source.startswith("imslp_"):
         return "imslp"
@@ -567,6 +700,7 @@ def main():
             xlabel="Anchor n",
             ylabel="Spearman",
         )
+    covariate_correlation_matrices(output_dir, mode_results_by_n)
     print(output_dir)
 
 

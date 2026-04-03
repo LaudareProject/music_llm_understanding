@@ -12,10 +12,12 @@ import time
 import unicodedata
 from urllib import parse, request
 
+import mido
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.tsv import write_tsv
 
 
@@ -28,6 +30,8 @@ LIFESPANS_CSV = REPO_ROOT / "data" / "composer_lifespans.csv"
 OUTPUT_TSV = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 DATE_CACHE_PATH = CACHE_DIR / "prepare_tsv_date_cache.json"
+BIN_DIR = REPO_ROOT / "bin"
+FEATURES_MIDI_DIR = CACHE_DIR / "prepare_tsv_midi"
 MIN_SONGS_PER_COMPOSER = 4
 MAX_SONGS_PER_COMPOSER = 8
 SEED = 42
@@ -746,27 +750,137 @@ def assign_query_ids(records):
         )
 
 
+def quantiles5(values):
+    if not values:
+        return [float("nan")] * 5
+    return [
+        float(v)
+        for v in np.quantile(
+            np.asarray(values, dtype=np.float64), [0, 0.25, 0.5, 0.75, 1.0]
+        )
+    ]
+
+
+def prepare_feature_midi(row, midi_dir):
+    source_path = (REPO_ROOT / row["path"]).resolve()
+    midi_path = midi_dir / f"{row['query_id']}.mid"
+    if row["input_kind"] == "midi":
+        return source_path
+    if row["input_kind"] == "musicxml":
+        musicxml_to_midi(source_path, midi_path, BIN_DIR)
+        return midi_path
+    if row["input_kind"] == "kern":
+        kern_to_midi(source_path, midi_path, BIN_DIR)
+        return midi_path
+    raise ValueError(row["input_kind"])
+
+
+def midi_covariates(midi_path):
+    midi = mido.MidiFile(str(midi_path))
+    note_pitches = []
+    note_durations = []
+    active_notes = defaultdict(list)
+    tempo = 500000
+    elapsed_seconds = 0.0
+    for msg in mido.merge_tracks(midi.tracks):
+        if msg.time:
+            elapsed_seconds += mido.tick2second(msg.time, midi.ticks_per_beat, tempo)
+        if msg.type == "set_tempo":
+            tempo = msg.tempo
+            continue
+        if msg.type not in {"note_on", "note_off"}:
+            continue
+        channel = getattr(msg, "channel", 0)
+        note_key = (channel, msg.note)
+        if msg.type == "note_on" and msg.velocity > 0:
+            note_pitches.append(float(msg.note))
+            active_notes[note_key].append(elapsed_seconds)
+            continue
+        if active_notes[note_key]:
+            start_time = active_notes[note_key].pop()
+            note_durations.append(max(0.0, elapsed_seconds - start_time))
+    pitch_q = quantiles5(note_pitches)
+    duration_q = quantiles5(note_durations)
+    return {
+        "midi_note_count": len(note_pitches),
+        "midi_duration_seconds": float(midi.length),
+        "midi_track_count": len(midi.tracks),
+        "pitch_q0": pitch_q[0],
+        "pitch_q25": pitch_q[1],
+        "pitch_q50": pitch_q[2],
+        "pitch_q75": pitch_q[3],
+        "pitch_q100": pitch_q[4],
+        "note_duration_q0": duration_q[0],
+        "note_duration_q25": duration_q[1],
+        "note_duration_q50": duration_q[2],
+        "note_duration_q75": duration_q[3],
+        "note_duration_q100": duration_q[4],
+    }
+
+
+def assign_midi_covariates(records):
+    FEATURES_MIDI_DIR.mkdir(parents=True, exist_ok=True)
+    for row in records:
+        try:
+            midi_path = prepare_feature_midi(row, FEATURES_MIDI_DIR)
+            stats = midi_covariates(midi_path)
+        except Exception as exc:
+            print(f"  midi covariates failed for {row['query_id']}: {exc}")
+            stats = {
+                "midi_note_count": float("nan"),
+                "midi_duration_seconds": float("nan"),
+                "midi_track_count": float("nan"),
+                "pitch_q0": float("nan"),
+                "pitch_q25": float("nan"),
+                "pitch_q50": float("nan"),
+                "pitch_q75": float("nan"),
+                "pitch_q100": float("nan"),
+                "note_duration_q0": float("nan"),
+                "note_duration_q25": float("nan"),
+                "note_duration_q50": float("nan"),
+                "note_duration_q75": float("nan"),
+                "note_duration_q100": float("nan"),
+            }
+        row.update(stats)
+
+
+def format_float(value):
+    number = float(value)
+    if np.isnan(number):
+        return "nan"
+    return f"{number:.6f}"
+
+
+def format_int(value):
+    number = float(value)
+    if np.isnan(number):
+        return "nan"
+    return str(int(number))
+
+
 def main():
     rng = random.Random(SEED)
-    print("[1/5] collecting datasets")
+    print("[1/6] collecting datasets")
     lifespans = load_lifespans()
     ensure_asap_dataset()
     asap_rows, missing_asap = collect_asap(lifespans, rng)
     music21_rows, missing_music21 = collect_music21(lifespans, rng)
     ewld_rows, missing_ewld = collect_ewld(lifespans, rng)
 
-    print("[2/5] filtering composers")
+    print("[2/6] filtering composers")
     by_dataset = {
         "asap": keep_composers_with_enough_songs(asap_rows),
         "music21": keep_composers_with_enough_songs(music21_rows),
         "ewld": keep_composers_with_enough_songs(ewld_rows),
     }
     rows = by_dataset["asap"] + by_dataset["music21"] + by_dataset["ewld"]
-    print("[2.5/5] assigning work years")
+    print("[3/6] assigning work years")
     assign_work_years(rows)
     assign_query_ids(rows)
+    print("[4/6] computing midi covariates")
+    assign_midi_covariates(rows)
 
-    print("[3/5] writing tsv")
+    print("[5/6] writing tsv")
     out_rows = []
     for row in sorted(rows, key=lambda row: row["query_id"]):
         out_rows.append(
@@ -781,6 +895,19 @@ def main():
                 "year_source": row["year_source"],
                 "input_kind": row["input_kind"],
                 "path": row["path"],
+                "midi_note_count": format_int(row["midi_note_count"]),
+                "midi_duration_seconds": format_float(row["midi_duration_seconds"]),
+                "midi_track_count": format_int(row["midi_track_count"]),
+                "midi_pitch_q0": format_float(row["pitch_q0"]),
+                "midi_pitch_q25": format_float(row["pitch_q25"]),
+                "midi_pitch_q50": format_float(row["pitch_q50"]),
+                "midi_pitch_q75": format_float(row["pitch_q75"]),
+                "midi_pitch_q100": format_float(row["pitch_q100"]),
+                "midi_note_duration_q0": format_float(row["note_duration_q0"]),
+                "midi_note_duration_q25": format_float(row["note_duration_q25"]),
+                "midi_note_duration_q50": format_float(row["note_duration_q50"]),
+                "midi_note_duration_q75": format_float(row["note_duration_q75"]),
+                "midi_note_duration_q100": format_float(row["note_duration_q100"]),
             }
         )
     write_tsv(
@@ -797,10 +924,23 @@ def main():
             "year_source",
             "input_kind",
             "path",
+            "midi_note_count",
+            "midi_duration_seconds",
+            "midi_track_count",
+            "midi_pitch_q0",
+            "midi_pitch_q25",
+            "midi_pitch_q50",
+            "midi_pitch_q75",
+            "midi_pitch_q100",
+            "midi_note_duration_q0",
+            "midi_note_duration_q25",
+            "midi_note_duration_q50",
+            "midi_note_duration_q75",
+            "midi_note_duration_q100",
         ],
     )
 
-    print("[4/5] done")
+    print("[6/6] done")
     print(f"wrote {OUTPUT_TSV}")
     print(
         {dataset: len(by_dataset[dataset]) for dataset in ["asap", "music21", "ewld"]}

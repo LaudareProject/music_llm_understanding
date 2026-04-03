@@ -340,7 +340,7 @@ def cross_validated_mapping_summary(
         "model": averaged_model,
         "predicted": np.asarray(full_predicted, dtype=np.float64),
         "groupkfold_predicted": oof_predicted,
-        "lolo_predicted": oof_predicted,
+        "oof_predicted": oof_predicted,
         "fold_count": len(fold_metrics["spearman"]),
     }
     for name, values in fold_metrics.items():

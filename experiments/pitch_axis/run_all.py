@@ -15,16 +15,20 @@ from experiments.common.plots import (
     save_image_matrix,
     save_multi_line_grid_chart,
 )
+from experiments.common.math1d import pearson, spearman
+from experiments.common.tsv import write_tsv
 
 import numpy as np
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
+NOTES_TSV = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 DATASETS = ["pitch"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 BASE_ANCHOR_N = 10
 ANCHOR_N_SWEEP = [1, 2, 4, 8, 16, 32]
+PITCH_COVARIATE_COLUMNS = ["duration_ticks", "velocity"]
 
 RUN_SPECS = [
     {"script": "run_base.py", "anchor": "first_vs_last", "label": "first_last"},
@@ -289,6 +293,113 @@ def anchor_n_curves(target_combo, target_mapping, mode_results_by_n, metric_name
     return series
 
 
+def best_combo_mapping_anchor(mode_results_by_n):
+    candidates = []
+    for anchor_n in ANCHOR_N_SWEEP:
+        for mode in mode_results_by_n[anchor_n]:
+            for row in mode["rows"]:
+                if row["mapping"] == "raw":
+                    continue
+                l1_value = row_l1(row)
+                if np.isnan(l1_value):
+                    continue
+                candidates.append((l1_value, anchor_n, mode, row))
+    if not candidates:
+        return None
+    l1_value, anchor_n, mode, row = min(candidates, key=lambda item: item[0])
+    return {
+        "anchor_n": anchor_n,
+        "anchor": mode["anchor"],
+        "combo": row["combo"],
+        "mapping": row["mapping"],
+        "l1": l1_value,
+        "mode_output_dir": mode["output_dir"],
+    }
+
+
+def covariate_correlation_matrices(output_dir, mode_results_by_n):
+    best = best_combo_mapping_anchor(mode_results_by_n)
+    if best is None:
+        return
+    notes = read_tsv(NOTES_TSV)
+    note_by_query_id = {row["query_id"]: row for row in notes}
+    projection_rows = read_tsv(best["mode_output_dir"] / "projections.tsv")
+    selected = [
+        row
+        for row in projection_rows
+        if row["dataset"] == "pitch"
+        and row["mapping"] == best["mapping"]
+        and row["combo"] == best["combo"]
+    ]
+    predicted = np.asarray(
+        [to_float(row["predicted"]) for row in selected], dtype=np.float64
+    )
+
+    pearson_row = []
+    spearman_row = []
+    table_rows = []
+    for covariate in PITCH_COVARIATE_COLUMNS:
+        covariate_values = np.asarray(
+            [
+                to_float(note_by_query_id[row["query_id"]].get(covariate, "nan"))
+                for row in selected
+            ],
+            dtype=np.float64,
+        )
+        mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
+        p_value = pearson(predicted[mask], covariate_values[mask])
+        s_value = spearman(predicted[mask], covariate_values[mask])
+        pearson_row.append(p_value)
+        spearman_row.append(s_value)
+        table_rows.append(
+            {
+                "dataset": "pitch",
+                "anchor": best["anchor"],
+                "anchor_n": best["anchor_n"],
+                "combo": best["combo"],
+                "mapping": best["mapping"],
+                "l1": f"{best['l1']:.10f}",
+                "covariate": covariate,
+                "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
+                "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
+                "count": int(np.sum(mask)),
+            }
+        )
+
+    write_tsv(
+        output_dir / "best_strategy_covariate_correlations.tsv",
+        table_rows,
+        [
+            "dataset",
+            "anchor",
+            "anchor_n",
+            "combo",
+            "mapping",
+            "l1",
+            "covariate",
+            "pearson",
+            "spearman",
+            "count",
+        ],
+    )
+    save_heatmap(
+        output_dir / "best_strategy_covariate_pearson_heatmap.png",
+        DATASETS,
+        PITCH_COVARIATE_COLUMNS,
+        np.asarray([pearson_row], dtype=np.float64),
+        "Pitch best combo/mapping/anchor x covariates | Pearson",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "best_strategy_covariate_spearman_heatmap.png",
+        DATASETS,
+        PITCH_COVARIATE_COLUMNS,
+        np.asarray([spearman_row], dtype=np.float64),
+        "Pitch best combo/mapping/anchor x covariates | Spearman",
+        cmap="coolwarm",
+    )
+
+
 def main():
     output_dir = create_folder(
         OUTPUT_ROOT,
@@ -440,6 +551,7 @@ def main():
             xlabel="Anchor n",
             ylabel="Spearman",
         )
+    covariate_correlation_matrices(output_dir, mode_results_by_n)
     print(output_dir)
 
 

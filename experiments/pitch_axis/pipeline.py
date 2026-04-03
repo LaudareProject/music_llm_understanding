@@ -22,6 +22,7 @@ from experiments.common.math1d import (
     spearman,
 )
 from experiments.common.plots import save_scatter
+from experiments.common.plots import save_heatmap
 from experiments.common.run_helpers import (
     feature_selection_space_env,
     parse_feature_cols_env,
@@ -38,6 +39,7 @@ OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
 
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
+PITCH_COVARIATE_COLUMNS = ["duration_ticks", "velocity"]
 BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
 VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
 if BEST_METRIC not in VALID_BEST_METRICS:
@@ -54,6 +56,19 @@ def metric_value(metrics, metric_name):
     if metric_name == "r2":
         return float(metrics["r2"])
     raise ValueError(metric_name)
+
+
+def best_mapping_name(metrics_by_mapping, metric_name=BEST_METRIC):
+    candidates = []
+    for mapping_name in MAPPINGS:
+        value = metric_value(metrics_by_mapping[mapping_name], metric_name)
+        if not np.isnan(value):
+            candidates.append((value, mapping_name))
+    if not candidates:
+        return None
+    if metric_name == "l1":
+        return min(candidates, key=lambda item: item[0])[1]
+    return max(candidates, key=lambda item: item[0])[1]
 
 
 def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
@@ -242,6 +257,7 @@ def write_outputs(
     payloads_by_combo,
     best_combo_name,
     best_payload,
+    rows,
 ):
     write_tsv(
         output_dir / "metrics.tsv",
@@ -392,6 +408,72 @@ def write_outputs(
         ["dataset", "combo", "mapping", "query_id", "name", "real", "predicted"],
     )
 
+    query_to_row = {row["query_id"]: row for row in rows}
+    mapping_name = best_mapping_name(best_payload, BEST_METRIC)
+    if mapping_name is not None:
+        metrics = best_payload[mapping_name]
+        predicted = np.asarray(metrics["predicted"], dtype=np.float64)
+        pearson_row = []
+        spearman_row = []
+        covariate_rows = []
+        for covariate in PITCH_COVARIATE_COLUMNS:
+            covariate_values = np.asarray(
+                [
+                    float(query_to_row[query_id].get(covariate, "nan"))
+                    for query_id in metrics["query_ids"]
+                ],
+                dtype=np.float64,
+            )
+            mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
+            p_value = pearson(predicted[mask], covariate_values[mask])
+            s_value = spearman(predicted[mask], covariate_values[mask])
+            pearson_row.append(p_value)
+            spearman_row.append(s_value)
+            covariate_rows.append(
+                {
+                    "dataset": "pitch",
+                    "combo": best_combo_name,
+                    "mapping": mapping_name,
+                    "best_metric_name": BEST_METRIC,
+                    "best_metric": f"{metric_value(metrics, BEST_METRIC):.10f}",
+                    "covariate": covariate,
+                    "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
+                    "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
+                    "count": int(np.sum(mask)),
+                }
+            )
+        write_tsv(
+            output_dir / "covariate_correlations.tsv",
+            covariate_rows,
+            [
+                "dataset",
+                "combo",
+                "mapping",
+                "best_metric_name",
+                "best_metric",
+                "covariate",
+                "pearson",
+                "spearman",
+                "count",
+            ],
+        )
+        save_heatmap(
+            output_dir / "covariate_pearson_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            np.asarray([pearson_row], dtype=np.float64),
+            "Pitch covariates vs mapped projection | Pearson",
+            cmap="coolwarm",
+        )
+        save_heatmap(
+            output_dir / "covariate_spearman_heatmap.png",
+            ["pitch"],
+            PITCH_COVARIATE_COLUMNS,
+            np.asarray([spearman_row], dtype=np.float64),
+            "Pitch covariates vs mapped projection | Spearman",
+            cmap="coolwarm",
+        )
+
 
 def main(anchor_selection_method="first_vs_last"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
@@ -469,6 +551,7 @@ def main(anchor_selection_method="first_vs_last"):
         payloads_by_combo,
         best_combo_name,
         best_payload,
+        rows,
     )
     print("[5/5] done")
     print(output_dir)

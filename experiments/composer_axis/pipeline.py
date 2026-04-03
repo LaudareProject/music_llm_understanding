@@ -22,6 +22,7 @@ from experiments.common.math1d import (
     spearman,
 )
 from experiments.common.plots import save_scatter
+from experiments.common.plots import save_heatmap
 from experiments.common.run_helpers import (
     feature_selection_space_env,
     parse_feature_cols_env,
@@ -40,6 +41,21 @@ BIN_DIR = REPO_ROOT / "bin"
 
 DATASETS = ["asap", "music21", "ewld", "overall"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
+COMPOSER_COVARIATE_COLUMNS = [
+    "midi_note_count",
+    "midi_duration_seconds",
+    "midi_track_count",
+    "midi_pitch_q0",
+    "midi_pitch_q25",
+    "midi_pitch_q50",
+    "midi_pitch_q75",
+    "midi_pitch_q100",
+    "midi_note_duration_q0",
+    "midi_note_duration_q25",
+    "midi_note_duration_q50",
+    "midi_note_duration_q75",
+    "midi_note_duration_q100",
+]
 BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
 VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
 if BEST_METRIC not in VALID_BEST_METRICS:
@@ -66,6 +82,19 @@ def better_score(value, best_value, metric_name):
     if metric_name == "l1":
         return value < best_value
     return value > best_value
+
+
+def best_mapping_name(metrics_by_mapping, metric_name=BEST_METRIC):
+    candidates = []
+    for mapping_name in MAPPINGS:
+        value = metric_value(metrics_by_mapping[mapping_name], metric_name)
+        if not np.isnan(value):
+            candidates.append((value, mapping_name))
+    if not candidates:
+        return None
+    if metric_name == "l1":
+        return min(candidates, key=lambda item: item[0])[1]
+    return max(candidates, key=lambda item: item[0])[1]
 
 
 def prepare_midi(row, midi_dir):
@@ -305,6 +334,7 @@ def write_outputs(
     metric_rows,
     combo_scores,
     payloads_by_combo,
+    rows,
 ):
     write_tsv(
         output_dir / "metrics.tsv",
@@ -505,6 +535,86 @@ def write_outputs(
         ["combo", "dataset", "mapping", "query_id", "composer", "real", "predicted"],
     )
 
+    query_to_row = {row["query_id"]: row for row in rows}
+    covariate_rows = []
+    pearson_values = []
+    spearman_values = []
+    for dataset in DATASETS:
+        best = best_by_dataset.get(dataset)
+        if best is None:
+            pearson_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            spearman_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            continue
+        mapping_name = best_mapping_name(best["payload"], BEST_METRIC)
+        if mapping_name is None:
+            pearson_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            spearman_values.append([float("nan")] * len(COMPOSER_COVARIATE_COLUMNS))
+            continue
+        metrics = best["payload"][mapping_name]
+        predicted = np.asarray(metrics["predicted"], dtype=np.float64)
+        dataset_pearson = []
+        dataset_spearman = []
+        for covariate in COMPOSER_COVARIATE_COLUMNS:
+            covariate_values = np.asarray(
+                [
+                    float(query_to_row[query_id].get(covariate, "nan"))
+                    for query_id in metrics["query_ids"]
+                ],
+                dtype=np.float64,
+            )
+            mask = (~np.isnan(predicted)) & (~np.isnan(covariate_values))
+            p_value = pearson(predicted[mask], covariate_values[mask])
+            s_value = spearman(predicted[mask], covariate_values[mask])
+            dataset_pearson.append(p_value)
+            dataset_spearman.append(s_value)
+            covariate_rows.append(
+                {
+                    "dataset": dataset,
+                    "combo": best["combo"],
+                    "mapping": mapping_name,
+                    "best_metric_name": BEST_METRIC,
+                    "best_metric": f"{metric_value(metrics, BEST_METRIC):.10f}",
+                    "covariate": covariate,
+                    "pearson": "nan" if np.isnan(p_value) else f"{p_value:.10f}",
+                    "spearman": "nan" if np.isnan(s_value) else f"{s_value:.10f}",
+                    "count": int(np.sum(mask)),
+                }
+            )
+        pearson_values.append(dataset_pearson)
+        spearman_values.append(dataset_spearman)
+
+    write_tsv(
+        output_dir / "covariate_correlations.tsv",
+        covariate_rows,
+        [
+            "dataset",
+            "combo",
+            "mapping",
+            "best_metric_name",
+            "best_metric",
+            "covariate",
+            "pearson",
+            "spearman",
+            "count",
+        ],
+    )
+    save_heatmap(
+        output_dir / "covariate_pearson_heatmap.png",
+        DATASETS,
+        COMPOSER_COVARIATE_COLUMNS,
+        np.asarray(pearson_values, dtype=np.float64),
+        "Composer covariates vs mapped projection | Pearson",
+        cmap="coolwarm",
+    )
+    save_heatmap(
+        output_dir / "covariate_spearman_heatmap.png",
+        DATASETS,
+        COMPOSER_COVARIATE_COLUMNS,
+        np.asarray(spearman_values, dtype=np.float64),
+        "Composer covariates vs mapped projection | Spearman",
+        cmap="coolwarm",
+    )
+
 
 def main(anchor_selection_method="first_vs_last"):
     forced_combo_name = os.environ.get("FEATURE_SELECTION_COMBO", "").strip()
@@ -576,6 +686,7 @@ def main(anchor_selection_method="first_vs_last"):
         metric_rows,
         combo_scores,
         payloads_by_combo,
+        rows,
     )
     print("[5/5] done")
     print(output_dir)

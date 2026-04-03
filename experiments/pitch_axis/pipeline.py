@@ -532,7 +532,7 @@ def write_outputs(
             output_dir / "covariate_pearson_fuzzy_masked_heatmap.png",
             ["pitch"],
             PITCH_COVARIATE_COLUMNS,
-            (1.0 - target_pearson_matrix) * projection_pearson_matrix,
+            (1.0 - np.abs(target_pearson_matrix)) * projection_pearson_matrix,
             "Pitch covariates vs projection (fuzzy-masked by pitch) | Pearson",
             cmap="coolwarm",
         )
@@ -540,7 +540,7 @@ def write_outputs(
             output_dir / "covariate_spearman_fuzzy_masked_heatmap.png",
             ["pitch"],
             PITCH_COVARIATE_COLUMNS,
-            (1.0 - target_spearman_matrix) * projection_spearman_matrix,
+            (1.0 - np.abs(target_spearman_matrix)) * projection_spearman_matrix,
             "Pitch covariates vs projection (fuzzy-masked by pitch) | Spearman",
             cmap="coolwarm",
         )

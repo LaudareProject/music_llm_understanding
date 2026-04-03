@@ -628,7 +628,7 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
         output_dir / "best_strategy_covariate_pearson_fuzzy_masked_heatmap.png",
         DATASETS,
         COMPOSER_COVARIATE_COLUMNS,
-        (1.0 - target_pearson_matrix) * projection_pearson_matrix,
+        (1.0 - np.abs(target_pearson_matrix)) * projection_pearson_matrix,
         "Composer covariates vs projection fuzzy-masked by year | Pearson",
         cmap="coolwarm",
     )
@@ -636,7 +636,7 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
         output_dir / "best_strategy_covariate_spearman_fuzzy_masked_heatmap.png",
         DATASETS,
         COMPOSER_COVARIATE_COLUMNS,
-        (1.0 - target_spearman_matrix) * projection_spearman_matrix,
+        (1.0 - np.abs(target_spearman_matrix)) * projection_spearman_matrix,
         "Composer covariates vs projection fuzzy-masked by year | Spearman",
         cmap="coolwarm",
     )

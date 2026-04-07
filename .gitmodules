@@ -1,3 +1,6 @@
 [submodule "aria"]
 	path = aria
 	url = https://github.com/EleutherAI/aria.git
+[submodule "vgmidi"]
+	path = vgmidi
+	url = https://github.com/lucasnfe/vgmidi

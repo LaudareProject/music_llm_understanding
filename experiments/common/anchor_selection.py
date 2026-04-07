@@ -121,6 +121,8 @@ def select_anchors(
         return random_sample_first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_sample_regression":
         return random_sample_first_vs_last(relevant_rows, target_key, n=n)
+    if method == "random_median_regression":
+        return random_after_and_before_median(relevant_rows, target_key, n=n)
     if method == "random_median":
         return random_after_and_before_median(relevant_rows, target_key, n=n)
     if method == "best_pairs":

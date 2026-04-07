@@ -198,7 +198,10 @@ def evaluate_dataset(
     real = np.asarray(
         [float(row[TARGET_COLUMN]) for row in eval_rows], dtype=np.float64
     )
-    if anchor_selection_method == "random_sample_regression":
+    if anchor_selection_method in {
+        "random_sample_regression",
+        "random_median_regression",
+    }:
         sample_ids = anchor_a_ids + anchor_b_ids
         sample_idx = [query_to_index[query_id] for query_id in sample_ids]
         query_to_row = {row["query_id"]: row for row in relevant_rows}

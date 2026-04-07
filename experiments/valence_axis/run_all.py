@@ -54,27 +54,32 @@ RUN_SPECS = [
     {
         "script": "run_base.py",
         "anchor": "first_vs_last",
-        "label": "first_last",
-    },
-    {
-        "script": "run_random_median.py",
-        "anchor": "random_median",
-        "label": "random",
-    },
-    {
-        "script": "run_best_pairs.py",
-        "anchor": "best_pairs",
-        "label": "pairs",
+        "label": "first vs last from all data",
     },
     {
         "script": "run_random_sample_first_last.py",
         "anchor": "random_sample_first_last",
-        "label": "random_sample_first_last",
+        "label": "first vs last from random subsample",
+    },
+    {
+        "script": "run_random_median.py",
+        "anchor": "random_median",
+        "label": "random samples before and after median",
+    },
+    {
+        "script": "run_random_median_regression.py",
+        "anchor": "random_median_regression",
+        "label": "regression from random samples before and after median",
+    },
+    {
+        "script": "run_best_pairs.py",
+        "anchor": "best_pairs",
+        "label": "pairs target separation",
     },
     {
         "script": "run_random_sample_regression.py",
         "anchor": "random_sample_regression",
-        "label": "random_sample_regression",
+        "label": "regression from random points",
     },
 ]
 

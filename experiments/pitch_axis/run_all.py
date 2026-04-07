@@ -36,18 +36,35 @@ if BEST_METRIC not in VALID_BEST_METRICS:
 PITCH_COVARIATE_COLUMNS = ["duration_ticks", "velocity"]
 
 RUN_SPECS = [
-    {"script": "run_base.py", "anchor": "first_vs_last", "label": "first_last"},
-    {"script": "run_random_median.py", "anchor": "random_median", "label": "random"},
-    {"script": "run_best_pairs.py", "anchor": "best_pairs", "label": "pairs"},
+    {
+        "script": "run_base.py",
+        "anchor": "first_vs_last",
+        "label": "first vs last from all data",
+    },
     {
         "script": "run_random_sample_first_last.py",
         "anchor": "random_sample_first_last",
-        "label": "random_sample_first_last",
+        "label": "first vs last from random subsample",
+    },
+    {
+        "script": "run_random_median.py",
+        "anchor": "random_median",
+        "label": "random samples before and after median",
+    },
+    {
+        "script": "run_best_pairs.py",
+        "anchor": "best_pairs",
+        "label": "pairs target separation",
     },
     {
         "script": "run_random_sample_regression.py",
         "anchor": "random_sample_regression",
-        "label": "random_sample_regression",
+        "label": "regression from random points",
+    },
+    {
+        "script": "run_random_median_regression.py",
+        "anchor": "random_median_regression",
+        "label": "regression from random samples before and after median",
     },
 ]
 
@@ -487,7 +504,7 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
         output_dir / "best_strategy_covariate_pearson_fuzzy_masked_heatmap.png",
         DATASETS,
         PITCH_COVARIATE_COLUMNS,
-        (projection_pearson_matrix - target_pearson_matrix)/2,
+        (projection_pearson_matrix - target_pearson_matrix) / 2,
         "Pitch covariates vs projection fuzzy-masked by pitch | Pearson",
         cmap="coolwarm",
     )
@@ -495,7 +512,7 @@ def covariate_correlation_matrices(output_dir, mode_results_by_n):
         output_dir / "best_strategy_covariate_spearman_fuzzy_masked_heatmap.png",
         DATASETS,
         PITCH_COVARIATE_COLUMNS,
-        (projection_spearman_matrix - target_spearman_matrix)/2,
+        (projection_spearman_matrix - target_spearman_matrix) / 2,
         "Pitch covariates vs projection fuzzy-masked by pitch | Spearman",
         cmap="coolwarm",
     )

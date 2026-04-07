@@ -195,7 +195,10 @@ def evaluate_dataset(
     real = np.asarray(
         [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
     )
-    if anchor_selection_method == "random_sample_regression":
+    if anchor_selection_method in {
+        "random_sample_regression",
+        "random_median_regression",
+    }:
         sample_ids = anchor_a_ids + anchor_b_ids
         sample_idx = [query_to_index[query_id] for query_id in sample_ids]
         query_to_row = {row["query_id"]: row for row in relevant_rows}
@@ -675,7 +678,7 @@ def write_outputs(
         output_dir / "covariate_pearson_fuzzy_masked_heatmap.png",
         heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        (projection_pearson_matrix - target_pearson_matrix)/2,
+        (projection_pearson_matrix - target_pearson_matrix) / 2,
         "Composer covariates vs projection (fuzzy-masked by year) | Pearson",
         cmap="coolwarm",
     )
@@ -683,7 +686,7 @@ def write_outputs(
         output_dir / "covariate_spearman_fuzzy_masked_heatmap.png",
         heatmap_datasets,
         COMPOSER_COVARIATE_COLUMNS,
-        (projection_spearman_matrix - target_spearman_matrix)/2,
+        (projection_spearman_matrix - target_spearman_matrix) / 2,
         "Composer covariates vs projection (fuzzy-masked by year) | Spearman",
         cmap="coolwarm",
     )

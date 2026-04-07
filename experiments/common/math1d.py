@@ -7,11 +7,10 @@ COMBOS = [
     {"name": "lda", "whiten": False, "method": "lda"},
     {"name": "pca", "whiten": False, "method": "pca"},
     {"name": "pls", "whiten": False, "method": "pls"},
-    {"name": "olda", "whiten": False, "method": "olda"},
+    # {"name": "olda", "whiten": False, "method": "olda"},
     {"name": "whiten+lda", "whiten": True, "method": "lda"},
-    {"name": "whiten+pca", "whiten": True, "method": "pca"},
     {"name": "whiten+pls", "whiten": True, "method": "pls"},
-    {"name": "whiten+olda", "whiten": True, "method": "olda"},
+    # {"name": "whiten+olda", "whiten": True, "method": "olda"},
 ]
 
 

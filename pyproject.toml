@@ -15,6 +15,9 @@ dependencies = [
   "matplotlib>=3.10.8",
   "scikit-learn>=1.8.0",
   "concept-erasure>=0.2.4",
+  "ms3>=2.6.0",
+  "deepdiff>=9.0.0",
+  "roman>=5.2",
 ]
 
 [project.optional-dependencies]

@@ -121,10 +121,11 @@ def _extract_musif_csv(source_dir, output_csv, cache_dir, repo_root):
         output_path=str(output_csv),
         cache_dir=str(cache_dir),
         ignore_errors=True,
-        njobs=1,
+        njobs=5,
         tweaks={
             "features": MUSIF_FEATURES,
             "basic_modules": ["scoring"],
+            "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "8g"),
         },
     )
 

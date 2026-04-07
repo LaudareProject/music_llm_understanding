@@ -18,13 +18,14 @@ from experiments.common.plots import (
     save_stacked_bar_chart,
 )
 from experiments.common.math1d import pearson, spearman
+from experiments.common.feature_backend import output_root_for_experiment
 from experiments.common.tsv import write_tsv
 
 import numpy as np
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "valence_axis"
+OUTPUT_ROOT = output_root_for_experiment(REPO_ROOT, "valence_axis")
 SONGS_TSV = REPO_ROOT / "experiments" / "valence_axis" / "songs.tsv"
 DATASETS = ["vgmidi"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]

@@ -17,13 +17,14 @@ from experiments.common.plots import (
     save_multi_line_grid_chart,
 )
 from experiments.common.math1d import pearson, spearman
+from experiments.common.feature_backend import output_root_for_experiment
 from experiments.common.tsv import write_tsv
 
 import numpy as np
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
+OUTPUT_ROOT = output_root_for_experiment(REPO_ROOT, "pitch_axis")
 NOTES_TSV = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 DATASETS = ["pitch"]
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]

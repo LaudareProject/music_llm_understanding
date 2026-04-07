@@ -35,13 +35,18 @@ from experiments.common.feature_select import (
     best_k_from_ranked,
     pairwise_overlap_rows,
 )
-from experiments.common.embed_aria import encode_midi
+from experiments.common.feature_backend import (
+    cache_dir_for_experiment,
+    feature_backend_name,
+    matrix_for_rows,
+    output_root_for_experiment,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
-OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
-CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
+OUTPUT_ROOT = output_root_for_experiment(REPO_ROOT, "pitch_axis")
+CACHE_DIR = cache_dir_for_experiment(REPO_ROOT, "pitch_axis")
 ANCHOR_N = 10
 
 
@@ -65,16 +70,6 @@ def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
         )
     )
     midi.save(str(midi_path))
-
-
-def load_or_compute_embedding(query_id, midi_path):
-    cache_path = CACHE_DIR / f"{query_id}.npy"
-    if cache_path.exists():
-        return np.load(cache_path)
-    embedding = encode_midi(midi_path)
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    np.save(cache_path, embedding)
-    return embedding
 
 
 def score_projection(raw_projection, real, mapping_name):
@@ -267,15 +262,10 @@ def run_feature_selection(selection_space="transformed"):
         )
         midi_paths[row["query_id"]] = midi_path
 
-    print("[2/6] loading embeddings")
+    backend = feature_backend_name()
+    print(f"[2/6] loading features ({backend})")
     query_ids = [row["query_id"] for row in rows]
-    matrix = np.stack(
-        [
-            load_or_compute_embedding(query_id, midi_paths[query_id])
-            for query_id in tqdm(query_ids, desc="Embeddings", unit="query")
-        ],
-        axis=0,
-    )
+    matrix = matrix_for_rows(rows, midi_paths, CACHE_DIR, REPO_ROOT, "Features")
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
     query_to_index = {query_id: i for i, query_id in enumerate(query_ids)}
 

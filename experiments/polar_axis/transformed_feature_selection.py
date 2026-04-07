@@ -34,14 +34,19 @@ from experiments.common.feature_select import (
     best_k_from_ranked,
     pairwise_overlap_rows,
 )
+from experiments.common.feature_backend import (
+    cache_dir_for_experiment,
+    feature_backend_name,
+    matrix_for_rows,
+    output_root_for_experiment,
+)
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
-from experiments.common.embed_aria import encode_midi
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "polar_axis" / "songs.tsv"
-OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "polar_axis"
-CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "polar_axis"
+OUTPUT_ROOT = output_root_for_experiment(REPO_ROOT, "polar_axis")
+CACHE_DIR = cache_dir_for_experiment(REPO_ROOT, "polar_axis")
 BIN_DIR = REPO_ROOT / "bin"
 
 DATASETS = ["vgmidi", "overall"]
@@ -62,16 +67,6 @@ def prepare_midi(row, midi_dir):
         kern_to_midi(source_path, midi_path, BIN_DIR)
         return midi_path
     raise ValueError(row["input_kind"])
-
-
-def load_or_compute_embedding(query_id, midi_path):
-    cache_path = CACHE_DIR / f"{query_id}.npy"
-    if cache_path.exists():
-        return np.load(cache_path)
-    embedding = encode_midi(midi_path)
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    np.save(cache_path, embedding)
-    return embedding
 
 
 def dataset_index_sets(rows, query_to_index, dataset_name):
@@ -297,12 +292,10 @@ def run_feature_selection(selection_space="transformed"):
             skipped.add(query_id)
     rows = [row for row in rows if row["query_id"] not in skipped]
 
-    print("[2/6] loading embeddings")
+    backend = feature_backend_name()
+    print(f"[2/6] loading features ({backend})")
     query_ids = [row["query_id"] for row in rows]
-    embeddings = []
-    for query_id in tqdm(query_ids, desc="Embeddings", unit="query"):
-        embeddings.append(load_or_compute_embedding(query_id, midi_paths.get(query_id)))
-    matrix = np.stack(embeddings, axis=0)
+    matrix = matrix_for_rows(rows, midi_paths, CACHE_DIR, REPO_ROOT, "Features")
     labels = [row[GROUP_COLUMN] for row in rows]
     target_scores = np.asarray(
         [float(row[TARGET_COLUMN]) for row in rows], dtype=np.float64

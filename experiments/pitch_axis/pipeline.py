@@ -6,7 +6,12 @@ import numpy as np
 from tqdm import tqdm
 
 from experiments.common.anchor_selection import select_anchors
-from experiments.common.embed_aria import encode_midi
+from experiments.common.feature_backend import (
+    cache_dir_for_experiment,
+    feature_backend_name,
+    matrix_for_rows,
+    output_root_for_experiment,
+)
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
     cross_validated_mapping_summary,
@@ -35,8 +40,8 @@ from experiments.common.tsv import read_tsv, write_tsv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TSV_PATH = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
-OUTPUT_ROOT = REPO_ROOT / "outputs" / "experiments" / "pitch_axis"
-CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "pitch_axis"
+OUTPUT_ROOT = output_root_for_experiment(REPO_ROOT, "pitch_axis")
+CACHE_DIR = cache_dir_for_experiment(REPO_ROOT, "pitch_axis")
 
 MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 PITCH_COVARIATE_COLUMNS = ["duration_ticks", "velocity"]
@@ -91,16 +96,6 @@ def write_note_midi(midi_path, midi_note, duration_ticks, velocity):
         )
     )
     midi.save(str(midi_path))
-
-
-def load_or_compute_embedding(query_id, midi_path):
-    cache_path = CACHE_DIR / f"{query_id}.npy"
-    if cache_path.exists():
-        return np.load(cache_path)
-    embedding = encode_midi(midi_path)
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    np.save(cache_path, embedding)
-    return embedding
 
 
 def combo_selection_score(payload):
@@ -568,15 +563,10 @@ def main(anchor_selection_method="first_vs_last"):
     )
     rows, midi_paths = prepare_rows(output_dir)
 
-    print("[2/5] embedding with aria")
+    backend = feature_backend_name()
+    print(f"[2/5] loading features ({backend})")
     query_ids = [row["query_id"] for row in rows]
-    matrix = np.stack(
-        [
-            load_or_compute_embedding(query_id, midi_paths[query_id])
-            for query_id in tqdm(query_ids, desc="Embeddings", unit="query")
-        ],
-        axis=0,
-    )
+    matrix = matrix_for_rows(rows, midi_paths, CACHE_DIR, REPO_ROOT, "Features")
     labels = [f"pitch_{int(row['midi_note'])}" for row in rows]
     target_scores = np.asarray(
         [float(row["midi_note"]) for row in rows], dtype=np.float64

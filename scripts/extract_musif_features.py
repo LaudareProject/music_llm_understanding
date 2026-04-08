@@ -58,44 +58,56 @@ def infer_input_kind(row, src):
     return "unknown"
 
 
+def prepare_midi(row, source_dir, repo_root, bin_dir):
+    query_id = row["query_id"]
+    dest = source_dir / f"{query_id}.mid"
+    if "path" not in row or not str(row.get("path", "")).strip():
+        if {"midi_note", "duration_ticks", "velocity"}.issubset(set(row.keys())):
+            write_note_midi(
+                dest,
+                int(row["midi_note"]),
+                int(row["duration_ticks"]),
+                int(row["velocity"]),
+            )
+            return
+        raise ValueError(f"Missing path for query {query_id}")
+
+    src = (repo_root / row["path"]).resolve()
+    if not src.exists():
+        raise FileNotFoundError(f"Source file {src} not found for {query_id}")
+
+    input_kind = infer_input_kind(row, src)
+    if input_kind == "midi":
+        if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+            shutil.copy2(src, dest)
+        return
+    if input_kind == "musicxml":
+        if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+            musicxml_to_midi(src, dest, bin_dir)
+        return
+    if input_kind == "kern":
+        if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+            kern_to_midi(src, dest, bin_dir)
+        return
+    raise ValueError(
+        f"Unsupported input_kind='{input_kind}' for query {query_id} ({src})"
+    )
+
+
 def copy_midi_files(rows, source_dir, repo_root):
     source_dir.mkdir(parents=True, exist_ok=True)
     bin_dir = repo_root / "bin"
+    kept = []
+    skipped = []
     for row in rows:
         query_id = row["query_id"]
-        dest = source_dir / f"{query_id}.mid"
-
-        if "path" not in row or not str(row.get("path", "")).strip():
-            if {"midi_note", "duration_ticks", "velocity"}.issubset(set(row.keys())):
-                write_note_midi(
-                    dest,
-                    int(row["midi_note"]),
-                    int(row["duration_ticks"]),
-                    int(row["velocity"]),
-                )
-                continue
-            raise ValueError(f"Missing path for query {query_id}")
-
-        src = (repo_root / row["path"]).resolve()
-        if not src.exists():
-            raise FileNotFoundError(f"Source file {src} not found for {query_id}")
-
-        input_kind = infer_input_kind(row, src)
-        if input_kind == "midi":
-            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
-                shutil.copy2(src, dest)
-            continue
-        if input_kind == "musicxml":
-            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
-                musicxml_to_midi(src, dest, bin_dir)
-            continue
-        if input_kind == "kern":
-            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
-                kern_to_midi(src, dest, bin_dir)
-            continue
-        raise ValueError(
-            f"Unsupported input_kind='{input_kind}' for query {query_id} ({src})"
-        )
+        try:
+            prepare_midi(row, source_dir, repo_root, bin_dir)
+            kept.append(row)
+        except Exception as exc:
+            print(f"skipping {query_id}: {exc}")
+            skipped.append(query_id)
+    return kept, skipped
 
 
 def main():
@@ -118,7 +130,11 @@ def main():
         return
 
     source_dir = musif_sources_dir(repo_root, args.dataset)
-    copy_midi_files(dataset_rows, source_dir, repo_root)
+    kept_rows, skipped = copy_midi_files(dataset_rows, source_dir, repo_root)
+    if skipped:
+        print(f"Skipped {len(skipped)} rows during midi preparation")
+    if not kept_rows:
+        raise ValueError("No rows left after midi preparation")
 
     cache_dir = musif_cache_dir(repo_root, args.dataset)
     run_musif_extraction(source_dir, output_csv, cache_dir, repo_root, njobs=args.njobs)

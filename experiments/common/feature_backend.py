@@ -1,7 +1,6 @@
 import csv
 import os
 from pathlib import Path
-import shutil
 import sys
 
 import numpy as np
@@ -50,6 +49,48 @@ def cache_dir_for_experiment(repo_root, experiment_name):
     if backend == FEATURE_BACKEND_MUSIF:
         return repo_root / "cache" / "baseline_features" / experiment_name
     return repo_root / "cache" / "experiments" / experiment_name
+
+
+def musif_data_dir(repo_root):
+    return repo_root / "data" / "musif"
+
+
+def musif_features_csv_path(repo_root, dataset_name):
+    return musif_data_dir(repo_root) / dataset_name / "features.csv"
+
+
+def musif_cache_dir(repo_root, dataset_name):
+    return repo_root / "cache" / "musif_features" / dataset_name
+
+
+def musif_sources_dir(repo_root, dataset_name):
+    return repo_root / "cache" / "musif_sources" / dataset_name / "midi"
+
+
+def run_musif_extraction(source_dir, output_csv, cache_dir, repo_root, njobs=2):
+    musif_repo = repo_root / "musif"
+    if not musif_repo.exists():
+        raise FileNotFoundError(
+            f"Missing musif repository at {musif_repo}. Add submodule from https://codeberg.org/00sapo/musif"
+        )
+    sys.path.insert(0, str(musif_repo))
+    from musif.__main__ import main as musif_main
+
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    musif_main(
+        source_dir=str(source_dir),
+        extension=".mid",
+        output_path=str(output_csv),
+        cache_dir=str(cache_dir),
+        ignore_errors=True,
+        njobs=njobs,
+        tweaks={
+            "features": MUSIF_FEATURES,
+            "basic_modules": ["scoring"],
+            "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "12g"),
+        },
+    )
 
 
 def matrix_for_rows(rows, midi_paths, cache_dir, repo_root, progress_label="Features"):
@@ -104,69 +145,6 @@ def _to_float(value):
         return float("nan")
 
 
-def _extract_musif_csv(source_dir, output_csv, cache_dir, repo_root):
-    musif_repo = repo_root / "musif"
-    if not musif_repo.exists():
-        raise FileNotFoundError(
-            f"Missing musif repository at {musif_repo}. Add submodule from https://codeberg.org/00sapo/musif"
-        )
-    sys.path.insert(0, str(musif_repo))
-    from musif.__main__ import main as musif_main
-
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    musif_main(
-        source_dir=str(source_dir),
-        extension=".mid",
-        output_path=str(output_csv),
-        cache_dir=str(cache_dir),
-        ignore_errors=True,
-        njobs=5,
-        tweaks={
-            "features": MUSIF_FEATURES,
-            "basic_modules": ["scoring"],
-            "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "8g"),
-        },
-    )
-
-
-def _cached_qids_from_musif_csv(csv_path):
-    if not csv_path.exists():
-        return set()
-    qids = set()
-    with csv_path.open("r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            file_name = str(row.get("FileName", "") or "")
-            if not file_name:
-                continue
-            qids.add(Path(file_name).stem)
-    return qids
-
-
-def _ensure_dataset_musif_cache(dataset_rows, midi_paths, cache_dir, repo_root):
-    dataset_name = _dataset_name(dataset_rows[0])
-    dataset_dir = cache_dir / "musif" / dataset_name
-    source_dir = dataset_dir / "midi"
-    csv_path = dataset_dir / "features.csv"
-    musif_cache_dir = dataset_dir / "musif_cache"
-    source_dir.mkdir(parents=True, exist_ok=True)
-
-    expected_qids = set()
-    for row in dataset_rows:
-        query_id = row["query_id"]
-        expected_qids.add(query_id)
-        src = _resolve_midi_path_for_row(row, midi_paths, repo_root)
-        dst = source_dir / f"{query_id}.mid"
-        if not dst.exists():
-            shutil.copy2(src, dst)
-
-    cached_qids = _cached_qids_from_musif_csv(csv_path)
-    if expected_qids != cached_qids:
-        _extract_musif_csv(source_dir, csv_path, musif_cache_dir, repo_root)
-    return csv_path
-
-
 def _read_dataset_musif_features(csv_path):
     out = {}
     with csv_path.open("r", encoding="utf-8") as handle:
@@ -194,8 +172,14 @@ def _matrix_for_rows_musif(rows, midi_paths, cache_dir, repo_root):
 
     feature_by_query = {}
     for dataset_rows in by_dataset.values():
-        csv_path = _ensure_dataset_musif_cache(
-            dataset_rows, midi_paths, cache_dir, repo_root
+        dataset_name = _dataset_name(dataset_rows[0])
+        csv_path = musif_features_csv_path(repo_root, dataset_name)
+        if not csv_path.exists():
+        raise FileNotFoundError(
+            (
+                f"Musif features missing for dataset '{dataset_name}'. "
+                f"Run scripts/extract_musif_features.py --dataset {dataset_name} --tsv path/to/tsv"
+            )
         )
         feature_by_query.update(_read_dataset_musif_features(csv_path))
 

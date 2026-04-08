@@ -35,6 +35,7 @@ from experiments.common.feature_select import (
     pairwise_overlap_rows,
 )
 from experiments.common.feature_backend import (
+    aria_embedding_path_for_row,
     cache_dir_for_experiment,
     feature_backend_name,
     matrix_for_rows,
@@ -282,7 +283,8 @@ def run_feature_selection(selection_space="transformed"):
     skipped = set()
     for row in tqdm(rows, desc="MIDI", unit="song"):
         query_id = row["query_id"]
-        if (CACHE_DIR / f"{query_id}.npy").exists():
+        embedding_path = aria_embedding_path_for_row(row, REPO_ROOT)
+        if embedding_path.exists():
             continue
         try:
             midi_paths[query_id] = prepare_midi(row, midi_dir)

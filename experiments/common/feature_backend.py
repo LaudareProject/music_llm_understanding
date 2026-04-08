@@ -48,7 +48,7 @@ def cache_dir_for_experiment(repo_root, experiment_name):
     backend = feature_backend_name()
     if backend == FEATURE_BACKEND_MUSIF:
         return repo_root / "cache" / "baseline_features" / experiment_name
-    return repo_root / "cache" / "experiments" / experiment_name
+    return repo_root / "data"
 
 
 def musif_data_dir(repo_root):
@@ -114,7 +114,7 @@ def _matrix_for_rows_aria(rows, midi_paths, cache_dir, repo_root, progress_label
     vectors = []
     for row in tqdm(rows, desc=progress_label, unit="query"):
         query_id = row["query_id"]
-        cache_path = cache_dir / f"{query_id}.npy"
+        cache_path = aria_embedding_path_for_row(row, repo_root)
         if cache_path.exists():
             vectors.append(np.load(cache_path))
             continue
@@ -128,6 +128,17 @@ def _matrix_for_rows_aria(rows, midi_paths, cache_dir, repo_root, progress_label
 
 def _dataset_name(row):
     return str(row.get("dataset", "default") or "default")
+
+
+def aria_dataset_embeddings_dir(repo_root, dataset_name):
+    return repo_root / "data" / dataset_name / "aria_embeddings"
+
+
+def aria_embedding_path_for_row(row, repo_root):
+    dataset_name = _dataset_name(row)
+    return (
+        aria_dataset_embeddings_dir(repo_root, dataset_name) / f"{row['query_id']}.npy"
+    )
 
 
 def _to_float(value):

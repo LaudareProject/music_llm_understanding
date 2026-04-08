@@ -32,6 +32,7 @@ MAPPINGS = ["raw", "linear", "log_linear", "exp_linear"]
 BASE_ANCHOR_N = 10
 ANCHOR_N_SWEEP = [1, 2, 4, 8, 16, 32]
 BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
+ANCHOR_RETRIES = int(os.environ.get("ANCHOR_RETRIES", "5").strip() or "5")
 VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
 if BEST_METRIC not in VALID_BEST_METRICS:
     raise ValueError(f"BEST_METRIC must be one of {sorted(VALID_BEST_METRICS)}")
@@ -387,7 +388,11 @@ def run_modes(anchor_n):
         run_output_dir = run_script_and_capture_output_dir(
             script_path,
             OUTPUT_ROOT,
-            extra_env={"ANCHOR_N": str(anchor_n), "BEST_METRIC": BEST_METRIC},
+            extra_env={
+                "ANCHOR_N": str(anchor_n),
+                "BEST_METRIC": BEST_METRIC,
+                "ANCHOR_RETRIES": str(ANCHOR_RETRIES),
+            },
         )
         mode_result = load_mode_result({**spec, "anchor_n": anchor_n}, run_output_dir)
         mode_result["best_rows_by_dataset"] = best_rows_by_dataset(mode_result)
@@ -660,6 +665,7 @@ def main():
             "scripts": [spec["script"] for spec in RUN_SPECS],
             "base_anchor_n": BASE_ANCHOR_N,
             "anchor_n_sweep": ANCHOR_N_SWEEP,
+            "anchor_retries": ANCHOR_RETRIES,
             "best_metric": BEST_METRIC,
         },
     )

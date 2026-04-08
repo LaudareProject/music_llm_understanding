@@ -112,6 +112,122 @@ def olda_reduce(matrix, labels, target_scores):
     return out
 
 
+def lda_reduce_train_on_subset(matrix, labels, train_idx):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    labels = np.asarray(labels)
+    train_idx = np.asarray(train_idx, dtype=int)
+    if train_idx.size == 0:
+        return matrix
+    train_labels = labels[train_idx]
+    if np.unique(train_labels).shape[0] < 2:
+        return matrix
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+    n_components = min(np.unique(train_labels).shape[0] - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    model = LinearDiscriminantAnalysis(n_components=n_components, solver="svd")
+    model.fit(matrix[train_idx], train_labels)
+    scores = model.transform(matrix)
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    return scores @ model.scalings_[:, : scores.shape[1]].T
+
+
+def pls_reduce_train_on_subset(matrix, target_scores, train_idx):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    target_scores = np.asarray(target_scores, dtype=np.float64)
+    train_idx = np.asarray(train_idx, dtype=int)
+    if train_idx.size < 2:
+        return matrix
+    train_targets = target_scores[train_idx]
+    if np.std(train_targets) <= 1e-12:
+        return matrix
+    from sklearn.cross_decomposition import PLSRegression
+
+    n_components = min(train_idx.size - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    try:
+        model = PLSRegression(n_components=n_components)
+        model.fit(matrix[train_idx], train_targets.reshape(-1, 1))
+    except Exception:
+        model = PLSRegression(n_components=1)
+        model.fit(matrix[train_idx], train_targets.reshape(-1, 1))
+    scores = np.asarray(model.transform(matrix), dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    return scores @ model.x_loadings_[:, : scores.shape[1]].T
+
+
+def olda_reduce_train_on_subset(matrix, labels, target_scores, train_idx):
+    matrix = np.asarray(matrix, dtype=np.float64)
+    labels = np.asarray(labels)
+    target_scores = np.asarray(target_scores, dtype=np.float64)
+    train_idx = np.asarray(train_idx, dtype=int)
+    if train_idx.size == 0:
+        return matrix
+    train_labels = labels[train_idx]
+    train_targets = target_scores[train_idx]
+    unique_labels = np.unique(train_labels)
+    if unique_labels.shape[0] < 2:
+        return matrix
+    n_components = min(unique_labels.shape[0] - 1, matrix.shape[1])
+    if n_components < 1:
+        return matrix
+    from experiments.common.olda import OrdinalLinearDiscriminantAnalysis
+
+    class_scores = np.asarray(
+        [np.mean(train_targets[train_labels == label]) for label in unique_labels],
+        dtype=np.float64,
+    )
+    try:
+        model = OrdinalLinearDiscriminantAnalysis(
+            n_components=n_components,
+            solver="eigen",
+            class_scores=class_scores,
+        )
+        model.fit(matrix[train_idx], train_labels)
+        scores = model.transform(matrix)
+    except Exception:
+        return lda_reduce_train_on_subset(matrix, labels, train_idx)
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim == 1:
+        scores = scores.reshape(-1, 1)
+    return scores @ model.scalings_[:, : scores.shape[1]].T
+
+
+def apply_combo_with_supervised_train_idx(
+    matrix,
+    labels,
+    combo,
+    target_scores=None,
+    supervised_train_idx=None,
+):
+    if supervised_train_idx is None:
+        return apply_combo(matrix, labels, combo, target_scores=target_scores)
+    out = np.asarray(matrix, dtype=np.float64)
+    if combo["whiten"]:
+        out = whiten(out)
+    method = combo["method"]
+    if method == "lda":
+        out = lda_reduce_train_on_subset(out, labels, supervised_train_idx)
+    elif method == "pca":
+        out = pca_reduce(out, 0.9)
+    elif method == "pls":
+        if target_scores is None:
+            raise ValueError("PLS requires target_scores")
+        out = pls_reduce_train_on_subset(out, target_scores, supervised_train_idx)
+    elif method == "olda":
+        if target_scores is None:
+            raise ValueError("OLDA requires target_scores")
+        out = olda_reduce_train_on_subset(
+            out, labels, target_scores, supervised_train_idx
+        )
+    return out
+
+
 def apply_combo(matrix, labels, combo, target_scores=None):
     out = np.asarray(matrix, dtype=np.float64)
     if combo["whiten"]:

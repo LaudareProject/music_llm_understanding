@@ -114,17 +114,18 @@ def select_anchors(
     target_key,
     n=10,
     best_pairs_separation=100,
+    seed=42,
 ):
     if method in {"first_vs_last", "anchor_column"}:
         return first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_sample_first_last":
-        return random_sample_first_vs_last(relevant_rows, target_key, n=n)
+        return random_sample_first_vs_last(relevant_rows, target_key, n=n, seed=seed)
     if method == "random_sample_regression":
         return random_sample_first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_median_regression":
-        return random_after_and_before_median(relevant_rows, target_key, n=n)
+        return random_after_and_before_median(relevant_rows, target_key, n=n, seed=seed)
     if method == "random_median":
-        return random_after_and_before_median(relevant_rows, target_key, n=n)
+        return random_after_and_before_median(relevant_rows, target_key, n=n, seed=seed)
     if method == "best_pairs":
         return n_best_pairs_target_separation(
             relevant_rows,

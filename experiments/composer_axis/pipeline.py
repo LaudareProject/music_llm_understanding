@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from experiments.common.anchor_selection import select_anchors
 from experiments.common.feature_backend import (
     cache_dir_for_experiment,
     feature_backend_name,
@@ -14,15 +13,11 @@ from experiments.common.feature_backend import (
 from experiments.common.folder_handling import create_folder
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.math1d import (
-    cross_validated_mapping_summary,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
     l1,
     pearson,
-    project_1d,
-    project_1d_regression_direction,
-    random_l1_baseline,
     r2,
     spearman,
 )
@@ -30,10 +25,10 @@ from experiments.common.plots import save_scatter
 from experiments.common.plots import save_heatmap
 from experiments.common.run_helpers import (
     feature_selection_space_env,
+    evaluate_mapping_payload_with_anchor_retries,
     parse_feature_cols_env,
     save_metric_table,
     selected_combos,
-    transform_with_feature_selection,
 )
 from experiments.common.tsv import read_tsv, write_tsv
 
@@ -172,91 +167,35 @@ def relevant_rows_for_dataset(rows, dataset):
 
 
 def evaluate_dataset(
-    matrix, rows, query_to_index, dataset, anchor_selection_method, anchor_n
+    matrix,
+    rows,
+    labels,
+    target_scores,
+    query_to_index,
+    dataset,
+    anchor_selection_method,
+    anchor_n,
+    combo,
+    feature_cols,
+    feature_space,
 ):
     relevant_rows = relevant_rows_for_dataset(rows, dataset)
-    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
-        relevant_rows,
-        anchor_selection_method,
+    return evaluate_mapping_payload_with_anchor_retries(
+        matrix=matrix,
+        relevant_rows=relevant_rows,
+        labels=labels,
+        target_scores=target_scores,
+        query_to_index=query_to_index,
+        anchor_selection_method=anchor_selection_method,
+        anchor_n=anchor_n,
+        combo=combo,
+        feature_cols=feature_cols,
+        feature_space=feature_space,
         target_key="midpoint_year",
-        n=anchor_n,
+        group_key="composer",
         best_pairs_separation=100,
+        mappings=MAPPINGS,
     )
-    if len(eval_rows) < 2:
-        return None
-    anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
-    anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
-    eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
-    real = np.asarray(
-        [float(row["midpoint_year"]) for row in eval_rows], dtype=np.float64
-    )
-    if anchor_selection_method in {
-        "random_sample_regression",
-        "random_median_regression",
-    }:
-        sample_ids = anchor_a_ids + anchor_b_ids
-        sample_idx = [query_to_index[query_id] for query_id in sample_ids]
-        query_to_row = {row["query_id"]: row for row in relevant_rows}
-        sample_targets = [
-            float(query_to_row[query_id]["midpoint_year"]) for query_id in sample_ids
-        ]
-        raw_projection = project_1d_regression_direction(
-            matrix,
-            sample_idx,
-            sample_targets,
-            eval_idx,
-        )
-    else:
-        raw_projection = project_1d(matrix, anchor_a_idx, anchor_b_idx, eval_idx)
-    anchors_a = np.asarray(
-        [
-            float(row["midpoint_year"])
-            for row in relevant_rows
-            if row["query_id"] in anchor_a_ids
-        ],
-        dtype=np.float64,
-    )
-    anchors_b = np.asarray(
-        [
-            float(row["midpoint_year"])
-            for row in relevant_rows
-            if row["query_id"] in anchor_b_ids
-        ],
-        dtype=np.float64,
-    )
-    baseline_l1 = random_l1_baseline(real)
-    groups = [row["composer"] for row in eval_rows]
-    cv_groups = np.asarray(groups)
-    payload = {}
-    for mapping_name in MAPPINGS:
-        summary = cross_validated_mapping_summary(
-            raw_projection,
-            real,
-            cv_groups,
-            mapping_name,
-        )
-        predicted = np.asarray(summary["predicted"], dtype=np.float64)
-        payload[mapping_name] = {
-            "real": real,
-            "predicted": np.asarray(summary["groupkfold_predicted"], dtype=np.float64),
-            "averaged_model_predicted": predicted,
-            "groups": groups,
-            "pearson": summary["pearson"],
-            "pearson_ci95": summary["pearson_ci95"],
-            "spearman": summary["spearman"],
-            "spearman_ci95": summary["spearman_ci95"],
-            "r2": summary["r2"],
-            "r2_ci95": summary["r2_ci95"],
-            "l1": summary["l1"],
-            "l1_ci95": summary["l1_ci95"],
-            "random": baseline_l1,
-            "sample_count": len(eval_rows),
-            "fold_count": summary["fold_count"],
-            "query_ids": [row["query_id"] for row in eval_rows],
-            "anchors_a": anchors_a,
-            "anchors_b": anchors_b,
-        }
-    return payload
 
 
 def metric_rows_for_combo(combo_name, payload):
@@ -727,17 +666,19 @@ def main(anchor_selection_method="first_vs_last"):
     payloads_by_combo = {}
     for combo in combos:
         print(f"  - {combo['name']}")
-        transformed = transform_with_feature_selection(
-            matrix, labels, combo, target_scores, feature_cols, feature_space
-        )
         payload = {
             dataset: evaluate_dataset(
-                transformed,
+                matrix,
                 rows,
+                labels,
+                target_scores,
                 query_to_index,
                 dataset,
                 anchor_selection_method,
                 anchor_n,
+                combo,
+                feature_cols,
+                feature_space,
             )
             for dataset in DATASETS
         }

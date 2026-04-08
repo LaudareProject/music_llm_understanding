@@ -5,7 +5,6 @@ import mido
 import numpy as np
 from tqdm import tqdm
 
-from experiments.common.anchor_selection import select_anchors
 from experiments.common.feature_backend import (
     cache_dir_for_experiment,
     feature_backend_name,
@@ -14,26 +13,22 @@ from experiments.common.feature_backend import (
 )
 from experiments.common.folder_handling import create_folder
 from experiments.common.math1d import (
-    cross_validated_mapping_summary,
     fit_exp_linear,
     fit_linear,
     fit_log_linear,
     l1,
     pearson,
-    project_1d,
-    project_1d_regression_direction,
-    random_l1_baseline,
     r2,
     spearman,
 )
 from experiments.common.plots import save_scatter
 from experiments.common.plots import save_heatmap
 from experiments.common.run_helpers import (
+    evaluate_mapping_payload_with_anchor_retries,
     feature_selection_space_env,
     parse_feature_cols_env,
     save_metric_table,
     selected_combos,
-    transform_with_feature_selection,
 )
 from experiments.common.tsv import read_tsv, write_tsv
 
@@ -127,73 +122,34 @@ def prepare_rows(output_dir):
     return rows, midi_paths
 
 
-def build_payload(transformed, rows, query_to_index, anchor_selection_method, anchor_n):
-    anchor_a_ids, anchor_b_ids, eval_rows = select_anchors(
-        rows,
-        anchor_selection_method,
+def build_payload(
+    matrix,
+    rows,
+    labels,
+    target_scores,
+    query_to_index,
+    anchor_selection_method,
+    anchor_n,
+    combo,
+    feature_cols,
+    feature_space,
+):
+    return evaluate_mapping_payload_with_anchor_retries(
+        matrix=matrix,
+        relevant_rows=rows,
+        labels=labels,
+        target_scores=target_scores,
+        query_to_index=query_to_index,
+        anchor_selection_method=anchor_selection_method,
+        anchor_n=anchor_n,
+        combo=combo,
+        feature_cols=feature_cols,
+        feature_space=feature_space,
         target_key="midi_note",
-        n=anchor_n,
+        group_key="name",
         best_pairs_separation=12,
+        mappings=MAPPINGS,
     )
-    anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
-    anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]
-    eval_idx = [query_to_index[row["query_id"]] for row in eval_rows]
-    real = np.asarray([float(row["midi_note"]) for row in eval_rows], dtype=np.float64)
-    if anchor_selection_method in {
-        "random_sample_regression",
-        "random_median_regression",
-    }:
-        sample_ids = anchor_a_ids + anchor_b_ids
-        sample_idx = [query_to_index[query_id] for query_id in sample_ids]
-        query_to_row = {row["query_id"]: row for row in rows}
-        sample_targets = [
-            float(query_to_row[query_id]["midi_note"]) for query_id in sample_ids
-        ]
-        raw_projection = project_1d_regression_direction(
-            transformed,
-            sample_idx,
-            sample_targets,
-            eval_idx,
-        )
-    else:
-        raw_projection = project_1d(transformed, anchor_a_idx, anchor_b_idx, eval_idx)
-    groups = [row["name"] for row in eval_rows]
-    cv_groups = np.asarray([row["midi_note"] for row in eval_rows])
-    anchors_a = np.asarray(
-        [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_a_ids],
-        dtype=np.float64,
-    )
-    anchors_b = np.asarray(
-        [float(row["midi_note"]) for row in rows if row["query_id"] in anchor_b_ids],
-        dtype=np.float64,
-    )
-    baseline_l1 = random_l1_baseline(real)
-    payload = {}
-    for mapping_name in MAPPINGS:
-        summary = cross_validated_mapping_summary(
-            raw_projection, real, cv_groups, mapping_name
-        )
-        payload[mapping_name] = {
-            "real": real,
-            "predicted": summary["groupkfold_predicted"],
-            "averaged_model_predicted": summary["predicted"],
-            "groups": groups,
-            "pearson": summary["pearson"],
-            "pearson_ci95": summary["pearson_ci95"],
-            "spearman": summary["spearman"],
-            "spearman_ci95": summary["spearman_ci95"],
-            "r2": summary["r2"],
-            "r2_ci95": summary["r2_ci95"],
-            "l1": summary["l1"],
-            "l1_ci95": summary["l1_ci95"],
-            "random": baseline_l1,
-            "sample_count": len(eval_rows),
-            "fold_count": summary["fold_count"],
-            "query_ids": [row["query_id"] for row in eval_rows],
-            "anchors_a": anchors_a,
-            "anchors_b": anchors_b,
-        }
-    return payload
 
 
 def metric_rows_for_combo(combo_name, payload):
@@ -587,11 +543,17 @@ def main(anchor_selection_method="first_vs_last"):
     best_combo_name = None
     for combo in combos:
         print(f"  - {combo['name']}")
-        transformed = transform_with_feature_selection(
-            matrix, labels, combo, target_scores, feature_cols, feature_space
-        )
         payload = build_payload(
-            transformed, rows, query_to_index, anchor_selection_method, anchor_n
+            matrix,
+            rows,
+            labels,
+            target_scores,
+            query_to_index,
+            anchor_selection_method,
+            anchor_n,
+            combo,
+            feature_cols,
+            feature_space,
         )
         payloads_by_combo[combo["name"]] = payload
         metric_rows.extend(metric_rows_for_combo(combo["name"], payload))

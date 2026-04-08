@@ -175,12 +175,12 @@ def _matrix_for_rows_musif(rows, midi_paths, cache_dir, repo_root):
         dataset_name = _dataset_name(dataset_rows[0])
         csv_path = musif_features_csv_path(repo_root, dataset_name)
         if not csv_path.exists():
-        raise FileNotFoundError(
-            (
-                f"Musif features missing for dataset '{dataset_name}'. "
-                f"Run scripts/extract_musif_features.py --dataset {dataset_name} --tsv path/to/tsv"
+            raise FileNotFoundError(
+                (
+                    f"Musif features missing for dataset '{dataset_name}'. "
+                    f"Run scripts/extract_musif_features.py --dataset {dataset_name} --tsv path/to/tsv"
+                )
             )
-        )
         feature_by_query.update(_read_dataset_musif_features(csv_path))
 
     columns = sorted(

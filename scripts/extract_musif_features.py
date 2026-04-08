@@ -13,6 +13,8 @@ from experiments.common.feature_backend import (
     musif_sources_dir,
     run_musif_extraction,
 )
+from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
+from experiments.pitch_axis.pipeline import write_note_midi
 
 
 def parse_args():
@@ -42,19 +44,58 @@ def parse_args():
     return parser.parse_args()
 
 
+def infer_input_kind(row, src):
+    input_kind = str(row.get("input_kind", "")).strip().lower()
+    if input_kind:
+        return input_kind
+    suffix = src.suffix.lower()
+    if suffix in {".mid", ".midi"}:
+        return "midi"
+    if suffix in {".xml", ".musicxml", ".mxl"}:
+        return "musicxml"
+    if suffix in {".krn", ".kern"}:
+        return "kern"
+    return "unknown"
+
+
 def copy_midi_files(rows, source_dir, repo_root):
     source_dir.mkdir(parents=True, exist_ok=True)
+    bin_dir = repo_root / "bin"
     for row in rows:
         query_id = row["query_id"]
-        path = row.get("path")
-        if not path:
-            raise ValueError(f"Missing path for query {query_id}")
-        src = (repo_root / path).resolve()
-        if not src.exists():
-            raise FileNotFoundError(f"MIDI file {src} not found for {query_id}")
         dest = source_dir / f"{query_id}.mid"
-        if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
-            shutil.copy2(src, dest)
+
+        if "path" not in row or not str(row.get("path", "")).strip():
+            if {"midi_note", "duration_ticks", "velocity"}.issubset(set(row.keys())):
+                write_note_midi(
+                    dest,
+                    int(row["midi_note"]),
+                    int(row["duration_ticks"]),
+                    int(row["velocity"]),
+                )
+                continue
+            raise ValueError(f"Missing path for query {query_id}")
+
+        src = (repo_root / row["path"]).resolve()
+        if not src.exists():
+            raise FileNotFoundError(f"Source file {src} not found for {query_id}")
+
+        input_kind = infer_input_kind(row, src)
+        if input_kind == "midi":
+            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+                shutil.copy2(src, dest)
+            continue
+        if input_kind == "musicxml":
+            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+                musicxml_to_midi(src, dest, bin_dir)
+            continue
+        if input_kind == "kern":
+            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+                kern_to_midi(src, dest, bin_dir)
+            continue
+        raise ValueError(
+            f"Unsupported input_kind='{input_kind}' for query {query_id} ({src})"
+        )
 
 
 def main():

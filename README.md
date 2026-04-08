@@ -18,7 +18,7 @@ uv sync
 Musif features are stored under `data/musif/<dataset>/features.csv` so that every experiment can reuse the same CSV per dataset. Run the helper script before invoking any of the `run_all_musif.py` scripts:
 
 ```bash
-uv run python scripts/extract_musif_features.py --dataset vgmidi
+uv run python scripts/extract_musif_features.py --dataset vgmidi --tsv ./experiments/valence_axis/songs.tsv
 ```
 
 Use `--force` to regenerate an existing CSV.

@@ -38,6 +38,7 @@ def main():
                         "query_id": (
                             f"note_{name.lower().replace('#', 's')}_{duration_name}_v{velocity}"
                         ),
+                        "dataset": "pitch",
                         "midi_note": midi_note,
                         "duration_ticks": duration_ticks,
                         "velocity": velocity,
@@ -47,7 +48,7 @@ def main():
     write_tsv(
         OUTPUT_TSV,
         rows,
-        ["query_id", "midi_note", "duration_ticks", "velocity", "name"],
+        ["query_id", "dataset", "midi_note", "duration_ticks", "velocity", "name"],
     )
     print(f"wrote {OUTPUT_TSV}")
 

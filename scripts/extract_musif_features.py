@@ -29,11 +29,6 @@ def parse_args():
         help="TSV file that contains all rows for the dataset",
     )
     parser.add_argument(
-        "--dataset-column",
-        default="dataset",
-        help="Column used to filter rows. Defaults to 'dataset'. When missing, all rows are kept.",
-    )
-    parser.add_argument(
         "--njobs",
         type=int,
         default=2,
@@ -66,13 +61,13 @@ def main():
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[1]
     rows = read_tsv(args.tsv)
-    dataset_rows = []
-    for row in rows:
-        if args.dataset_column not in row:
-            dataset_rows = rows
-            break
-        if str(row.get(args.dataset_column, "")).strip() == args.dataset:
-            dataset_rows.append(row)
+    if rows and "dataset" not in rows[0]:
+        raise ValueError(
+            f"TSV {args.tsv} has no 'dataset' column. Ensure prepare_tsv writes a dataset field."
+        )
+    dataset_rows = [
+        row for row in rows if str(row.get("dataset", "")).strip() == args.dataset
+    ]
     if not dataset_rows:
         raise ValueError(f"No rows found for dataset '{args.dataset}' in {args.tsv}")
 

@@ -80,7 +80,6 @@ def dataset_index_sets(rows, query_to_index, dataset_name):
         "first_vs_last",
         target_key=TARGET_COLUMN,
         n=ANCHOR_N,
-        best_pairs_separation=100,
     )
     anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
     anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]

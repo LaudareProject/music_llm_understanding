@@ -3,6 +3,24 @@ import random
 import numpy as np
 
 
+def equally_spaced(relevant_rows, target_key, n=10):
+    n_anchors = min(int(n), len(relevant_rows) // 2)
+    targets = _target_values(relevant_rows, target_key)
+    min_target = np.min(targets)
+    max_target = np.max(targets)
+    step = (max_target - min_target) / (2*n_anchors)
+    anchor_a_ids = []
+    for idx in range(2*n_anchors):
+        value = min_target + step * idx
+        targets_diff = np.abs(targets - value)
+        new_anchor_pos = np.argmin(targets_diff)
+        anchor_a_ids.append(relevant_rows[new_anchor_pos]["query_id"])
+    anchor_b_ids = []
+    sampled_ids = set(anchor_a_ids + anchor_b_ids)
+    eval_rows = [row for row in relevant_rows if row["query_id"] not in sampled_ids]
+    return anchor_a_ids, anchor_b_ids, eval_rows
+
+
 def first_vs_last(relevant_rows, target_key, n=10):
     n_anchors = min(int(n), len(relevant_rows) // 2)
     ranked_rows = sorted(relevant_rows, key=lambda row: float(row[target_key]))
@@ -34,7 +52,7 @@ def _target_values(relevant_rows, target_key):
 
 
 def random_after_and_before_median(relevant_rows, target_key, n=10, seed=42):
-    n_anchors = int(n)
+    n_anchors = min(int(n), len(relevant_rows) // 2)
     midpoint_median = np.median(_target_values(relevant_rows, target_key))
     anchor_a_ids = [
         row["query_id"]
@@ -59,78 +77,23 @@ def random_after_and_before_median(relevant_rows, target_key, n=10, seed=42):
     return anchor_a_ids, anchor_b_ids, eval_rows
 
 
-def n_best_pairs_target_separation(
-    relevant_rows, target_key, separation=100, n=10, include_anchors_in_eval=False
-):
-    pairs = []
-    for i in range(len(relevant_rows)):
-        for j in range(i + 1, len(relevant_rows)):
-            first_item = (
-                relevant_rows[i]
-                if float(relevant_rows[i][target_key])
-                < float(relevant_rows[j][target_key])
-                else relevant_rows[j]
-            )
-            last_item = (
-                relevant_rows[j] if first_item == relevant_rows[i] else relevant_rows[i]
-            )
-            pairs.append(
-                (
-                    first_item,
-                    last_item,
-                    abs(float(last_item[target_key]) - float(first_item[target_key])),
-                )
-            )
-    pairs.sort(key=lambda pair: abs(pair[2] - separation))
-    anchor_a_ids = []
-    anchor_b_ids = []
-    used_a_ids = set()
-    used_b_ids = set()
-    for first_item, last_item, _ in pairs:
-        first_id = first_item["query_id"]
-        last_id = last_item["query_id"]
-        if first_id in used_a_ids or last_id in used_b_ids:
-            continue
-        anchor_a_ids.append(first_id)
-        anchor_b_ids.append(last_id)
-        used_a_ids.add(first_id)
-        used_b_ids.add(last_id)
-        if len(anchor_a_ids) >= int(n):
-            break
-    if include_anchors_in_eval:
-        eval_rows = list(relevant_rows)
-    else:
-        eval_rows = [
-            row
-            for row in relevant_rows
-            if row["query_id"] not in anchor_a_ids + anchor_b_ids
-        ]
-    return anchor_a_ids, anchor_b_ids, eval_rows
-
-
 def select_anchors(
     relevant_rows,
     method,
     target_key,
     n=10,
-    best_pairs_separation=100,
     seed=42,
 ):
     if method in {"first_vs_last", "anchor_column"}:
         return first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_sample_first_last":
         return random_sample_first_vs_last(relevant_rows, target_key, n=n, seed=seed)
+    if method == "equally_spaced_regression":
+        return equally_spaced(relevant_rows, target_key, n=n)
     if method == "random_sample_regression":
         return random_sample_first_vs_last(relevant_rows, target_key, n=n)
     if method == "random_median_regression":
         return random_after_and_before_median(relevant_rows, target_key, n=n, seed=seed)
     if method == "random_median":
         return random_after_and_before_median(relevant_rows, target_key, n=n, seed=seed)
-    if method == "best_pairs":
-        return n_best_pairs_target_separation(
-            relevant_rows,
-            target_key,
-            separation=best_pairs_separation,
-            n=n,
-        )
     raise ValueError(f"Unknown anchor selection method: {method}")

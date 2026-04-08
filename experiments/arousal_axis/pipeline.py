@@ -196,7 +196,6 @@ def evaluate_dataset(
         feature_space=feature_space,
         target_key=TARGET_COLUMN,
         group_key=GROUP_COLUMN,
-        best_pairs_separation=BEST_PAIRS_SEPARATION,
         mappings=MAPPINGS,
     )
 

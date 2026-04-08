@@ -274,7 +274,6 @@ def run_feature_selection(selection_space="transformed"):
         "first_vs_last",
         target_key="midi_note",
         n=ANCHOR_N,
-        best_pairs_separation=12,
     )
     anchor_a_idx = [query_to_index[query_id] for query_id in anchor_a_ids]
     anchor_b_idx = [query_to_index[query_id] for query_id in anchor_b_ids]

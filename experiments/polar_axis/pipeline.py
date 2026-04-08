@@ -59,7 +59,6 @@ EMOTION_COVARIATE_COLUMNS = [
 TARGET_COLUMN = "cosine"
 TARGET_LONG_LABEL = "cosine distance to X axis"
 GROUP_COLUMN = "game"
-BEST_PAIRS_SEPARATION = 0.5
 BEST_METRIC = os.environ.get("BEST_METRIC", "spearman").strip().lower()
 VALID_BEST_METRICS = {"spearman", "pearson", "r2", "l1"}
 if BEST_METRIC not in VALID_BEST_METRICS:
@@ -197,7 +196,6 @@ def evaluate_dataset(
         feature_space=feature_space,
         target_key=TARGET_COLUMN,
         group_key=GROUP_COLUMN,
-        best_pairs_separation=BEST_PAIRS_SEPARATION,
         mappings=MAPPINGS,
     )
 

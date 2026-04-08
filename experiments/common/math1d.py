@@ -127,7 +127,10 @@ def lda_reduce_train_on_subset(matrix, labels, train_idx):
     if n_components < 1:
         return matrix
     model = LinearDiscriminantAnalysis(n_components=n_components, solver="svd")
-    model.fit(matrix[train_idx], train_labels)
+    try:
+        model.fit(matrix[train_idx], train_labels)
+    except Exception:
+        return matrix
     scores = model.transform(matrix)
     scores = np.asarray(scores, dtype=np.float64)
     if scores.ndim == 1:

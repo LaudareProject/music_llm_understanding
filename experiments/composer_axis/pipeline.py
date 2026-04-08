@@ -193,7 +193,6 @@ def evaluate_dataset(
         feature_space=feature_space,
         target_key="midpoint_year",
         group_key="composer",
-        best_pairs_separation=100,
         mappings=MAPPINGS,
     )
 

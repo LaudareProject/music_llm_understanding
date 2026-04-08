@@ -147,7 +147,6 @@ def build_payload(
         feature_space=feature_space,
         target_key="midi_note",
         group_key="name",
-        best_pairs_separation=12,
         mappings=MAPPINGS,
     )
 

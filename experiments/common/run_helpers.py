@@ -95,7 +95,6 @@ def evaluate_mapping_payload_with_anchor_retries(
     feature_space,
     target_key,
     group_key,
-    best_pairs_separation,
     mappings,
 ):
     query_to_row = {row["query_id"]: row for row in relevant_rows}
@@ -113,7 +112,6 @@ def evaluate_mapping_payload_with_anchor_retries(
             anchor_selection_method,
             target_key=target_key,
             n=anchor_n,
-            best_pairs_separation=best_pairs_separation,
             seed=42 + retry_idx,
         )
         if len(eval_rows) < 2:
@@ -139,6 +137,7 @@ def evaluate_mapping_payload_with_anchor_retries(
         if anchor_selection_method in {
             "random_sample_regression",
             "random_median_regression",
+            "equally_spaced_regression"
         }:
             sample_ids = anchor_a_ids + anchor_b_ids
             sample_idx = [query_to_index[query_id] for query_id in sample_ids]

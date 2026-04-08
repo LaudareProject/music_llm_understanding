@@ -8,4 +8,4 @@ from experiments.arousal_axis.run_base import main
 
 
 if __name__ == "__main__":
-    main(anchor_selection_method="best_pairs")
+    main(anchor_selection_method="equally_spaced_regression")

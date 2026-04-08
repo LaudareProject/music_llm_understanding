@@ -4,8 +4,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from experiments.polar_axis.run_base import main
+from experiments.pitch_axis.run_base import main
 
 
 if __name__ == "__main__":
-    main(anchor_selection_method="best_pairs")
+    main(anchor_selection_method="equally_spaced_regression")

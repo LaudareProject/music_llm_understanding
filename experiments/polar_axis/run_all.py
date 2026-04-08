@@ -74,9 +74,9 @@ RUN_SPECS = [
         "label": "regression from random samples before and after median",
     },
     {
-        "script": "run_best_pairs.py",
-        "anchor": "best_pairs",
-        "label": "pairs target separation",
+        "script": "run_equally_spaced_regression.py",
+        "anchor": "equally_spaced_regression",
+        "label": "regression from equally spaced targets",
     },
     {
         "script": "run_random_sample_regression.py",

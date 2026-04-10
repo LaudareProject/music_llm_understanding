@@ -136,9 +136,16 @@ def aria_dataset_embeddings_dir(repo_root, dataset_name):
 
 def aria_embedding_path_for_row(row, repo_root):
     dataset_name = _dataset_name(row)
-    return (
-        aria_dataset_embeddings_dir(repo_root, dataset_name) / f"{row['query_id']}.npy"
-    )
+    dataset_dir = aria_dataset_embeddings_dir(repo_root, dataset_name)
+    candidate = dataset_dir / f"{row['query_id']}.npy"
+    if candidate.exists():
+        return candidate
+    if dataset_name != "default":
+        fallback_dir = aria_dataset_embeddings_dir(repo_root, "default")
+        fallback = fallback_dir / f"{row['query_id']}.npy"
+        if fallback.exists():
+            return fallback
+    return candidate
 
 
 def _to_float(value):

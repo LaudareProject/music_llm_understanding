@@ -101,21 +101,52 @@ def _normalize_midi_to_piano(midi_path):
         midi.save(str(midi_path))
 
 
+def _write_pitch_note_midi(row, midi_path):
+    midi_note = int(float(row["midi_note"]))
+    duration_ticks = max(1, int(float(row["duration_ticks"])))
+    velocity = int(float(row["velocity"]))
+    midi = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    track.append(mido.MetaMessage("set_tempo", tempo=500_000, time=0))
+    track.append(
+        mido.Message("note_on", note=midi_note, velocity=velocity, time=0, channel=0)
+    )
+    track.append(
+        mido.Message(
+            "note_off", note=midi_note, velocity=0, time=duration_ticks, channel=0
+        )
+    )
+    midi.tracks.append(track)
+    midi_path.parent.mkdir(parents=True, exist_ok=True)
+    midi.save(str(midi_path))
+
+
 def _prepare_midi_for_row(row, repo_root, midi_dir, bin_dir):
-    source_path = (repo_root / row["path"]).resolve()
-    midi_path = midi_dir / f"{row['query_id']}.mid"
-    if row["input_kind"] == "midi":
-        _normalize_midi_to_piano(source_path)
-        return source_path
-    if row["input_kind"] == "musicxml":
-        musicxml_to_midi(source_path, midi_path, bin_dir)
+    query_id = row["query_id"]
+    midi_path = midi_dir / f"{query_id}.mid"
+    source_path_value = row.get("path")
+    if source_path_value:
+        source_path = (repo_root / source_path_value).resolve()
+        if row["input_kind"] == "midi":
+            _normalize_midi_to_piano(source_path)
+            return source_path
+        if row["input_kind"] == "musicxml":
+            musicxml_to_midi(source_path, midi_path, bin_dir)
+            _normalize_midi_to_piano(midi_path)
+            return midi_path
+        if row["input_kind"] == "kern":
+            kern_to_midi(source_path, midi_path, bin_dir)
+            _normalize_midi_to_piano(midi_path)
+            return midi_path
+        raise ValueError(row["input_kind"])
+
+    dataset = row.get("dataset")
+    if dataset == "pitch":
+        _write_pitch_note_midi(row, midi_path)
         _normalize_midi_to_piano(midi_path)
         return midi_path
-    if row["input_kind"] == "kern":
-        kern_to_midi(source_path, midi_path, bin_dir)
-        _normalize_midi_to_piano(midi_path)
-        return midi_path
-    raise ValueError(row["input_kind"])
+
+    raise ValueError(f"No source path or pitch generator for {query_id}")
 
 
 def _prepare_rows_and_midi(experiment_name, tsv_path, repo_root, output_dir):
@@ -282,15 +313,16 @@ def run_experiment(settings, experiment_name):
     print("[2/5] running grid search")
     base_estimator = clone(spec["pipeline"])
     scorer = make_scorer(spearman_metric, greater_is_better=True)
-    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+    cv = KFold(n_splits=3, shuffle=True, random_state=42)
     grid = GridSearchCV(
         estimator=base_estimator,
         param_grid=spec["param_grid"],
         scoring=scorer,
         cv=cv,
         n_jobs=1,
-        refit=True,
+        refit=False,
         return_train_score=True,
+        verbose=2,
         error_score=np.nan,
     )
     grid.fit(matrix, y)

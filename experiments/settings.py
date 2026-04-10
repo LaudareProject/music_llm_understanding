@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LinearRegression
 from sklearn.feature_selection import VarianceThreshold
-# from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neighbors import KNeighborsRegressor
 
 from experiments.common.models import (
     AnchorPLS,
@@ -25,12 +25,13 @@ GRID_JOBS = 20
 def default_pipeline():
     return build_transparent_pipeline(
         [
-            ("pca", PCA(n_components=0.9, whiten=True)),
-            ("anchor", AnchorSelection(method="first_vs_last", n=4, seed=42)),
+            ("pca", VarianceThreshold()),
+            # ("pca", PCA(n_components=0.9)),
+            ("anchor", AnchorSelection(method="percentile_medians", n=8, seed=42)),
             ("pls", AnchorPLS(scale=True)),
             # ("lda", LinearDiscriminantAnalysis()),
-            ("projection", Projection1D()),
-            # ("regressor", KNeighborsRegressor(n_neighbors=4)),
+            ("projection", Projection1D(regression=True)),
+            # ("regressor", KNeighborsRegressor(n_neighbors=8))
             ("regressor", LinearRegression()),
         ],
         # how many trials to do for stochastic anchor selections (spearman is averaged across trials)
@@ -43,23 +44,22 @@ def default_param_grid():
     common = {
         "anchor__method": [
             "first_vs_last",
-            # "random_sample_first_last",
-            # "random_median",
-            # "percentile_medians",
-            # "random_sample_regression",
-            "random_median_regression",
-            # "percentile_medians_regression",
+            "random_sample_first_last",
+            "random_median",
+            "percentile_medians",
         ],
-        # "anchor__n": [1, 2, 4, 8, 16, 32],
-        "anchor__n": [2, 16],
+        # "anchor__n": range(1, 32),
+        "projection__regression": [False, True],
+        "anchor__n": [1, 2, 4, 8, 16, 32],
+        # "anchor__n": [2, 16],
     }
-
     # return common
+
     return [
         {
             **common,
             "pca": [PCA()],
-            "pca__n_components": [0.9, None],
+            "pca__n_components": [0.8, 0.9, 0.95, None],
             "pca__whiten": [True, False],
             "pls": [AnchorPLS()],
             "pls__scale": [True, False],
@@ -67,7 +67,7 @@ def default_param_grid():
         {
             **common,
             "pca": [PCA()],
-            "pca__n_components": [0.9, None],
+            "pca__n_components": [0.8, 0.9, 0.95, None],
             "pca__whiten": [True, False],
             "pls": [LinearDiscriminantAnalysis()],
         },

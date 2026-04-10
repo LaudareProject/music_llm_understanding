@@ -263,6 +263,16 @@ def _same_params_except_anchor_keys(candidate_params, best_params, ignored_keys)
     return True
 
 
+def _anchor_method_label(method):
+    labels = {
+        "first_vs_last": "first vs last from all data",
+        "random_sample_first_last": "first vs last from random subsample",
+        "random_median": "random samples before and after median",
+        "percentile_medians": "median points of percentiles",
+    }
+    return labels.get(str(method), str(method))
+
+
 def _n_sweep_from_grid(grid):
     cv_results = grid.cv_results_
     split_keys = sorted(
@@ -273,12 +283,12 @@ def _n_sweep_from_grid(grid):
         ]
     )
 
-    by_method = {}
+    by_mode = {False: {}, True: {}}
     for idx, params in enumerate(cv_results["params"]):
         if not _same_params_except_anchor_keys(
             params,
             grid.best_params_,
-            ignored_keys={"anchor__n", "anchor__method"},
+            ignored_keys={"anchor__n", "anchor__method", "projection__regression"},
         ):
             continue
         if "anchor__n" not in params:
@@ -287,29 +297,41 @@ def _n_sweep_from_grid(grid):
             continue
         n_value = int(params["anchor__n"])
         anchor_method = str(params["anchor__method"])
+        projection_regression = bool(params.get("projection__regression", False))
+        line_label = _anchor_method_label(anchor_method)
         split_scores = []
         for key in split_keys:
             value = float(cv_results[key][idx])
             if np.isfinite(value):
                 split_scores.append(value)
         mean_score, ci95_score = mean_ci95(split_scores)
-        by_method.setdefault(anchor_method, []).append(
+        by_mode.setdefault(projection_regression, {}).setdefault(line_label, []).append(
             (int(n_value), mean_score, ci95_score)
         )
 
-    sweep = {}
-    for anchor_method in sorted(by_method.keys()):
-        points = sorted(by_method[anchor_method], key=lambda row: row[0])
-        n_values = [n for n, _, _ in points]
-        n_scores = [s for _, s, _ in points]
-        n_ci95 = [c for _, _, c in points]
-        sweep[anchor_method] = {
-            "n_values": n_values,
-            "scores": n_scores,
-            "ci95": n_ci95,
-        }
+    sweep = {False: {}, True: {}}
+    for projection_regression in [False, True]:
+        for anchor_method in sorted(by_mode[projection_regression].keys()):
+            points = sorted(
+                by_mode[projection_regression][anchor_method], key=lambda row: row[0]
+            )
+            n_values = [n for n, _, _ in points]
+            n_scores = [s for _, s, _ in points]
+            n_ci95 = [c for _, _, c in points]
+            sweep[projection_regression][anchor_method] = {
+                "n_values": n_values,
+                "scores": n_scores,
+                "ci95": n_ci95,
+            }
 
     return sweep
+
+
+def _default_anchor_config(estimator):
+    params = estimator.get_params(deep=True)
+    method = str(params.get("anchor__method", "unknown"))
+    n_value = params.get("anchor__n", "unknown")
+    return method, n_value
 
 
 def run_experiment(settings, experiment_name):
@@ -402,19 +424,24 @@ def run_experiment(settings, experiment_name):
     y_test = y[valid_mask]
     y_test_hat = y_hat_all[valid_mask]
     anchor_mask = anchor_counts > 0
-    y_anchor = y[anchor_mask]
-    y_anchor_hat = y_hat_all[anchor_mask]
+    anchor_test = anchor_mask[valid_mask]
+    if group_labels is None:
+        group_test = np.asarray(["all"] * int(np.sum(valid_mask)), dtype=object)
+    else:
+        group_test = np.asarray(group_labels, dtype=object)[valid_mask]
     score_mean, score_ci95 = mean_ci95(trial_scores)
+    anchor_method, anchor_n = _default_anchor_config(best_estimator)
     scatter_title = (
         f"{experiment_name} best pipeline | "
+        f"anchor={anchor_method}, n={anchor_n}\n"
         f"spearman={score_mean:.4f} +/- {score_ci95:.4f}"
     )
     save_predicted_vs_real_plot(
         output_dir / "predicted_vs_real.png",
         y_test,
         y_test_hat,
-        y_anchor,
-        y_anchor_hat,
+        group_test,
+        anchor_test,
         scatter_title,
     )
 
@@ -450,28 +477,37 @@ def run_experiment(settings, experiment_name):
     n_sweep = _n_sweep_from_grid(grid)
 
     save_n_vs_spearman(
-        output_dir / "n_vs_spearman.png",
-        n_sweep,
-        f"{experiment_name} | n vs Spearman",
+        output_dir / "n_vs_spearman_mean_direction.png",
+        n_sweep[False],
+        f"{experiment_name} | n vs Spearman | mean-direction projection",
+        linestyle="-",
+    )
+    save_n_vs_spearman(
+        output_dir / "n_vs_spearman_regression.png",
+        n_sweep[True],
+        f"{experiment_name} | n vs Spearman | regression projection",
+        linestyle="--",
     )
     n_rows = []
-    for anchor_method, sweep_values in n_sweep.items():
-        n_values = sweep_values["n_values"]
-        n_scores = sweep_values["scores"]
-        n_ci95 = sweep_values["ci95"]
-        for n, s, c in zip(n_values, n_scores, n_ci95):
-            n_rows.append(
-                {
-                    "anchor_method": anchor_method,
-                    "n": str(n),
-                    "spearman": f"{s:.10f}",
-                    "ci95": f"{c:.10f}",
-                }
-            )
+    for projection_regression, by_method in n_sweep.items():
+        for anchor_method, sweep_values in by_method.items():
+            n_values = sweep_values["n_values"]
+            n_scores = sweep_values["scores"]
+            n_ci95 = sweep_values["ci95"]
+            for n, s, c in zip(n_values, n_scores, n_ci95):
+                n_rows.append(
+                    {
+                        "projection_regression": "1" if projection_regression else "0",
+                        "anchor_method": anchor_method,
+                        "n": str(n),
+                        "spearman": f"{s:.10f}",
+                        "ci95": f"{c:.10f}",
+                    }
+                )
     write_tsv(
         output_dir / "n_vs_spearman.tsv",
         n_rows,
-        ["anchor_method", "n", "spearman", "ci95"],
+        ["projection_regression", "anchor_method", "n", "spearman", "ci95"],
     )
 
     print("[5/5] done")

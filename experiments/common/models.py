@@ -7,14 +7,13 @@ from scipy.stats import spearmanr
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin, clone
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 
 
 STOCHASTIC_ANCHOR_METHODS = {
     "random_sample_first_last",
-    "random_sample_regression",
     "random_median",
-    "random_median_regression",
 }
 
 
@@ -95,14 +94,11 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         method = str(self.method)
         if method in {"first_vs_last"}:
             a_idx, b_idx = self._first_vs_last(idx, y_array, n_value)
-        elif method in {"random_sample_first_last", "random_sample_regression"}:
+        elif method in {"random_sample_first_last"}:
             a_idx, b_idx = self._random_sample_first_last(idx, y_array, n_value)
-        elif method in {"random_median", "random_median_regression"}:
+        elif method in {"random_median"}:
             a_idx, b_idx = self._random_median(idx, y_array, n_value)
-        elif method in {
-            "percentile_medians",
-            "percentile_medians_regression",
-        }:
+        elif method in {"percentile_medians"}:
             a_idx, b_idx = self._percentile_medians(idx, y_array, n_value)
         else:
             raise ValueError(f"Unknown anchor selection method: {self.method}")
@@ -162,7 +158,8 @@ class AnchorPLS(BaseEstimator, TransformerMixin):
 
 
 class Projection1D(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self, regression=False):
+        self.regression = regression
         self.anchor_metadata_ = None
 
     def set_anchor_metadata(self, metadata):
@@ -190,8 +187,45 @@ class Projection1D(BaseEstimator, TransformerMixin):
         a_use = a_idx[a_order[:n_use]]
         b_use = b_idx[b_order[-n_use:]]
 
-        center_a = np.mean(X_array[a_use], axis=0)
-        center_b = np.mean(X_array[b_use], axis=0)
+        center_a = np.mean(X_array[a_use], axis=0).astype(np.float64, copy=False)
+        center_b = np.mean(X_array[b_use], axis=0).astype(np.float64, copy=False)
+        self.use_regression_projection_ = False
+
+        if bool(self.regression):
+            anchor_idx = np.asarray(
+                self.anchor_metadata_["anchor_indices"], dtype=np.int64
+            )
+            if y is not None and anchor_idx.size > 1:
+                y_array = _as_float_array(y)
+                y_anchor = y_array[anchor_idx]
+            else:
+                y_anchor = np.concatenate([a_targets, b_targets], axis=0)
+                anchor_idx = np.concatenate([a_idx, b_idx], axis=0)
+
+            if anchor_idx.size > 1:
+                model = LinearRegression()
+                model.fit(X_array[anchor_idx], y_anchor)
+                normal = np.asarray(model.coef_, dtype=np.float64).ravel()
+                intercept = float(
+                    np.asarray(model.intercept_, dtype=np.float64).ravel()[0]
+                )
+                normal_norm_sq = float(normal @ normal)
+                if normal_norm_sq > 1e-12:
+                    center_a = (
+                        center_a
+                        - ((float(normal @ center_a) + intercept) / normal_norm_sq)
+                        * normal
+                    )
+                    center_b = (
+                        center_b
+                        - ((float(normal @ center_b) + intercept) / normal_norm_sq)
+                        * normal
+                    )
+                    self.use_regression_projection_ = True
+                    self.regression_normal_ = normal
+                    self.regression_intercept_ = intercept
+                    self.regression_normal_norm_sq_ = normal_norm_sq
+
         direction = np.asarray(center_b - center_a, dtype=np.float64)
         norm = float(np.linalg.norm(direction))
         if norm <= 1e-12:
@@ -206,6 +240,21 @@ class Projection1D(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_array = np.asarray(X, dtype=np.float64)
+        if self.use_regression_projection_:
+            normal = np.asarray(self.regression_normal_, dtype=np.float64)
+            intercept = float(self.regression_intercept_)
+            normal_norm_sq = float(self.regression_normal_norm_sq_)
+            plane_points = X_array - (
+                ((X_array @ normal + intercept) / normal_norm_sq).reshape(-1, 1)
+                * normal
+            )
+            centered = plane_points - self.origin_
+            numerator = centered @ self.direction_
+            direction_norm = max(float(np.linalg.norm(self.direction_)), 1e-12)
+            centered_norms = np.maximum(np.linalg.norm(centered, axis=1), 1e-12)
+            projected = numerator / (centered_norms * direction_norm)
+            return projected.reshape(-1, 1)
+
         projected = (X_array - self.origin_) @ self.direction_
         return projected.reshape(-1, 1)
 

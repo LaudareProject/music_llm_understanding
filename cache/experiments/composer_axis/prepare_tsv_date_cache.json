@@ -1,7 +1,7 @@
 {
   "asap|Bach|Fugue_bwv_848|ASAP/Bach/Fugue/bwv_848/xml_score.musicxml": {
-    "source": "wikipedia_publication",
-    "year": 2059.0
+    "source": "rism_source_date",
+    "year": 1725.0
   },
   "asap|Bach|Fugue_bwv_862|ASAP/Bach/Fugue/bwv_862/xml_score.musicxml": {
     "source": "imslp_composition",
@@ -65,11 +65,11 @@
   },
   "asap|Chopin|Ballades_2|ASAP/Chopin/Ballades/2/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1869.5
+    "year": 1839.0
   },
   "asap|Chopin|Ballades_3|ASAP/Chopin/Ballades/3/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1870.0
+    "year": 1840.0
   },
   "asap|Chopin|Berceuse_op_57|ASAP/Chopin/Berceuse_op_57/xml_score.musicxml": {
     "source": "imslp_composition",
@@ -93,39 +93,39 @@
   },
   "asap|Chopin|Sonata_2_1st|ASAP/Chopin/Sonata_2/1st_no_repeat/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1956.0
+    "year": 1820.0
   },
   "asap|Haydn|Keyboard_Sonatas_31-1|ASAP/Haydn/Keyboard_Sonatas/31-1/xml_score.musicxml": {
-    "source": "rism_source_date",
-    "year": 1850.0
+    "source": "lifespan_midpoint",
+    "year": 1770.5
   },
   "asap|Haydn|Keyboard_Sonatas_32-1|ASAP/Haydn/Keyboard_Sonatas/32-1/xml_score.musicxml": {
     "source": "lifespan_midpoint",
     "year": 1770.5
   },
   "asap|Haydn|Keyboard_Sonatas_39-1|ASAP/Haydn/Keyboard_Sonatas/39-1/xml_score.musicxml": {
-    "source": "rism_source_date",
-    "year": 1810.0
+    "source": "lifespan_midpoint",
+    "year": 1770.5
   },
   "asap|Haydn|Keyboard_Sonatas_39-2|ASAP/Haydn/Keyboard_Sonatas/39-2/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1600.5
+    "year": 1794.0
   },
   "asap|Haydn|Keyboard_Sonatas_46-1|ASAP/Haydn/Keyboard_Sonatas/46-1/xml_score.musicxml": {
     "source": "lifespan_midpoint",
     "year": 1770.5
   },
   "asap|Haydn|Keyboard_Sonatas_48-2|ASAP/Haydn/Keyboard_Sonatas/48-2/xml_score.musicxml": {
+    "source": "wikipedia_inception",
+    "year": 1794.0
+  },
+  "asap|Haydn|Keyboard_Sonatas_49-1|ASAP/Haydn/Keyboard_Sonatas/49-1/xml_score.musicxml": {
     "source": "lifespan_midpoint",
     "year": 1770.5
   },
-  "asap|Haydn|Keyboard_Sonatas_49-1|ASAP/Haydn/Keyboard_Sonatas/49-1/xml_score.musicxml": {
-    "source": "rism_source_date",
-    "year": 1850.0
-  },
   "asap|Haydn|Keyboard_Sonatas_50-1|ASAP/Haydn/Keyboard_Sonatas/50-1_no_repeat/xml_score.musicxml": {
-    "source": "rism_source_date",
-    "year": 1850.0
+    "source": "lifespan_midpoint",
+    "year": 1770.5
   },
   "asap|Liszt|Annees_de_pelerinage_2_1_Gondoliera|ASAP/Liszt/Annees_de_pelerinage_2/1_Gondoliera/xml_score.musicxml": {
     "source": "rism_source_date",
@@ -149,15 +149,15 @@
   },
   "asap|Liszt|Transcendental_Etudes_10|ASAP/Liszt/Transcendental_Etudes/10/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1875.5
+    "year": 1851.0
   },
   "asap|Liszt|Transcendental_Etudes_11|ASAP/Liszt/Transcendental_Etudes/11/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1875.5
+    "year": 1851.0
   },
   "asap|Liszt|Transcendental_Etudes_4|ASAP/Liszt/Transcendental_Etudes/4/xml_score.musicxml": {
     "source": "wikipedia_inception",
-    "year": 1875.5
+    "year": 1851.0
   },
   "asap|Mozart|Fantasie_475|ASAP/Mozart/Fantasie_475/xml_score.musicxml": {
     "source": "imslp_composition",
@@ -284,48 +284,48 @@
     "year": 1954.5
   },
   "ewld|Bill Evans|Time Remembered|EWLD/dataset/Bill_Evans/Time_Remembered/Time_Remembered.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1985.0
+    "source": "lifespan_midpoint",
+    "year": 1954.5
   },
   "ewld|Bill Evans|Turn Out the Stars|EWLD/dataset/Bill_Evans/Turn_Out_the_Stars/Turn_Out_the_Stars.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1985.0
+    "source": "lifespan_midpoint",
+    "year": 1954.5
   },
   "ewld|Bill Evans|Very Early|EWLD/dataset/Bill_Evans/Very_Early/Very_Early.mxl": {
     "source": "lifespan_midpoint",
     "year": 1954.5
   },
   "ewld|Bill Evans|Waltz for Debby|EWLD/dataset/Bill_Evans/Waltz_for_Debby/Waltz_for_Debby.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1982.5
+    "source": "lifespan_midpoint",
+    "year": 1954.5
   },
   "ewld|Billy Strayhorn|A Flower Is a Lovesome Thing|EWLD/dataset/Billy_Strayhorn/A_Flower_Is_a_Lovesome_Thing/A_Flower_Is_a_Lovesome_Thing.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.0
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Billy Strayhorn|Johnny Come Lately|EWLD/dataset/Billy_Strayhorn/Johnny_Come_Lately/Johnny_Come_Lately.mxl": {
     "source": "lifespan_midpoint",
     "year": 1941.0
   },
   "ewld|Billy Strayhorn|Lush Life|EWLD/dataset/Billy_Strayhorn/Lush_Life/Lush_Life.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1979.5
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Billy Strayhorn|My Little Brown Book|EWLD/dataset/Billy_Strayhorn/My_Little_Brown_Book/My_Little_Brown_Book.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1974.0
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Billy Strayhorn|Passion Flower|EWLD/dataset/Billy_Strayhorn/Passion_Flower/Passion_Flower.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1974.0
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Billy Strayhorn|Raincheck|EWLD/dataset/Billy_Strayhorn/Raincheck/Raincheck.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.5
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Billy Strayhorn|Take the \"A\" Train|EWLD/dataset/Billy_Strayhorn/Take_the_\"A\"_Train/Take_the_\"A\"_Train.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1971.5
+    "source": "lifespan_midpoint",
+    "year": 1941.0
   },
   "ewld|Bob Merrill|A Sweet Old Fashioned Girl|EWLD/dataset/Bob_Merrill/A_Sweet_Old_Fashioned_Girl/A_Sweet_Old_Fashioned_Girl.mxl": {
     "source": "lifespan_midpoint",
@@ -352,12 +352,12 @@
     "year": 1982.0
   },
   "ewld|Bobby Darin|18 Yellow Roses|EWLD/dataset/Bobby_Darin/18_Yellow_Roses/18_Yellow_Roses.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1983.5
+    "source": "lifespan_midpoint",
+    "year": 1954.5
   },
   "ewld|Bobby Darin|Things|EWLD/dataset/Bobby_Darin/Things/Things.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1983.5
+    "source": "lifespan_midpoint",
+    "year": 1954.5
   },
   "ewld|Bobby Darin|You're the Reason I'm Living|EWLD/dataset/Bobby_Darin/You're_the_Reason_I'm_Living/You're_the_Reason_I'm_Living.mxl": {
     "source": "lifespan_midpoint",
@@ -412,40 +412,40 @@
     "year": 1950.5
   },
   "ewld|Charles Mingus|Nostalgia in Times Square|EWLD/dataset/Charles_Mingus/Nostalgia_in_Times_Square/Nostalgia_in_Times_Square.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.0
+    "source": "lifespan_midpoint",
+    "year": 1950.5
   },
   "ewld|Charlie Parker|Billie's Bounce|EWLD/dataset/Charlie_Parker/Billie's_Bounce/Billie's_Bounce.mxl": {
     "source": "lifespan_midpoint",
     "year": 1937.5
   },
   "ewld|Charlie Parker|Confirmation|EWLD/dataset/Charlie_Parker/Confirmation/Confirmation.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1974.0
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|Cool Blues|EWLD/dataset/Charlie_Parker/Cool_Blues/Cool_Blues.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1974.5
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|Donna Lee|EWLD/dataset/Charlie_Parker/Donna_Lee/Donna_Lee.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.0
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|Moose the Mooche|EWLD/dataset/Charlie_Parker/Moose_the_Mooche/Moose_the_Mooche.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1974.5
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|My Little Suede Shoes|EWLD/dataset/Charlie_Parker/My_Little_Suede_Shoes/My_Little_Suede_Shoes.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1977.0
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|Now's the Time|EWLD/dataset/Charlie_Parker/Now's_the_Time/Now's_the_Time.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1978.0
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Charlie Parker|Perhaps|EWLD/dataset/Charlie_Parker/Perhaps/Perhaps.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1978.5
+    "source": "lifespan_midpoint",
+    "year": 1937.5
   },
   "ewld|Chuck Berry|Beautiful Delilah|EWLD/dataset/Chuck_Berry/Beautiful_Delilah/Beautiful_Delilah.mxl": {
     "source": "ewld_first_performance_date",
@@ -464,36 +464,36 @@
     "year": 1980.0
   },
   "ewld|Cole Porter|Do I Love You?|EWLD/dataset/Cole_Porter/Do_I_Love_You?/Do_I_Love_You?.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1975.5
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|Don't Fence Me In|EWLD/dataset/Cole_Porter/Don't_Fence_Me_In/Don't_Fence_Me_In.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1968.0
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|Friendship|EWLD/dataset/Cole_Porter/Friendship/Friendship.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1975.5
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|From This Moment On|EWLD/dataset/Cole_Porter/From_This_Moment_On/From_This_Moment_On.mxl": {
     "source": "lifespan_midpoint",
     "year": 1927.5
   },
   "ewld|Cole Porter|In the Still of the Night|EWLD/dataset/Cole_Porter/In_the_Still_of_the_Night/In_the_Still_of_the_Night.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1973.0
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|Let's Misbehave|EWLD/dataset/Cole_Porter/Let's_Misbehave/Let's_Misbehave.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1969.5
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|Miss Otis Regrets|EWLD/dataset/Cole_Porter/Miss_Otis_Regrets/Miss_Otis_Regrets.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1972.0
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Cole Porter|Wunderbar|EWLD/dataset/Cole_Porter/Wunderbar/Wunderbar.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.0
+    "source": "lifespan_midpoint",
+    "year": 1927.5
   },
   "ewld|Dizzy Gillespie|Birk's Works|EWLD/dataset/Dizzy_Gillespie/Birk's_Works/Birk's_Works.mxl": {
     "source": "ewld_first_performance_date",
@@ -520,8 +520,8 @@
     "year": 1971.0
   },
   "ewld|Duke Ellington|C Jam Blues|EWLD/dataset/Duke_Ellington/C_Jam_Blues/C_Jam_Blues.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1975.0
+    "source": "lifespan_midpoint",
+    "year": 1936.5
   },
   "ewld|Duke Ellington|Come Sunday|EWLD/dataset/Duke_Ellington/Come_Sunday/Come_Sunday.mxl": {
     "source": "ewld_first_performance_date",
@@ -532,96 +532,96 @@
     "year": 1936.5
   },
   "ewld|Duke Ellington|The Single Petal of a Rose|EWLD/dataset/Duke_Ellington/The_Single_Petal_of_a_Rose/The_Single_Petal_of_a_Rose.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1981.5
+    "source": "lifespan_midpoint",
+    "year": 1936.5
   },
   "ewld|Duke Ellington|Warm Valley|EWLD/dataset/Duke_Ellington/Warm_Valley/Warm_Valley.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1975.0
+    "source": "lifespan_midpoint",
+    "year": 1936.5
   },
   "ewld|Duke Ellington|What Am I Here For?|EWLD/dataset/Duke_Ellington/What_Am_I_Here_For?/What_Am_I_Here_For?.mxl": {
     "source": "ewld_first_performance_date",
     "year": 1972.0
   },
   "ewld|Frank Loesser|A Bushel and a Peck|EWLD/dataset/Frank_Loesser/A_Bushel_and_a_Peck/A_Bushel_and_a_Peck.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.5
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|A Woman in Love|EWLD/dataset/Frank_Loesser/A_Woman_in_Love/A_Woman_in_Love.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1983.0
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|Anywhere I Wander|EWLD/dataset/Frank_Loesser/Anywhere_I_Wander/Anywhere_I_Wander.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1981.5
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|Guys and Dolls|EWLD/dataset/Frank_Loesser/Guys_and_Dolls/Guys_and_Dolls.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.5
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|On a Slow Boat to China|EWLD/dataset/Frank_Loesser/On_a_Slow_Boat_to_China/On_a_Slow_Boat_to_China.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1978.5
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|Spring Will Be a Little Late This Year|EWLD/dataset/Frank_Loesser/Spring_Will_Be_a_Little_Late_This_Year/Spring_Will_Be_a_Little_Late_This_Year.mxl": {
     "source": "lifespan_midpoint",
     "year": 1939.5
   },
   "ewld|Frank Loesser|Standing on the Corner|EWLD/dataset/Frank_Loesser/Standing_on_the_Corner/Standing_on_the_Corner.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.5
+    "source": "lifespan_midpoint",
+    "year": 1939.5
   },
   "ewld|Frank Loesser|What Are You Doing New Year's Eve|EWLD/dataset/Frank_Loesser/What_Are_You_Doing_New_Year's_Eve/What_Are_You_Doing_New_Year's_Eve.mxl": {
     "source": "lifespan_midpoint",
     "year": 1939.5
   },
   "ewld|George M. Cohan|Give My Regards to Broadway|EWLD/dataset/George_M._Cohan/Give_My_Regards_to_Broadway/Give_My_Regards_to_Broadway.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1952.0
+    "source": "lifespan_midpoint",
+    "year": 1910.0
   },
   "ewld|George M. Cohan|Mary's a Grand Old Name|EWLD/dataset/George_M._Cohan/Mary's_a_Grand_Old_Name/Mary's_a_Grand_Old_Name.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1953.5
+    "source": "lifespan_midpoint",
+    "year": 1910.0
   },
   "ewld|George M. Cohan|Over There|EWLD/dataset/George_M._Cohan/Over_There/Over_There.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1961.5
+    "source": "lifespan_midpoint",
+    "year": 1910.0
   },
   "ewld|George M. Cohan|Yankee Doodle Boy|EWLD/dataset/George_M._Cohan/Yankee_Doodle_Boy/Yankee_Doodle_Boy.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1952.0
+    "source": "lifespan_midpoint",
+    "year": 1910.0
   },
   "ewld|Hank Williams|Cold, Cold Heart|EWLD/dataset/Hank_Williams/Cold,_Cold_Heart/Cold,_Cold_Heart.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1981.0
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|Hey, Good Lookin'|EWLD/dataset/Hank_Williams/Hey,_Good_Lookin'/Hey,_Good_Lookin'.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1977.0
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|House of Gold|EWLD/dataset/Hank_Williams/House_of_Gold/House_of_Gold.mxl": {
     "source": "lifespan_midpoint",
     "year": 1938.0
   },
   "ewld|Hank Williams|I Can't Escape From You|EWLD/dataset/Hank_Williams/I_Can't_Escape_From_You/I_Can't_Escape_From_You.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1975.5
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|I Won't Be Home No More|EWLD/dataset/Hank_Williams/I_Won't_Be_Home_No_More/I_Won't_Be_Home_No_More.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1979.5
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|May You Never Be Alone|EWLD/dataset/Hank_Williams/May_You_Never_Be_Alone/May_You_Never_Be_Alone.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.0
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|There's a Tear in My Beer|EWLD/dataset/Hank_Williams/There's_a_Tear_in_My_Beer/There's_a_Tear_in_My_Beer.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.5
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Hank Williams|Your Cheatin' Heart|EWLD/dataset/Hank_Williams/Your_Cheatin'_Heart/Your_Cheatin'_Heart.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1980.5
+    "source": "lifespan_midpoint",
+    "year": 1938.0
   },
   "ewld|Harry M. Woods|Side by Side|EWLD/dataset/Harry_M._Woods/Side_by_Side/Side_by_Side.mxl": {
     "source": "ewld_first_performance_date",
@@ -632,8 +632,8 @@
     "year": 1969.5
   },
   "ewld|Harry M. Woods|What a Little Moonlight Can Do|EWLD/dataset/Harry_M._Woods/What_a_Little_Moonlight_Can_Do/What_a_Little_Moonlight_Can_Do.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1972.5
+    "source": "lifespan_midpoint",
+    "year": 1933.0
   },
   "ewld|Harry M. Woods|When the Red, Red, Robin Comes Bob, Bob, Bobbin' Along|EWLD/dataset/Harry_M._Woods/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along/When_the_Red,_Red,_Robin_Comes_Bob,_Bob,_Bobbin'_Along.mxl": {
     "source": "ewld_first_performance_date",
@@ -732,28 +732,28 @@
     "year": 1946.5
   },
   "ewld|John Coltrane|Cousin Mary|EWLD/dataset/John_Coltrane/Cousin_Mary/Cousin_Mary.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1982.0
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Coltrane|Equinox|EWLD/dataset/John_Coltrane/Equinox/Equinox.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1985.0
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Coltrane|Giant Steps|EWLD/dataset/John_Coltrane/Giant_Steps/Giant_Steps.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1982.0
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Coltrane|Impressions|EWLD/dataset/John_Coltrane/Impressions/Impressions.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1986.0
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Coltrane|Mr. P.C.|EWLD/dataset/John_Coltrane/Mr._P.C./Mr._P.C..mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1982.0
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Coltrane|Some Other Blues|EWLD/dataset/John_Coltrane/Some_Other_Blues/Some_Other_Blues.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1985.5
+    "source": "lifespan_midpoint",
+    "year": 1946.5
   },
   "ewld|John Denver|Annie's Song|EWLD/dataset/John_Denver/Annie's_Song/Annie's_Song.mxl": {
     "source": "lifespan_midpoint",
@@ -800,24 +800,24 @@
     "year": 1977.5
   },
   "ewld|Johnny Mercer|Autumn Leaves|EWLD/dataset/Johnny_Mercer/Autumn_Leaves/Autumn_Leaves.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1978.5
+    "source": "lifespan_midpoint",
+    "year": 1942.5
   },
   "ewld|Johnny Mercer|Dream|EWLD/dataset/Johnny_Mercer/Dream/Dream.mxl": {
     "source": "lifespan_midpoint",
     "year": 1942.5
   },
   "ewld|Johnny Mercer|G.I. Jive|EWLD/dataset/Johnny_Mercer/G.I._Jive/G.I._Jive.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.5
+    "source": "lifespan_midpoint",
+    "year": 1942.5
   },
   "ewld|Johnny Mercer|I'm an Old Cowhand (From the Rio Grande)|EWLD/dataset/Johnny_Mercer/I'm_an_Old_Cowhand_(From_the_Rio_Grande)/I'm_an_Old_Cowhand_(From_the_Rio_Grande).mxl": {
     "source": "ewld_first_performance_date",
     "year": 1971.5
   },
   "ewld|Johnny Mercer|Something's Gotta Give|EWLD/dataset/Johnny_Mercer/Something's_Gotta_Give/Something's_Gotta_Give.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1977.5
+    "source": "lifespan_midpoint",
+    "year": 1942.5
   },
   "ewld|Johnny Mercer|Summer Wind|EWLD/dataset/Johnny_Mercer/Summer_Wind/Summer_Wind.mxl": {
     "source": "lifespan_midpoint",
@@ -844,8 +844,8 @@
     "year": 1941.5
   },
   "ewld|Leroy Anderson|Serenata|EWLD/dataset/Leroy_Anderson/Serenata/Serenata.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1976.5
+    "source": "lifespan_midpoint",
+    "year": 1941.5
   },
   "ewld|Leroy Anderson|Sleigh Ride|EWLD/dataset/Leroy_Anderson/Sleigh_Ride/Sleigh_Ride.mxl": {
     "source": "lifespan_midpoint",
@@ -904,8 +904,8 @@
     "year": 1979.0
   },
   "ewld|Ray Gilbert|Once I Loved|EWLD/dataset/Ray_Gilbert/Once_I_Loved/Once_I_Loved.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1983.0
+    "source": "lifespan_midpoint",
+    "year": 1944.0
   },
   "ewld|Ray Gilbert|The Face I Love|EWLD/dataset/Ray_Gilbert/The_Face_I_Love/The_Face_I_Love.mxl": {
     "source": "lifespan_midpoint",
@@ -988,8 +988,8 @@
     "year": 1845.0
   },
   "ewld|Stephen Foster|Jeanie with the Light Brown Hair|EWLD/dataset/Stephen_Foster/Jeanie_with_the_Light_Brown_Hair/Jeanie_with_the_Light_Brown_Hair.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1964.0
+    "source": "lifespan_midpoint",
+    "year": 1845.0
   },
   "ewld|Stephen Foster|My Old Kentucky Home - Good-Night!|EWLD/dataset/Stephen_Foster/My_Old_Kentucky_Home_-_Good-Night!/My_Old_Kentucky_Home_-_Good-Night!.mxl": {
     "source": "lifespan_midpoint",
@@ -1036,112 +1036,112 @@
     "year": 1981.0
   },
   "ewld|Thelonious Monk|Pannonica|EWLD/dataset/Thelonious_Monk/Pannonica/Pannonica.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1983.0
+    "source": "lifespan_midpoint",
+    "year": 1949.5
   },
   "ewld|Thelonious Monk|Straight No Chaser|EWLD/dataset/Thelonious_Monk/Straight_No_Chaser/Straight_No_Chaser.mxl": {
     "source": "ewld_first_performance_date",
     "year": 1979.0
   },
   "ewld|Thelonious Monk|Ugly Beauty|EWLD/dataset/Thelonious_Monk/Ugly_Beauty/Ugly_Beauty.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1989.5
+    "source": "lifespan_midpoint",
+    "year": 1949.5
   },
   "ewld|Walter Donaldson|At Sundown|EWLD/dataset/Walter_Donaldson/At_Sundown/At_Sundown.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1964.0
+    "source": "lifespan_midpoint",
+    "year": 1920.0
   },
   "ewld|Walter Donaldson|Little White Lies|EWLD/dataset/Walter_Donaldson/Little_White_Lies/Little_White_Lies.mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1968.5
+    "source": "lifespan_midpoint",
+    "year": 1920.0
   },
   "ewld|Walter Donaldson|You're Driving Me Crazy (What Did I Do?)|EWLD/dataset/Walter_Donaldson/You're_Driving_Me_Crazy_(What_Did_I_Do?)/You're_Driving_Me_Crazy_(What_Did_I_Do?).mxl": {
-    "source": "ewld_first_performance_date",
-    "year": 1965.0
+    "source": "lifespan_midpoint",
+    "year": 1920.0
   },
   "music21|Clara Schumann|movement3|.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/opus17/movement3.xml": {
-    "source": "wikipedia_inception",
-    "year": 1870.5
+    "source": "rism_source_date",
+    "year": 1847.5
   },
   "music21|Clara Schumann|polonaise_op1n1|.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n1.mxl": {
-    "source": "wikipedia_inception",
-    "year": 500.0
+    "source": "rism_source_date",
+    "year": 1891.0
   },
   "music21|Clara Schumann|polonaise_op1n2|.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n2.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1869.0
+    "source": "rism_source_date",
+    "year": 1891.0
   },
   "music21|Clara Schumann|polonaise_op1n3|.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n3.mxl": {
-    "source": "wikipedia_inception",
-    "year": 500.0
+    "source": "rism_source_date",
+    "year": 1891.0
   },
   "music21|Clara Schumann|polonaise_op1n4|.venv/lib/python3.11/site-packages/music21/corpus/schumann_clara/polonaise_op1n4.mxl": {
-    "source": "wikipedia_publication",
-    "year": 1866.0
+    "source": "rism_source_date",
+    "year": 1891.0
   },
   "music21|Claudio Monteverdi|madrigal.3.13|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.13.mxl": {
-    "source": "wikipedia_publication",
-    "year": 2062.0
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.3.20|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.20.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1998.5
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.3.6|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.3.6.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1998.5
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.4.10|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.4.10.mxl": {
-    "source": "wikipedia_publication",
-    "year": 2057.5
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.5.1|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.1.mxl": {
-    "source": "wikipedia_inception",
-    "year": 500.0
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.5.2|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.2.mxl": {
-    "source": "rism_source_date",
-    "year": 1947.0
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.5.3|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.3.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1998.5
+    "source": "lifespan_midpoint",
+    "year": 1605.0
   },
   "music21|Claudio Monteverdi|madrigal.5.4|.venv/lib/python3.11/site-packages/music21/corpus/monteverdi/madrigal.5.4.mxl": {
     "source": "lifespan_midpoint",
     "year": 1605.0
   },
   "music21|Giovanni Palestrina|Agnus_II_37|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_II_37.krn": {
-    "source": "wikipedia_inception",
-    "year": 1668.0
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Agnus_I_03|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Agnus_I_03.krn": {
-    "source": "wikipedia_publication",
-    "year": 1999.0
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Credo_26|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_26.krn": {
-    "source": "wikipedia_inception",
-    "year": 2000.0
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Credo_31_a|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_31_a.krn": {
-    "source": "wikipedia_publication",
-    "year": 1592.5
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Credo_71_h|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_71_h.krn": {
-    "source": "wikipedia_inception",
-    "year": 2002.5
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Credo_78_a|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Credo_78_a.krn": {
-    "source": "wikipedia_inception",
-    "year": 2002.5
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Giovanni Palestrina|Sanctus_10|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_10.krn": {
     "source": "wikipedia_inception",
-    "year": 1583.5
+    "year": 1567.0
   },
   "music21|Giovanni Palestrina|Sanctus_rpt_01_b|.venv/lib/python3.11/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_b.krn": {
-    "source": "wikipedia_inception",
-    "year": 1585.0
+    "source": "lifespan_midpoint",
+    "year": 1559.5
   },
   "music21|Johann Sebastian Bach|bwv145-a|.venv/lib/python3.11/site-packages/music21/corpus/bach/bwv145-a.mxl": {
     "source": "imslp_composition",
@@ -1177,31 +1177,31 @@
   },
   "music21|Joseph Haydn|movement1|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement1.mxl": {
     "source": "wikipedia_inception",
-    "year": 1990.0
+    "year": 1799.0
   },
   "music21|Joseph Haydn|movement1|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement1.mxl": {
     "source": "wikipedia_inception",
-    "year": 1990.0
+    "year": 1786.0
   },
   "music21|Joseph Haydn|movement2|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement2.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1986.5
+    "source": "wikipedia_publication",
+    "year": 1788.0
   },
   "music21|Joseph Haydn|movement2|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement2.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1986.5
+    "source": "wikipedia_publication",
+    "year": 1788.0
   },
   "music21|Joseph Haydn|movement3|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement3.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1969.0
+    "source": "rism_source_date",
+    "year": 1786.0
   },
   "music21|Joseph Haydn|movement3|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement3.mxl": {
-    "source": "wikipedia_inception",
-    "year": 1998.5
+    "source": "rism_source_date",
+    "year": 1786.0
   },
   "music21|Joseph Haydn|movement4|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus1no1/movement4.mxl": {
-    "source": "wikipedia_publication",
-    "year": 2063.0
+    "source": "rism_source_date",
+    "year": 1773.0
   },
   "music21|Joseph Haydn|movement4|.venv/lib/python3.11/site-packages/music21/corpus/haydn/opus74no1/movement4.mxl": {
     "source": "rism_source_date",
@@ -1209,31 +1209,31 @@
   },
   "music21|Ludwig van Beethoven|movement1|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement1.krn": {
     "source": "wikipedia_inception",
-    "year": 1990.0
+    "year": 1825.0
   },
   "music21|Ludwig van Beethoven|movement1|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement1.mxl": {
     "source": "wikipedia_inception",
-    "year": 2052.0
+    "year": 1801.0
   },
   "music21|Ludwig van Beethoven|movement2|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement2.mxl": {
     "source": "wikipedia_inception",
-    "year": 1986.5
+    "year": 1801.0
   },
   "music21|Ludwig van Beethoven|movement3|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.krn": {
     "source": "wikipedia_inception",
-    "year": 1851.5
+    "year": 1803.0
   },
   "music21|Ludwig van Beethoven|movement3|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement3.mxl": {
     "source": "wikipedia_inception",
-    "year": 1851.5
+    "year": 1803.0
   },
   "music21|Ludwig van Beethoven|movement3|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus59no3/movement3.mxl": {
     "source": "wikipedia_inception",
-    "year": 1851.5
+    "year": 1803.0
   },
   "music21|Ludwig van Beethoven|movement4|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus18no1/movement4.mxl": {
     "source": "wikipedia_inception",
-    "year": 1853.5
+    "year": 1807.0
   },
   "music21|Ludwig van Beethoven|opus133|.venv/lib/python3.11/site-packages/music21/corpus/beethoven/opus133.mxl": {
     "source": "rism_source_date",

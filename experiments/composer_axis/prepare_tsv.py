@@ -144,6 +144,30 @@ def parse_work_year(value):
     return (years[0] + years[-1]) / 2.0
 
 
+def parse_wikidata_time_year(value):
+    text = str(value or "").strip()
+    match = re.match(r"^([+-])(\d{1,16})-", text)
+    if not match:
+        return None
+    sign, year_text = match.groups()
+    year = int(year_text)
+    if sign == "-":
+        year = -year
+    return float(year)
+
+
+def year_in_lifespan(row, year):
+    try:
+        value = float(year)
+        birth = float(row["birth_year"])
+        death = float(row["death_year"])
+    except Exception:
+        return True
+    if np.isnan(value) or np.isnan(birth) or np.isnan(death):
+        return True
+    return birth <= value <= death
+
+
 def load_date_cache():
     if not DATE_CACHE_PATH.exists():
         return {}
@@ -323,10 +347,10 @@ def lookup_imslp_year(row):
             continue
         fields = fetch_imslp_fields(chosen)
         composition_year = parse_work_year(fields.get("Year/Date of Composition"))
-        if composition_year is not None:
+        if composition_year is not None and year_in_lifespan(row, composition_year):
             return composition_year, "imslp_composition"
         publication_year = parse_work_year(fields.get("Year of First Publication"))
-        if publication_year is not None:
+        if publication_year is not None and year_in_lifespan(row, publication_year):
             return publication_year, "imslp_first_publication"
     return None, None
 
@@ -371,7 +395,7 @@ def fetch_wikidata_year(qid):
         for claim in claims:
             datavalue = claim.get("mainsnak", {}).get("datavalue", {})
             value = datavalue.get("value", {})
-            year = parse_work_year(value.get("time"))
+            year = parse_wikidata_time_year(value.get("time"))
             if year is not None:
                 return year, source
     return None, None
@@ -409,7 +433,7 @@ def lookup_wikipedia_year(row):
         if not qid:
             continue
         year, source = fetch_wikidata_year(qid)
-        if year is not None:
+        if year is not None and year_in_lifespan(row, year):
             return year, source
     return None, None
 
@@ -464,9 +488,11 @@ def lookup_rism_year(row):
         earliest = parse_work_year(dates.get("earliestDate"))
         latest = parse_work_year(dates.get("latestDate"))
         if earliest is not None and latest is not None:
-            return (earliest + latest) / 2.0, "rism_source_date"
+            year = (earliest + latest) / 2.0
+            if year_in_lifespan(row, year):
+                return year, "rism_source_date"
         date_statement = parse_work_year(dates.get("dateStatement"))
-        if date_statement is not None:
+        if date_statement is not None and year_in_lifespan(row, date_statement):
             return date_statement, "rism_source_date"
     return None, None
 
@@ -477,7 +503,7 @@ def lookup_network_year(row):
             year, source = fn(row)
         except Exception:
             year, source = None, None
-        if year is not None:
+        if year is not None and year_in_lifespan(row, year):
             return year, source
         time.sleep(0.1)
     return None, None
@@ -491,10 +517,14 @@ def assign_work_years(records):
             [row["dataset"], row["composer"], row["title"], row["path"]]
         )
         cached = cache.get(cache_key)
+        if cached is not None and not year_in_lifespan(row, cached.get("year")):
+            cache.pop(cache_key, None)
+            cached = None
+            dirty = True
         if cached is None:
             if row["dataset"] == "ewld":
                 year = parse_work_year(row.get("first_performance_date"))
-                if year is not None:
+                if year is not None and year_in_lifespan(row, year):
                     cached = {"year": year, "source": "ewld_first_performance_date"}
                 else:
                     cached = {

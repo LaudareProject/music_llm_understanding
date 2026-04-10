@@ -156,8 +156,21 @@ def _prepare_midi_for_row(row, repo_root, midi_dir, bin_dir):
     raise ValueError(f"No source path or pitch generator for {query_id}")
 
 
-def _prepare_rows_and_midi(experiment_name, tsv_path, repo_root, output_dir):
+def _prepare_rows_and_midi(
+    experiment_name,
+    tsv_path,
+    repo_root,
+    output_dir,
+    row_filter_col=None,
+    row_filter_value=None,
+):
     rows = read_tsv(tsv_path)
+    if row_filter_col is not None:
+        rows = [
+            row
+            for row in rows
+            if str(row.get(row_filter_col, "")).strip() == str(row_filter_value)
+        ]
     midi_dir = output_dir / "midi"
     midi_dir.mkdir(parents=True, exist_ok=True)
     bin_dir = repo_root / "bin"
@@ -338,6 +351,8 @@ def run_experiment(settings, experiment_name):
         spec["tsv_path"],
         repo_root,
         output_dir,
+        row_filter_col=spec.get("row_filter_col"),
+        row_filter_value=spec.get("row_filter_value"),
     )
     query_ids = [row["query_id"] for row in rows]
     y = np.asarray([float(row[spec["target_col"]]) for row in rows], dtype=np.float64)

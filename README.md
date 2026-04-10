@@ -41,21 +41,21 @@ uv run python experiments/pitch_axis/run_all.py
 
 `prepare_tsv.py` builds `experiments/pitch_axis/notes.tsv` with note-level covariates (`duration_ticks`, `velocity`) used for control analyses.
 
-### Best-model selection metric
-
-All composer/pitch experiment runners accept `BEST_METRIC` to define what "best" means during combo/mapping/anchor selection.
-
-- Supported values: `spearman` (default), `l1`, `pearson`, `r2`
-- Example:
+### Arousal and valence:
 
 ```bash
-BEST_METRIC=l1 uv run python experiments/composer_axis/run_all.py
-BEST_METRIC=r2 uv run python experiments/pitch_axis/run_all.py
+uv run python experiments/arousal_axis/prepare_tsv.py
+uv run python experiments/arousal_axis/run_all.py
+
+uv run python experiments/valence_axis/prepare_tsv.py
+uv run python experiments/valence_axis/run_all.py
 ```
 
-The selected strategy is also used for covariate-control artifacts (`best_strategy_covariate_pearson_heatmap.png`, `best_strategy_covariate_spearman_heatmap.png`, `best_strategy_covariate_correlations.tsv`).
+All experiment pipelines and grid-search parameters are defined in `experiments/settings.py`.
 
-Outputs are written under `outputs/experiments/<experiment>/<timestamp>/`.
+Each `run_all.py` executes a GridSearchCV over the configured pipelines with a single predefined split, writes `gridsearch_results.csv`, and then re-runs the best pipeline with anchors excluded from test for the final plots.
+
+Outputs are written under `outputs/aria_embeddings/<experiment>/<timestamp>/` or `outputs/baseline_features/<experiment>/<timestamp>/` based on `FEATURE_BACKEND`.
 
 ## Models
 

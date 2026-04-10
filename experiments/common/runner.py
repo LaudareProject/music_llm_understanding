@@ -169,9 +169,9 @@ def _write_gridsearch_csv(path, grid_search):
         writer.writerows(rows)
 
 
-def _same_params_except_anchor_n(candidate_params, best_params):
+def _same_params_except_anchor_keys(candidate_params, best_params, ignored_keys):
     for key, best_value in best_params.items():
-        if key == "anchor__n":
+        if key in ignored_keys:
             continue
         if key not in candidate_params:
             return False
@@ -180,7 +180,7 @@ def _same_params_except_anchor_n(candidate_params, best_params):
     return True
 
 
-def _n_sweep_from_grid(grid, n_values):
+def _n_sweep_from_grid(grid):
     cv_results = grid.cv_results_
     split_keys = sorted(
         [
@@ -190,31 +190,43 @@ def _n_sweep_from_grid(grid, n_values):
         ]
     )
 
-    by_n = {}
+    by_method = {}
     for idx, params in enumerate(cv_results["params"]):
-        if not _same_params_except_anchor_n(params, grid.best_params_):
+        if not _same_params_except_anchor_keys(
+            params,
+            grid.best_params_,
+            ignored_keys={"anchor__n", "anchor__method"},
+        ):
             continue
         if "anchor__n" not in params:
             continue
+        if "anchor__method" not in params:
+            continue
         n_value = int(params["anchor__n"])
+        anchor_method = str(params["anchor__method"])
         split_scores = []
         for key in split_keys:
             value = float(cv_results[key][idx])
             if np.isfinite(value):
                 split_scores.append(value)
         mean_score, ci95_score = mean_ci95(split_scores)
-        by_n[n_value] = (mean_score, ci95_score)
+        by_method.setdefault(anchor_method, []).append(
+            (int(n_value), mean_score, ci95_score)
+        )
 
-    n_scores = []
-    n_ci95 = []
-    for n in n_values:
-        if int(n) in by_n:
-            mean_score, ci95_score = by_n[int(n)]
-        else:
-            mean_score, ci95_score = float("nan"), float("nan")
-        n_scores.append(mean_score)
-        n_ci95.append(ci95_score)
-    return n_scores, n_ci95
+    sweep = {}
+    for anchor_method in sorted(by_method.keys()):
+        points = sorted(by_method[anchor_method], key=lambda row: row[0])
+        n_values = [n for n, _, _ in points]
+        n_scores = [s for _, s, _ in points]
+        n_ci95 = [c for _, _, c in points]
+        sweep[anchor_method] = {
+            "n_values": n_values,
+            "scores": n_scores,
+            "ci95": n_ci95,
+        }
+
+    return sweep
 
 
 def run_experiment(settings, experiment_name):
@@ -345,23 +357,31 @@ def run_experiment(settings, experiment_name):
     )
 
     print("[4/5] sweeping n for best pipeline")
-    n_values = list(spec["n_sweep"])
-    n_scores, n_ci95 = _n_sweep_from_grid(grid, n_values)
+    n_sweep = _n_sweep_from_grid(grid)
 
     save_n_vs_spearman(
         output_dir / "n_vs_spearman.png",
-        n_values,
-        n_scores,
+        n_sweep,
         f"{experiment_name} | n vs Spearman",
-        ci95_values=n_ci95,
     )
+    n_rows = []
+    for anchor_method, sweep_values in n_sweep.items():
+        n_values = sweep_values["n_values"]
+        n_scores = sweep_values["scores"]
+        n_ci95 = sweep_values["ci95"]
+        for n, s, c in zip(n_values, n_scores, n_ci95):
+            n_rows.append(
+                {
+                    "anchor_method": anchor_method,
+                    "n": str(n),
+                    "spearman": f"{s:.10f}",
+                    "ci95": f"{c:.10f}",
+                }
+            )
     write_tsv(
         output_dir / "n_vs_spearman.tsv",
-        [
-            {"n": str(n), "spearman": f"{s:.10f}", "ci95": f"{c:.10f}"}
-            for n, s, c in zip(n_values, n_scores, n_ci95)
-        ],
-        ["n", "spearman", "ci95"],
+        n_rows,
+        ["anchor_method", "n", "spearman", "ci95"],
     )
 
     print("[5/5] done")

@@ -46,22 +46,35 @@ def save_predicted_vs_real_plot(
     plt.close(fig)
 
 
-def save_n_vs_spearman(path, n_values, spearman_values, title, ci95_values=None):
+def save_n_vs_spearman(path, sweep_by_method, title):
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(8, 4.8))
-    n_array = np.asarray(n_values, dtype=np.float64)
-    s_array = np.asarray(spearman_values, dtype=np.float64)
-    sns.lineplot(x=n_array, y=s_array, marker="o", linewidth=2, ax=ax)
-    if ci95_values is not None:
-        c_array = np.asarray(ci95_values, dtype=np.float64)
+
+    methods = sorted(sweep_by_method.keys())
+    palette = sns.color_palette("deep", n_colors=max(1, len(methods)))
+
+    for color, anchor_method in zip(palette, methods):
+        sweep_values = sweep_by_method[anchor_method]
+        n_array = np.asarray(sweep_values["n_values"], dtype=np.float64)
+        s_array = np.asarray(sweep_values["scores"], dtype=np.float64)
+        c_array = np.asarray(sweep_values["ci95"], dtype=np.float64)
+        ax.plot(
+            n_array,
+            s_array,
+            marker="o",
+            linewidth=2,
+            color=color,
+            label=anchor_method,
+        )
         lower = s_array - c_array
         upper = s_array + c_array
-        ax.fill_between(
-            n_array, lower, upper, alpha=0.2, color="#1f77b4", label="95% CI"
-        )
+        ax.fill_between(n_array, lower, upper, alpha=0.2, color=color)
+
+    if methods:
         ax.legend(loc="best")
+
     ax.set_xlabel("n")
     ax.set_ylabel("Spearman")
     ax.set_title(title)

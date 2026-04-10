@@ -254,27 +254,6 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
         score = -1.0 if np.isnan(score) else float(score)
         return pipe, anchor_metadata, score
 
-    def _fit_one_trial(self, X, y, seed=None):
-        X_array = np.asarray(X, dtype=np.float64)
-        y_array = _as_float_array(y)
-        local_seed = int(self.random_state if seed is None else seed)
-        pipe = clone(self.pipeline)
-        for _, step in pipe.steps[:-1]:
-            if (
-                isinstance(step, AnchorSelection)
-                and step.method in STOCHASTIC_ANCHOR_METHODS
-            ):
-                step.seed = local_seed
-        fitted_pipe, metadata, score = self._fit_once(pipe, X_array, y_array)
-        self.trial_pipelines_ = [fitted_pipe]
-        self.trial_anchor_metadata_ = [metadata]
-        self.trial_scores_ = np.asarray([float(score)], dtype=np.float64)
-        self.pipeline_ = fitted_pipe
-        self.anchor_metadata_ = metadata
-        self.mean_trial_score_ = float(score)
-        self.effective_n_trials_ = 1
-        return self
-
     def _resolve_trial_count(self):
         probe_pipe = clone(self.pipeline)
         probe_anchor = None
@@ -294,18 +273,18 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
         base_seed = int(self.random_state)
         trials = self._resolve_trial_count()
 
-        if trials == 1:
-            return self._fit_one_trial(X_array, y_array, seed=base_seed)
-
         trial_pipes = []
         trial_metadata = []
         trial_scores = []
         for trial_idx in range(trials):
+            trial_seed = int(base_seed + trial_idx)
             pipe = clone(self.pipeline)
             for _, step in pipe.steps[:-1]:
-                if isinstance(step, AnchorSelection):
-                    if step.method in STOCHASTIC_ANCHOR_METHODS:
-                        step.seed = int(base_seed + trial_idx)
+                if (
+                    isinstance(step, AnchorSelection)
+                    and step.method in STOCHASTIC_ANCHOR_METHODS
+                ):
+                    step.seed = trial_seed
             fitted_pipe, metadata, score = self._fit_once(pipe, X_array, y_array)
             trial_pipes.append(fitted_pipe)
             trial_metadata.append(metadata)
@@ -328,7 +307,7 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
             X_current = step.transform(X_current)
         return X_current
 
-    def _predict_trials(self, X):
+    def predict(self, X):
         if not hasattr(self, "trial_pipelines_"):
             raise ValueError("Estimator is not fitted")
         per_trial = []
@@ -340,9 +319,6 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
             y_hat = np.asarray(estimator.predict(X_final), dtype=np.float64)
             per_trial.append(y_hat)
         return np.asarray(per_trial, dtype=np.float64)
-
-    def predict(self, X):
-        return self._predict_trials(X)
 
 
 def build_transparent_pipeline(steps, n_trials=1, random_state=42):

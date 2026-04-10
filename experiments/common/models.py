@@ -27,33 +27,44 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         self.n = n
         self.seed = seed
 
-    def _first_vs_last(self, idx, y_array, n_anchors):
-        ranked = idx[np.argsort(y_array)]
-        return ranked[:n_anchors], ranked[-n_anchors:]
+    def _first_last_counts(self, n_value, n_samples):
+        if n_samples < 3:
+            return 1, 1
+        n_effective = max(2, min(int(n_value), n_samples - 1))
+        return n_effective // 2, (n_effective // 2) + 1
 
-    def _random_sample_first_last(self, idx, y_array, n_anchors):
+    def _first_vs_last(self, idx, y_array, n_value):
+        ranked = idx[np.argsort(y_array)]
+        first_count, last_count = self._first_last_counts(n_value, len(idx))
+        return ranked[:first_count], ranked[-last_count:]
+
+    def _random_sample_first_last(self, idx, y_array, n_value):
         rng = random.Random(int(self.seed))
-        sample_size = min(len(idx), max(2 * n_anchors, 2))
+        first_count, last_count = self._first_last_counts(n_value, len(idx))
+        sample_size = min(len(idx), max(first_count + last_count, 2))
         sampled = np.asarray(rng.sample(idx.tolist(), sample_size), dtype=np.int64)
         ranked = sampled[np.argsort(y_array[sampled])]
-        split = max(1, min(n_anchors, len(ranked) // 2))
-        return ranked[:split], ranked[-split:]
+        first_count = min(first_count, len(ranked) - 1)
+        last_count = min(last_count, len(ranked) - first_count)
+        return ranked[:first_count], ranked[-last_count:]
 
-    def _random_median(self, idx, y_array, n_anchors):
+    def _random_median(self, idx, y_array, n_value):
         rng = random.Random(int(self.seed))
+        first_count, last_count = self._first_last_counts(n_value, len(idx))
         median = float(np.median(y_array))
         lower = [int(i) for i in idx if y_array[i] < median]
         upper = [int(i) for i in idx if y_array[i] >= median]
         rng.shuffle(lower)
         rng.shuffle(upper)
-        split = max(1, min(n_anchors, len(lower), len(upper)))
+        lower_split = max(1, min(first_count, len(lower)))
+        upper_split = max(1, min(last_count, len(upper)))
         return (
-            np.asarray(lower[:split], dtype=np.int64),
-            np.asarray(upper[:split], dtype=np.int64),
+            np.asarray(lower[:lower_split], dtype=np.int64),
+            np.asarray(upper[:upper_split], dtype=np.int64),
         )
 
-    def _percentile_medians(self, idx, y_array, n_anchors):
-        n_percentiles = 2 * n_anchors
+    def _percentile_medians(self, idx, y_array, n_value):
+        n_percentiles = int(n_value)
         percentile_count = max(2, min(int(n_percentiles), len(idx)))
         ranked = idx[np.argsort(y_array)]
         boundaries = np.linspace(0, len(ranked), percentile_count + 1, dtype=np.int64)
@@ -65,7 +76,7 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
             median_pos = int((len(segment) - 1) // 2)
             picked.append(int(segment[median_pos]))
         if len(picked) < 2:
-            return self._first_vs_last(idx, y_array, max(1, len(idx) // 4))
+            return self._first_vs_last(idx, y_array, n_value)
         unique = np.asarray(
             sorted(set(picked), key=lambda j: y_array[j]), dtype=np.int64
         )
@@ -78,20 +89,20 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         if n_samples < 2:
             raise ValueError("AnchorSelection requires at least 2 samples")
         idx = np.arange(n_samples, dtype=np.int64)
-        n_anchors = max(1, min(int(self.n), n_samples // 2))
+        n_value = max(1, int(self.n))
 
         method = str(self.method)
         if method in {"first_vs_last"}:
-            a_idx, b_idx = self._first_vs_last(idx, y_array, n_anchors)
+            a_idx, b_idx = self._first_vs_last(idx, y_array, n_value)
         elif method in {"random_sample_first_last", "random_sample_regression"}:
-            a_idx, b_idx = self._random_sample_first_last(idx, y_array, n_anchors)
+            a_idx, b_idx = self._random_sample_first_last(idx, y_array, n_value)
         elif method in {"random_median", "random_median_regression"}:
-            a_idx, b_idx = self._random_median(idx, y_array, n_anchors)
+            a_idx, b_idx = self._random_median(idx, y_array, n_value)
         elif method in {
             "percentile_medians",
             "percentile_medians_regression",
         }:
-            a_idx, b_idx = self._percentile_medians(idx, y_array, n_anchors)
+            a_idx, b_idx = self._percentile_medians(idx, y_array, n_value)
         else:
             raise ValueError(f"Unknown anchor selection method: {self.method}")
 

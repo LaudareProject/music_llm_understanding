@@ -22,7 +22,7 @@ def _as_float_array(y):
 
 
 class AnchorSelection(BaseEstimator, TransformerMixin):
-    def __init__(self, method="first_vs_last", n=10, seed=42):
+    def __init__(self, method="first_vs_last", n=4, seed=1992):
         self.method = method
         self.n = n
         self.seed = seed
@@ -52,24 +52,24 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
             np.asarray(upper[:split], dtype=np.int64),
         )
 
-    def _equally_spaced_regression(self, idx, y_array, n_anchors):
-        min_target = float(np.min(y_array))
-        max_target = float(np.max(y_array))
-        target_count = max(2, 2 * n_anchors)
-        if target_count == 0:
-            return self._first_vs_last(idx, y_array, n_anchors)
-        step = (max_target - min_target) / float(target_count)
+    def _percentile_medians(self, idx, y_array, n_anchors):
+        n_percentiles = 2 * n_anchors
+        percentile_count = max(2, min(int(n_percentiles), len(idx)))
+        ranked = idx[np.argsort(y_array)]
+        boundaries = np.linspace(0, len(ranked), percentile_count + 1, dtype=np.int64)
         picked = []
-        for i in range(target_count):
-            target_value = min_target + step * i
-            local = int(np.argmin(np.abs(y_array - target_value)))
-            picked.append(int(idx[local]))
+        for left, right in zip(boundaries[:-1], boundaries[1:]):
+            if right <= left:
+                continue
+            segment = ranked[left:right]
+            median_pos = int((len(segment) - 1) // 2)
+            picked.append(int(segment[median_pos]))
+        if len(picked) < 2:
+            return self._first_vs_last(idx, y_array, max(1, len(idx) // 4))
         unique = np.asarray(
             sorted(set(picked), key=lambda j: y_array[j]), dtype=np.int64
         )
-        if len(unique) < 2:
-            return self._first_vs_last(idx, y_array, n_anchors)
-        split = max(1, min(n_anchors, len(unique) // 2))
+        split = max(1, len(unique) // 2)
         return unique[:split], unique[-split:]
 
     def fit(self, X, y):
@@ -87,8 +87,11 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
             a_idx, b_idx = self._random_sample_first_last(idx, y_array, n_anchors)
         elif method in {"random_median", "random_median_regression"}:
             a_idx, b_idx = self._random_median(idx, y_array, n_anchors)
-        elif method in {"equally_spaced_regression", "equally_spaced"}:
-            a_idx, b_idx = self._equally_spaced_regression(idx, y_array, n_anchors)
+        elif method in {
+            "percentile_medians",
+            "percentile_medians_regression",
+        }:
+            a_idx, b_idx = self._percentile_medians(idx, y_array, n_anchors)
         else:
             raise ValueError(f"Unknown anchor selection method: {self.method}")
 

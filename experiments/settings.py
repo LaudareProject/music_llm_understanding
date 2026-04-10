@@ -15,6 +15,7 @@ from experiments.common.models import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_FEATURE_BACKEND = "aria"
 
 
 def default_pipeline():
@@ -72,6 +73,7 @@ EXPERIMENTS = {
         "tsv_path": REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv",
         "target_col": "midpoint_year",
         "group_col": "composer",
+        "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
         "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
@@ -80,6 +82,7 @@ EXPERIMENTS = {
         "tsv_path": REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv",
         "target_col": "midi_note",
         "group_col": "name",
+        "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
         "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
@@ -88,6 +91,7 @@ EXPERIMENTS = {
         "tsv_path": REPO_ROOT / "experiments" / "arousal_axis" / "songs.tsv",
         "target_col": "arousal_mean",
         "group_col": "game",
+        "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
         "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
@@ -96,6 +100,7 @@ EXPERIMENTS = {
         "tsv_path": REPO_ROOT / "experiments" / "valence_axis" / "songs.tsv",
         "target_col": "valence_mean",
         "group_col": "game",
+        "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
         "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],

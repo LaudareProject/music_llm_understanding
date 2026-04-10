@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 from pathlib import Path
 
 import mido
@@ -12,6 +13,9 @@ from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV, KFold
 
 from experiments.common.feature_backend import (
+    FEATURE_BACKEND_ARIA,
+    FEATURE_BACKEND_ENV,
+    FEATURE_BACKEND_MUSIF,
     aria_embedding_path_for_row,
     cache_dir_for_experiment,
     feature_backend_name,
@@ -218,6 +222,22 @@ def run_experiment(settings, experiment_name):
         raise ValueError(f"Unknown experiment: {experiment_name}")
 
     spec = settings.EXPERIMENTS[experiment_name]
+    backend = (
+        str(
+            spec.get(
+                "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
+            )
+        )
+        .strip()
+        .lower()
+    )
+    if backend not in {FEATURE_BACKEND_ARIA, FEATURE_BACKEND_MUSIF}:
+        raise ValueError(
+            f"Invalid feature_backend '{backend}' for {experiment_name}. "
+            f"Use '{FEATURE_BACKEND_ARIA}' or '{FEATURE_BACKEND_MUSIF}'."
+        )
+    os.environ[FEATURE_BACKEND_ENV] = backend
+
     repo_root = Path(__file__).resolve().parents[2]
     output_root = output_root_for_experiment(repo_root, experiment_name)
     cache_dir = cache_dir_for_experiment(repo_root, experiment_name)

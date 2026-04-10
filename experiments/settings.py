@@ -24,10 +24,10 @@ def default_pipeline():
             ("pca", PCA(whiten=True)),
             ("anchor", AnchorSelection(method="percentile_medians_regression", n=4, seed=42)),
             ("pls", AnchorPLS(scale=False)),
-            ("projection", Projection1D(n=10)),
+            ("projection", Projection1D()),
             ("regressor", KNeighborsRegressor(n_neighbors=5)),
         ],
-        n_trials=1,
+        n_trials=5,
         random_state=42,
     )
 
@@ -35,7 +35,7 @@ def default_pipeline():
 def default_param_grid():
     return [
         {
-            "pca__n_components": [8, 16, 32, 64],
+            "pca__n_components": [0.9, None],
             "anchor__method": [
                 "first_vs_last",
                 "random_sample_first_last",
@@ -45,28 +45,8 @@ def default_param_grid():
                 "random_median_regression",
                 "percentile_medians_regression",
             ],
-            "anchor__n": [4, 8, 12, 16],
-            "projection__n": [4, 8, 12, 16],
-            "n_trials": [1, 8, 16],
-            "regressor": [KNeighborsRegressor()],
-            "regressor__n_neighbors": [3, 5, 7, 9],
-        },
-        {
-            "pca__n_components": [8, 16, 32, 64],
-            "anchor__method": [
-                "first_vs_last",
-                "random_sample_first_last",
-                "random_median",
-                "percentile_medians",
-                "random_sample_regression",
-                "random_median_regression",
-                "percentile_medians_regression",
-            ],
-            "anchor__n": [4, 8, 12, 16],
-            "projection__n": [4, 8, 12, 16],
-            "n_trials": [1, 8, 16],
-            "regressor": [LinearRegression()],
-        },
+            "anchor__n": [1, 2, 4, 8, 16, 32],
+        }
     ]
 
 
@@ -78,7 +58,6 @@ EXPERIMENTS = {
         "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
-        "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
     },
     "pitch_axis": {
         "tsv_path": REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv",
@@ -87,7 +66,6 @@ EXPERIMENTS = {
         "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
-        "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
     },
     "arousal_axis": {
         "tsv_path": REPO_ROOT / "experiments" / "arousal_axis" / "songs.tsv",
@@ -96,7 +74,6 @@ EXPERIMENTS = {
         "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
-        "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
     },
     "valence_axis": {
         "tsv_path": REPO_ROOT / "experiments" / "valence_axis" / "songs.tsv",
@@ -105,6 +82,5 @@ EXPERIMENTS = {
         "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
-        "n_sweep": [1, 2, 4, 8, 12, 16, 24, 32],
     },
 }

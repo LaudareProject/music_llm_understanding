@@ -21,7 +21,7 @@ DEFAULT_FEATURE_BACKEND = "aria"
 def default_pipeline():
     return build_transparent_pipeline(
         [
-            ("pca", PCA()),
+            ("pca", PCA(whiten=True)),
             ("anchor", AnchorSelection(method="percentile_medians_regression", n=4, seed=42)),
             ("pls", AnchorPLS(scale=False)),
             ("projection", Projection1D(n=10)),

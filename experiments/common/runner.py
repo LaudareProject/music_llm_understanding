@@ -169,9 +169,9 @@ def _write_gridsearch_csv(path, grid_search):
         writer.writerows(rows)
 
 
-def _same_params_except_n(candidate_params, best_params):
+def _same_params_except_anchor_n(candidate_params, best_params):
     for key, best_value in best_params.items():
-        if key == "projection__n":
+        if key == "anchor__n":
             continue
         if key not in candidate_params:
             return False
@@ -192,11 +192,11 @@ def _n_sweep_from_grid(grid, n_values):
 
     by_n = {}
     for idx, params in enumerate(cv_results["params"]):
-        if not _same_params_except_n(params, grid.best_params_):
+        if not _same_params_except_anchor_n(params, grid.best_params_):
             continue
-        if "projection__n" not in params:
+        if "anchor__n" not in params:
             continue
-        n_value = int(params["projection__n"])
+        n_value = int(params["anchor__n"])
         split_scores = []
         for key in split_keys:
             value = float(cv_results[key][idx])

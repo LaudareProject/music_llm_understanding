@@ -150,8 +150,8 @@ class AnchorPLS(BaseEstimator, TransformerMixin):
 
 
 class Projection1D(BaseEstimator, TransformerMixin):
-    def __init__(self, n=10):
-        self.n = n
+    def __init__(self):
+        self.anchor_metadata_ = None
 
     def set_anchor_metadata(self, metadata):
         self.anchor_metadata_ = metadata
@@ -172,15 +172,7 @@ class Projection1D(BaseEstimator, TransformerMixin):
             self.anchor_metadata_["anchor_targets_b"], dtype=np.float64
         )
 
-        n_samples = int(X_array.shape[0])
-        n_limit = max(1, int(np.floor(0.15 * n_samples)))
-        requested_n = int(self.n)
-        if requested_n > n_limit:
-            raise ValueError(
-                f"projection__n={requested_n} exceeds 15% limit ({n_limit}) for {n_samples} samples"
-            )
-
-        n_use = max(1, min(requested_n, len(a_idx), len(b_idx)))
+        n_use = max(1, min(len(a_idx), len(b_idx)))
         a_order = np.argsort(a_targets)
         b_order = np.argsort(b_targets)
         a_use = a_idx[a_order[:n_use]]

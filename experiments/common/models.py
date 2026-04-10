@@ -6,6 +6,7 @@ import numpy as np
 from scipy.stats import spearmanr
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin, clone
 from sklearn.cross_decomposition import PLSRegression
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.pipeline import Pipeline
 
 
@@ -236,20 +237,44 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
             self.pipeline.set_params(**params)
         return self
 
-    def _fit_once(self, pipe, X_array, y_array):
+    def _fit_once(self, pipe, X_array, y_array, group_labels_array=None):
         X_current = np.asarray(X_array, dtype=np.float64)
         anchor_metadata = None
 
         for _, step in pipe.steps[:-1]:
             if hasattr(step, "set_anchor_metadata") and anchor_metadata is not None:
                 step.set_anchor_metadata(anchor_metadata)
-            step.fit(X_current, y_array)
+            if isinstance(step, LinearDiscriminantAnalysis):
+                if group_labels_array is None:
+                    raise ValueError(
+                        "LinearDiscriminantAnalysis requires group_labels from group_col"
+                    )
+                if anchor_metadata is None:
+                    raise ValueError(
+                        "LinearDiscriminantAnalysis requires AnchorSelection before it"
+                    )
+                anchor_idx = np.asarray(
+                    anchor_metadata["anchor_indices"], dtype=np.int64
+                )
+                labels_anchor = np.asarray(group_labels_array)[anchor_idx]
+                unique_classes = np.unique(labels_anchor)
+                if unique_classes.shape[0] < 2:
+                    raise ValueError(
+                        "LinearDiscriminantAnalysis requires at least 2 classes among anchors"
+                    )
+                step.fit(X_current[anchor_idx], labels_anchor)
+            else:
+                step.fit(X_current, y_array)
             if hasattr(step, "anchor_metadata"):
                 anchor_metadata = step.anchor_metadata()
             X_current = step.transform(X_current)
 
         estimator = pipe.steps[-1][1]
-        estimator.fit(X_current, y_array)
+        if anchor_metadata is not None:
+            anchor_idx = np.asarray(anchor_metadata["anchor_indices"], dtype=np.int64)
+            estimator.fit(X_current[anchor_idx], y_array[anchor_idx])
+        else:
+            estimator.fit(X_current, y_array)
         y_hat = np.asarray(estimator.predict(X_current), dtype=np.float64)
         if anchor_metadata is not None:
             eval_mask = np.ones(len(y_array), dtype=bool)
@@ -278,9 +303,14 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
         deterministic = anchor_method not in STOCHASTIC_ANCHOR_METHODS
         return 1 if deterministic else max(1, int(self.n_trials))
 
-    def fit(self, X, y):
+    def fit(self, X, y, group_labels=None):
         X_array = np.asarray(X, dtype=np.float64)
         y_array = _as_float_array(y)
+        group_labels_array = None
+        if group_labels is not None:
+            group_labels_array = np.asarray(group_labels)
+            if int(group_labels_array.shape[0]) != int(y_array.shape[0]):
+                raise ValueError("group_labels must have same length as y")
         base_seed = int(self.random_state)
         trials = self._resolve_trial_count()
 
@@ -296,7 +326,12 @@ class TransparentAnchorPipeline(BaseEstimator, RegressorMixin):
                     and step.method in STOCHASTIC_ANCHOR_METHODS
                 ):
                     step.seed = trial_seed
-            fitted_pipe, metadata, score = self._fit_once(pipe, X_array, y_array)
+            fitted_pipe, metadata, score = self._fit_once(
+                pipe,
+                X_array,
+                y_array,
+                group_labels_array=group_labels_array,
+            )
             trial_pipes.append(fitted_pipe)
             trial_metadata.append(metadata)
             trial_scores.append(float(score))

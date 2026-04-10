@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import csv
-import json
 import os
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from sklearn.base import clone
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV, KFold
 
+from experiments.settings import CV_FOLDS, GRID_JOBS
 from experiments.common.feature_backend import (
     FEATURE_BACKEND_ARIA,
     FEATURE_BACKEND_ENV,
@@ -57,7 +57,7 @@ def mean_ci95(values):
     return mean, float(ci)
 
 
-def _crossval_oof_predictions(estimator, matrix, y, cv):
+def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
     n_samples = int(matrix.shape[0])
     oof_pred = np.full(n_samples, np.nan, dtype=np.float64)
     anchor_counts = np.zeros(n_samples, dtype=np.int64)
@@ -65,7 +65,14 @@ def _crossval_oof_predictions(estimator, matrix, y, cv):
 
     for train_idx, test_idx in cv.split(matrix, y):
         model = clone(estimator)
-        model.fit(matrix[train_idx], y[train_idx])
+        if group_labels is None:
+            model.fit(matrix[train_idx], y[train_idx])
+        else:
+            model.fit(
+                matrix[train_idx],
+                y[train_idx],
+                group_labels=np.asarray(group_labels)[train_idx],
+            )
         fold_pred = np.asarray(model.predict(matrix[test_idx]), dtype=np.float64)
         if fold_pred.ndim == 1:
             fold_pred = fold_pred.reshape(1, -1)
@@ -173,6 +180,38 @@ def _prepare_rows_and_midi(experiment_name, tsv_path, repo_root, output_dir):
 
 
 def _write_gridsearch_csv(path, grid_search):
+    def _export_param_value(value):
+        if isinstance(value, np.generic):
+            return value.item()
+        if isinstance(value, dict):
+            return {str(k): _export_param_value(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [_export_param_value(v) for v in value]
+        if hasattr(value, "get_params"):
+            return type(value).__name__
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        return str(value)
+
+    def _format_param_value(value):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list):
+            return "[" + ", ".join(_format_param_value(v) for v in value) + "]"
+        if isinstance(value, dict):
+            parts = []
+            for k in sorted(value.keys()):
+                parts.append(f"{k}:{_format_param_value(value[k])}")
+            return "{" + ", ".join(parts) + "}"
+        return str(value)
+
+    def _params_text(params):
+        parts = []
+        for key in sorted(params.keys()):
+            value = _export_param_value(params[key])
+            parts.append(f"{key}={_format_param_value(value)}")
+        return "; ".join(parts)
+
     rows = []
     for i in range(len(grid_search.cv_results_["params"])):
         row = {
@@ -181,7 +220,7 @@ def _write_gridsearch_csv(path, grid_search):
             "std_test_score": float(grid_search.cv_results_["std_test_score"][i]),
             "mean_train_score": float(grid_search.cv_results_["mean_train_score"][i]),
             "std_train_score": float(grid_search.cv_results_["std_train_score"][i]),
-            "params": json.dumps(grid_search.cv_results_["params"][i], sort_keys=True),
+            "params": _params_text(grid_search.cv_results_["params"][i]),
         }
         rows.append(row)
     with Path(path).open("w", encoding="utf-8", newline="") as handle:
@@ -302,6 +341,10 @@ def run_experiment(settings, experiment_name):
     )
     query_ids = [row["query_id"] for row in rows]
     y = np.asarray([float(row[spec["target_col"]]) for row in rows], dtype=np.float64)
+    group_col = spec.get("group_col")
+    group_labels = None
+    if group_col is not None:
+        group_labels = np.asarray([row[group_col] for row in rows], dtype=object)
     matrix = matrix_for_rows(rows, midi_paths, cache_dir, repo_root, "Features")
     np.save(output_dir / "embeddings.npy", matrix)
     write_tsv(
@@ -313,24 +356,23 @@ def run_experiment(settings, experiment_name):
     print("[2/5] running grid search")
     base_estimator = clone(spec["pipeline"])
     scorer = make_scorer(spearman_metric, greater_is_better=True)
-    cv = KFold(n_splits=3, shuffle=True, random_state=42)
+    cv = KFold(n_splits=CV_FOLDS, shuffle=True, random_state=42)
     grid = GridSearchCV(
         estimator=base_estimator,
         param_grid=spec["param_grid"],
         scoring=scorer,
         cv=cv,
-        n_jobs=1,
+        n_jobs=GRID_JOBS,
         refit=False,
         return_train_score=True,
         verbose=2,
         error_score=np.nan,
     )
-    grid.fit(matrix, y)
+    if group_labels is None:
+        grid.fit(matrix, y)
+    else:
+        grid.fit(matrix, y, group_labels=group_labels)
     _write_gridsearch_csv(output_dir / "gridsearch_results.csv", grid)
-    (output_dir / "best_params.json").write_text(
-        json.dumps(grid.best_params_, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
 
     print("[3/5] cross-validated predictions for best pipeline")
     best_estimator = clone(spec["pipeline"]).set_params(**grid.best_params_)
@@ -339,6 +381,7 @@ def run_experiment(settings, experiment_name):
         matrix,
         y,
         cv,
+        group_labels=group_labels,
     )
     valid_mask = np.isfinite(y_hat_all)
     y_test = y[valid_mask]

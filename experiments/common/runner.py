@@ -19,7 +19,10 @@ from experiments.common.feature_backend import (
     output_root_for_experiment,
 )
 from experiments.common.folder_handling import create_folder
-from experiments.common.plotting import save_n_vs_spearman, save_predicted_vs_real_plot
+from experiments.common.plotting import (
+    save_n_vs_spearman_combined,
+    save_predicted_vs_real_plot,
+)
 from experiments.common.runner_data import prepare_rows_and_midi
 from experiments.common.runner_io import (
     write_gridsearch_csv,
@@ -199,17 +202,10 @@ def run_experiment(settings, experiment_name):
         group_labels,
         selected_params,
     )
-    save_n_vs_spearman(
-        output_dir / "n_vs_spearman_mean_direction.png",
-        n_sweep[False],
-        f"{experiment_name} | n vs Spearman | mean-direction projection",
-        linestyle="-",
-    )
-    save_n_vs_spearman(
-        output_dir / "n_vs_spearman_regression.png",
-        n_sweep[True],
-        f"{experiment_name} | n vs Spearman | regression projection",
-        linestyle="--",
+    save_n_vs_spearman_combined(
+        output_dir / "n_vs_spearman_combined.png",
+        n_sweep,
+        f"{experiment_name} | n vs Spearman | direction-based + regression hyper-plane",
     )
     write_n_sweep_output(output_dir, n_sweep, n_sweep_extra, removed_outliers)
 

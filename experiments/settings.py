@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, ElasticNetCV
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.neighbors import KNeighborsRegressor
+
 
 from experiments.common.models import (
     AnchorPLS,
@@ -15,12 +17,14 @@ from experiments.common.models import (
     build_transparent_pipeline,
 )
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FEATURE_BACKEND = "aria"
 CV_FOLDS = 5
 GRID_JOBS = 20
-MAX_ANCHOR_SIZE = 0.15
 
 
 def default_pipeline():
@@ -31,14 +35,13 @@ def default_pipeline():
             (
                 "anchor",
                 AnchorSelection(
-                    method="percentile_medians",
+                    method="first_vs_last",
                     n=8,
                     seed=42,
-                    max_anchor_size=MAX_ANCHOR_SIZE,
+                    max_anchor_size=0.15,
                 ),
             ),
             ("pls", AnchorPLS(scale=True)),
-            # ("lda", LinearDiscriminantAnalysis()),
             ("projection", Projection1D(regression=True)),
             # ("regressor", KNeighborsRegressor(n_neighbors=8))
             ("regressor", LinearRegression()),

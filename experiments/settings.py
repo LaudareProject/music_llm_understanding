@@ -77,8 +77,8 @@ def default_param_grid():
             payload = {**common}
             if pca == 'pca':
                 payload['pca'] = [PCA()]
-                payload["pca__n_components"] = [0.8, 0.9, 0.95, None],
-                payload["pca__whiten"] = [True, False],
+                payload["pca__n_components"] = [0.8, 0.9, 0.95, None]
+                payload["pca__whiten"] = [True, False]
             elif pca == 'variance':
                 payload['pca'] = [VarianceThreshold()]
             elif pca == 'identity':
@@ -86,7 +86,7 @@ def default_param_grid():
 
             if pls == 'pls':
                 payload['pls'] = [AnchorPLS()]
-                payload["pls__scale"] = [True, False],
+                payload["pls__scale"] = [True, False]
             elif pls == 'lda':
                 payload['pls'] = [LinearDiscriminantAnalysis()]
             elif pls == 'identity':

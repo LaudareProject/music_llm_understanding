@@ -7,7 +7,7 @@ import numpy as np
 import seaborn as sns
 
 
-MAX_GROUPS_IN_LEGEND = 6
+MAX_GROUPS_IN_LEGEND = 10
 
 
 def save_predicted_vs_real_plot(path, real, predicted, groups, is_anchor, title):
@@ -26,6 +26,8 @@ def save_predicted_vs_real_plot(path, real, predicted, groups, is_anchor, title)
         y=pred_values,
         hue=group_values,
         style=anchor_labels,
+        style_order=["non-anchor", "anchor"],
+        markers={"non-anchor": "o", "anchor": "X"},
         ax=ax,
         s=55,
         alpha=0.85,
@@ -42,9 +44,19 @@ def save_predicted_vs_real_plot(path, real, predicted, groups, is_anchor, title)
     if np.unique(group_values).size <= MAX_GROUPS_IN_LEGEND:
         ax.legend(loc="best")
     else:
+        handles, labels = ax.get_legend_handles_labels()
+        marker_labels = {"anchor", "non-anchor"}
+        filtered = [
+            (handle, label)
+            for handle, label in zip(handles, labels)
+            if label in marker_labels
+        ]
         legend = ax.get_legend()
         if legend is not None:
             legend.remove()
+        if filtered:
+            marker_handles, marker_names = zip(*filtered)
+            ax.legend(marker_handles, marker_names, loc="best")
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
     plt.close(fig)

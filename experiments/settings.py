@@ -34,20 +34,18 @@ OUTLIER_IQR_FACTOR = 1.5
 def default_pipeline():
     return build_transparent_pipeline(
         [
-            ("pca", VarianceThreshold()),
-            # ("pca", PCA(n_components=0.9)),
+            ("pca", PCA(n_components=0.8, whiten=True)),
             (
                 "anchor",
                 AnchorSelection(
                     method="first_vs_last",
-                    n=1,
+                    n=12,
                     seed=42,
                     max_anchor_size=0.15,
                 ),
             ),
-            ("pls", AnchorPLS(scale=True)),
-            ("projection", Projection1D(regression=True)),
-            # ("regressor", KNeighborsRegressor(n_neighbors=8))
+            ("pls", AnchorPLS(scale=False)),
+            ("projection", Projection1D(regression=False)),
             ("regressor", LinearRegression()),
         ],
         # how many trials to do for stochastic anchor selections (spearman is averaged across trials)
@@ -72,25 +70,25 @@ def default_param_grid():
     # return common
 
     ret = []
-    for pca in ['pca', 'identity', 'var']:
-        for pls in ['pls', 'identity', 'lda']:
+    for pca in ["pca", "identity", "var"]:
+        for pls in ["pls", "identity", "lda"]:
             payload = {**common}
-            if pca == 'pca':
-                payload['pca'] = [PCA()]
+            if pca == "pca":
+                payload["pca"] = [PCA()]
                 payload["pca__n_components"] = [0.8, 0.9, 0.95, None]
                 payload["pca__whiten"] = [True, False]
-            elif pca == 'variance':
-                payload['pca'] = [VarianceThreshold()]
-            elif pca == 'identity':
-                payload['pca'] = [FunctionTransformer(validate=False)]
+            elif pca == "variance":
+                payload["pca"] = [VarianceThreshold()]
+            elif pca == "identity":
+                payload["pca"] = [FunctionTransformer(validate=False)]
 
-            if pls == 'pls':
-                payload['pls'] = [AnchorPLS()]
+            if pls == "pls":
+                payload["pls"] = [AnchorPLS()]
                 payload["pls__scale"] = [True, False]
-            elif pls == 'lda':
-                payload['pls'] = [LinearDiscriminantAnalysis()]
-            elif pls == 'identity':
-                payload['pls'] = [FunctionTransformer(validate=False)]
+            elif pls == "lda":
+                payload["pls"] = [LinearDiscriminantAnalysis()]
+            elif pls == "identity":
+                payload["pls"] = [FunctionTransformer(validate=False)]
 
             ret.append(payload)
 
@@ -140,5 +138,13 @@ EXPERIMENTS = {
         "feature_backend": DEFAULT_FEATURE_BACKEND,
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
+    },
+    "sentiment_prediction": {
+        "tsv_path": REPO_ROOT / "experiments" / "valence_axis" / "songs.tsv",
+        "target_col": "valence_mean",
+        "group_col": "game",
+        "feature_backend": DEFAULT_FEATURE_BACKEND,
+        "pipeline": default_pipeline(),
+        "cv_folds": 10,
     },
 }

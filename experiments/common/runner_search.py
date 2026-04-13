@@ -60,6 +60,16 @@ def _same_params_except_anchor_keys(candidate_params, best_params, ignored_keys)
     return True
 
 
+def _params_equal(candidate_params, target_params):
+    all_keys = set(candidate_params.keys()) | set(target_params.keys())
+    for key in all_keys:
+        if key not in candidate_params or key not in target_params:
+            return False
+        if candidate_params[key] != target_params[key]:
+            return False
+    return True
+
+
 def _anchor_method_label(method):
     labels = {
         "first_vs_last": "first vs last from all data",
@@ -150,6 +160,26 @@ def n_sweep_from_grid(grid, reference_params=None):
                 "ci95": [c for _, _, c in points],
             }
     return sweep
+
+
+def split_score_stats_for_params(grid, params):
+    cv_results = grid.cv_results_
+    params_list = cv_results["params"]
+    split_keys = sorted(
+        key
+        for key in cv_results.keys()
+        if key.startswith("split") and key.endswith("_test_score")
+    )
+    for idx, candidate in enumerate(params_list):
+        if not _params_equal(candidate, params):
+            continue
+        split_scores = []
+        for key in split_keys:
+            value = float(cv_results[key][idx])
+            if np.isfinite(value):
+                split_scores.append(value)
+        return mean_ci95(split_scores)
+    return float("nan"), float("nan")
 
 
 def n_sweep_extra_metrics(

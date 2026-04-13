@@ -33,6 +33,7 @@ from experiments.common.runner_search import (
     n_sweep_extra_metrics,
     n_sweep_from_grid,
     select_grid_params_with_min_n,
+    split_score_stats_for_params,
 )
 from experiments.common.runner_stats import (
     mean_ci95,
@@ -156,7 +157,9 @@ def run_experiment(settings, experiment_name):
     )
 
     valid_mask = np.isfinite(y_hat_all)
-    score_mean, score_ci95 = mean_ci95(trial_scores)
+    score_mean, score_ci95 = split_score_stats_for_params(grid, selected_params)
+    if not np.isfinite(score_mean):
+        score_mean, score_ci95 = mean_ci95(trial_scores)
     anchor_mask = anchor_counts > 0
     anchor_method, anchor_n = default_anchor_config(best_estimator)
     group_plot = (

@@ -207,26 +207,15 @@ class Projection1D(BaseEstimator, TransformerMixin):
             if anchor_idx.size > 1:
                 model = LinearRegression()
                 model.fit(X_array[anchor_idx], y_anchor)
-                normal = np.asarray(model.coef_, dtype=np.float64).ravel()
-                intercept = float(
-                    np.asarray(model.intercept_, dtype=np.float64).ravel()[0]
-                )
-                normal_norm_sq = float(normal @ normal)
-                if normal_norm_sq > 1e-12:
-                    center_a = (
-                        center_a
-                        - ((float(normal @ center_a) + intercept) / normal_norm_sq)
-                        * normal
-                    )
-                    center_b = (
-                        center_b
-                        - ((float(normal @ center_b) + intercept) / normal_norm_sq)
-                        * normal
+                direction = np.asarray(model.coef_, dtype=np.float64).ravel()
+                if float(np.linalg.norm(direction)) > 1e-12:
+                    self.direction_ = direction
+                    self.origin_ = np.mean(X_array[anchor_idx], axis=0).astype(
+                        np.float64, copy=False
                     )
                     self.use_regression_projection_ = True
-                    self.regression_normal_ = normal
-                    self.regression_intercept_ = intercept
-                    self.regression_normal_norm_sq_ = normal_norm_sq
+                    self.n_used_ = int(anchor_idx.size)
+                    return self
 
         direction = np.asarray(center_b - center_a, dtype=np.float64)
         norm = float(np.linalg.norm(direction))
@@ -243,14 +232,7 @@ class Projection1D(BaseEstimator, TransformerMixin):
     def transform(self, X):
         X_array = np.asarray(X, dtype=np.float64)
         if self.use_regression_projection_:
-            normal = np.asarray(self.regression_normal_, dtype=np.float64)
-            intercept = float(self.regression_intercept_)
-            normal_norm_sq = float(self.regression_normal_norm_sq_)
-            plane_points = X_array - (
-                ((X_array @ normal + intercept) / normal_norm_sq).reshape(-1, 1)
-                * normal
-            )
-            centered = plane_points - self.origin_
+            centered = X_array - self.origin_
             numerator = centered @ self.direction_
             direction_norm = max(float(np.linalg.norm(self.direction_)), 1e-12)
             centered_norms = np.maximum(np.linalg.norm(centered, axis=1), 1e-12)

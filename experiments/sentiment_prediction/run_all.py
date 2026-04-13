@@ -30,7 +30,7 @@ from experiments.common.tsv import write_tsv
 
 
 def _check_backend(settings, experiment_name, spec):
-    backend = (
+    backend_default = (
         str(
             spec.get(
                 "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
@@ -39,6 +39,8 @@ def _check_backend(settings, experiment_name, spec):
         .strip()
         .lower()
     )
+    backend_env = str(os.environ.get(FEATURE_BACKEND_ENV, "")).strip().lower()
+    backend = backend_env if backend_env else backend_default
     if backend not in {FEATURE_BACKEND_ARIA, FEATURE_BACKEND_MUSIF}:
         raise ValueError(
             f"Invalid feature_backend '{backend}' for {experiment_name}. "

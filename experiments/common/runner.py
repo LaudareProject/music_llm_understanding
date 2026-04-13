@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import csv
 import os
 from pathlib import Path
 
-import mido
 import numpy as np
-from scipy.stats import spearmanr
 from sklearn.base import clone
-from sklearn.metrics import make_scorer, mean_absolute_error, r2_score
+from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV, KFold
 
 from experiments.settings import CV_FOLDS, GRID_JOBS, SCORE_TOLERANCE
@@ -16,465 +13,36 @@ from experiments.common.feature_backend import (
     FEATURE_BACKEND_ARIA,
     FEATURE_BACKEND_ENV,
     FEATURE_BACKEND_MUSIF,
-    aria_embedding_path_for_row,
     cache_dir_for_experiment,
     feature_backend_name,
     matrix_for_rows,
     output_root_for_experiment,
 )
 from experiments.common.folder_handling import create_folder
-from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.plotting import save_n_vs_spearman, save_predicted_vs_real_plot
-from experiments.common.tsv import read_tsv, write_tsv
+from experiments.common.runner_data import prepare_rows_and_midi
+from experiments.common.runner_io import (
+    write_gridsearch_csv,
+    write_metrics_output,
+    write_n_sweep_output,
+    write_prediction_outputs,
+)
+from experiments.common.runner_search import (
+    crossval_oof_predictions,
+    default_anchor_config,
+    n_sweep_extra_metrics,
+    n_sweep_from_grid,
+    select_grid_params_with_min_n,
+)
+from experiments.common.runner_stats import (
+    mean_ci95,
+    remove_target_outliers,
+    spearman_metric,
+)
+from experiments.common.tsv import write_tsv
 
 
-def spearman_metric(y_true, y_pred):
-    y_true_array = np.asarray(y_true, dtype=np.float64)
-    y_pred_array = np.asarray(y_pred, dtype=np.float64)
-    if y_pred_array.ndim == 1:
-        y_pred_array = y_pred_array.reshape(1, -1)
-    if y_pred_array.ndim != 2:
-        return -1.0
-    scores = []
-    for row in y_pred_array:
-        corr, _ = spearmanr(y_true_array, row)
-        if not np.isnan(corr):
-            scores.append(float(corr))
-    if not scores:
-        return -1.0
-    return float(np.mean(np.asarray(scores, dtype=np.float64)))
-
-
-def mean_ci95(values):
-    array = np.asarray(values, dtype=np.float64)
-    if array.size == 0:
-        return float("nan"), float("nan")
-    mean = float(np.mean(array))
-    if array.size < 2:
-        return mean, 0.0
-    std = float(np.std(array, ddof=1))
-    ci = 1.96 * std / float(np.sqrt(array.size))
-    return mean, float(ci)
-
-
-def _remove_target_outliers(rows, y, group_labels=None, iqr_factor=1.5):
-    if iqr_factor is None:
-        return rows, y, group_labels, 0, float("nan"), float("nan")
-    iqr_factor = float(iqr_factor)
-    if iqr_factor <= 0.0:
-        return rows, y, group_labels, 0, float("nan"), float("nan")
-    if int(y.size) < 4:
-        return rows, y, group_labels, 0, float("nan"), float("nan")
-
-    q1, q3 = np.percentile(y, [25.0, 75.0])
-    iqr = float(q3 - q1)
-    if not np.isfinite(iqr):
-        return rows, y, group_labels, 0, float("nan"), float("nan")
-    if iqr == 0.0:
-        return rows, y, group_labels, 0, float("nan"), float("nan")
-
-    low = float(q1 - iqr_factor * iqr)
-    high = float(q3 + iqr_factor * iqr)
-    keep_mask = (y >= low) & (y <= high)
-    removed = int(np.sum(~keep_mask))
-    if removed <= 0:
-        return rows, y, group_labels, 0, low, high
-
-    filtered_rows = [row for row, keep in zip(rows, keep_mask) if keep]
-    filtered_y = np.asarray(y, dtype=np.float64)[keep_mask]
-    filtered_groups = None
-    if group_labels is not None:
-        filtered_groups = np.asarray(group_labels, dtype=object)[keep_mask]
-    return filtered_rows, filtered_y, filtered_groups, removed, low, high
-
-
-def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
-    n_samples = int(matrix.shape[0])
-    oof_pred = np.full(n_samples, np.nan, dtype=np.float64)
-    anchor_counts = np.zeros(n_samples, dtype=np.int64)
-    trial_scores = []
-    trial_r2 = []
-    trial_l1 = []
-
-    for train_idx, test_idx in cv.split(matrix, y):
-        model = clone(estimator)
-        if group_labels is None:
-            model.fit(matrix[train_idx], y[train_idx])
-        else:
-            model.fit(
-                matrix[train_idx],
-                y[train_idx],
-                group_labels=np.asarray(group_labels)[train_idx],
-            )
-        fold_pred = np.asarray(model.predict(matrix[test_idx]), dtype=np.float64)
-        if fold_pred.ndim == 1:
-            fold_pred = fold_pred.reshape(1, -1)
-        oof_pred[test_idx] = np.mean(fold_pred, axis=0)
-
-        for trial_pred in fold_pred:
-            trial_scores.append(float(spearman_metric(y[test_idx], trial_pred)))
-            try:
-                trial_r2.append(float(r2_score(y[test_idx], trial_pred)))
-            except Exception:
-                trial_r2.append(float("nan"))
-            try:
-                trial_l1.append(float(mean_absolute_error(y[test_idx], trial_pred)))
-            except Exception:
-                trial_l1.append(float("nan"))
-
-        for metadata in model.trial_anchor_metadata_:
-            local_anchor_idx = np.asarray(metadata["anchor_indices"], dtype=np.int64)
-            if local_anchor_idx.size == 0:
-                continue
-            global_anchor_idx = np.asarray(train_idx, dtype=np.int64)[local_anchor_idx]
-            anchor_counts[global_anchor_idx] += 1
-
-    return oof_pred, anchor_counts, trial_scores, trial_r2, trial_l1
-
-
-def _n_sweep_extra_metrics(
-    grid, base_pipeline, matrix, y, cv, group_labels, reference_params
-):
-    cv_results = grid.cv_results_
-    extra = {}
-    for params in cv_results["params"]:
-        if not _same_params_except_anchor_keys(
-            params,
-            reference_params,
-            ignored_keys={"anchor__n", "anchor__method", "projection__regression"},
-        ):
-            continue
-        if "anchor__n" not in params or "anchor__method" not in params:
-            continue
-
-        key = (
-            bool(params.get("projection__regression", False)),
-            _anchor_method_label(str(params["anchor__method"])),
-            int(params["anchor__n"]),
-        )
-        estimator = clone(base_pipeline).set_params(**params)
-        try:
-            _, _, _, trial_r2, trial_l1 = _crossval_oof_predictions(
-                estimator,
-                matrix,
-                y,
-                cv,
-                group_labels=group_labels,
-            )
-            r2_mean, r2_ci95 = mean_ci95(trial_r2)
-            l1_mean, l1_ci95 = mean_ci95(trial_l1)
-            extra[key] = {
-                "r2": float(r2_mean),
-                "r2_ci95": float(r2_ci95),
-                "l1": float(l1_mean),
-                "l1_ci95": float(l1_ci95),
-            }
-        except Exception as exc:
-            print(
-                "  skipping extra metrics for sweep point: "
-                f"anchor_method={params['anchor__method']}, "
-                f"n={params['anchor__n']}, "
-                f"projection_regression={params.get('projection__regression', False)} ({exc})"
-            )
-            extra[key] = {
-                "r2": float("nan"),
-                "r2_ci95": float("nan"),
-                "l1": float("nan"),
-                "l1_ci95": float("nan"),
-            }
-    return extra
-
-
-def _normalize_midi_to_piano(midi_path):
-    midi = mido.MidiFile(str(midi_path))
-    changed = False
-    for track in midi.tracks:
-        for msg in track:
-            if msg.is_meta:
-                continue
-            if hasattr(msg, "channel") and int(msg.channel) != 0:
-                msg.channel = 0
-                changed = True
-            if msg.type == "program_change" and int(msg.program) != 0:
-                msg.program = 0
-                changed = True
-    if changed:
-        midi.save(str(midi_path))
-
-
-def _write_pitch_note_midi(row, midi_path):
-    midi_note = int(float(row["midi_note"]))
-    duration_ticks = max(1, int(float(row["duration_ticks"])))
-    velocity = int(float(row["velocity"]))
-    midi = mido.MidiFile(ticks_per_beat=480)
-    track = mido.MidiTrack()
-    track.append(mido.MetaMessage("set_tempo", tempo=500_000, time=0))
-    track.append(
-        mido.Message("note_on", note=midi_note, velocity=velocity, time=0, channel=0)
-    )
-    track.append(
-        mido.Message(
-            "note_off", note=midi_note, velocity=0, time=duration_ticks, channel=0
-        )
-    )
-    midi.tracks.append(track)
-    midi_path.parent.mkdir(parents=True, exist_ok=True)
-    midi.save(str(midi_path))
-
-
-def _prepare_midi_for_row(row, repo_root, midi_dir, bin_dir):
-    query_id = row["query_id"]
-    midi_path = midi_dir / f"{query_id}.mid"
-    source_path_value = row.get("path")
-    if source_path_value:
-        source_path = (repo_root / source_path_value).resolve()
-        if row["input_kind"] == "midi":
-            _normalize_midi_to_piano(source_path)
-            return source_path
-        if row["input_kind"] == "musicxml":
-            musicxml_to_midi(source_path, midi_path, bin_dir)
-            _normalize_midi_to_piano(midi_path)
-            return midi_path
-        if row["input_kind"] == "kern":
-            kern_to_midi(source_path, midi_path, bin_dir)
-            _normalize_midi_to_piano(midi_path)
-            return midi_path
-        raise ValueError(row["input_kind"])
-
-    dataset = row.get("dataset")
-    if dataset == "pitch":
-        _write_pitch_note_midi(row, midi_path)
-        _normalize_midi_to_piano(midi_path)
-        return midi_path
-
-    raise ValueError(f"No source path or pitch generator for {query_id}")
-
-
-def _prepare_rows_and_midi(
-    experiment_name,
-    tsv_path,
-    repo_root,
-    output_dir,
-    row_filter_col=None,
-    row_filter_value=None,
-):
-    rows = read_tsv(tsv_path)
-    if row_filter_col is not None:
-        rows = [
-            row
-            for row in rows
-            if str(row.get(row_filter_col, "")).strip() == str(row_filter_value)
-        ]
-    midi_dir = output_dir / "midi"
-    midi_dir.mkdir(parents=True, exist_ok=True)
-    bin_dir = repo_root / "bin"
-    midi_paths = {}
-    skipped = set()
-    for row in rows:
-        query_id = row["query_id"]
-        cache_embedding = aria_embedding_path_for_row(row, repo_root)
-        if cache_embedding.exists():
-            continue
-        try:
-            midi_paths[query_id] = _prepare_midi_for_row(
-                row, repo_root, midi_dir, bin_dir
-            )
-        except Exception as exc:
-            print(f"  skipping {experiment_name}:{query_id}: {exc}")
-            skipped.add(query_id)
-    filtered = [row for row in rows if row["query_id"] not in skipped]
-    return filtered, midi_paths
-
-
-def _write_gridsearch_csv(path, grid_search):
-    def _export_param_value(value):
-        if isinstance(value, np.generic):
-            return value.item()
-        if isinstance(value, dict):
-            return {str(k): _export_param_value(v) for k, v in value.items()}
-        if isinstance(value, (list, tuple)):
-            return [_export_param_value(v) for v in value]
-        if hasattr(value, "get_params"):
-            return type(value).__name__
-        if isinstance(value, (str, int, float, bool)) or value is None:
-            return value
-        return str(value)
-
-    def _format_param_value(value):
-        if isinstance(value, str):
-            return value
-        if isinstance(value, list):
-            return "[" + ", ".join(_format_param_value(v) for v in value) + "]"
-        if isinstance(value, dict):
-            parts = []
-            for k in sorted(value.keys()):
-                parts.append(f"{k}:{_format_param_value(value[k])}")
-            return "{" + ", ".join(parts) + "}"
-        return str(value)
-
-    def _params_text(params):
-        parts = []
-        for key in sorted(params.keys()):
-            value = _export_param_value(params[key])
-            parts.append(f"{key}={_format_param_value(value)}")
-        return "; ".join(parts)
-
-    rows = []
-    for i in range(len(grid_search.cv_results_["params"])):
-        row = {
-            "rank_test_score": int(grid_search.cv_results_["rank_test_score"][i]),
-            "mean_test_score": float(grid_search.cv_results_["mean_test_score"][i]),
-            "std_test_score": float(grid_search.cv_results_["std_test_score"][i]),
-            "mean_train_score": float(grid_search.cv_results_["mean_train_score"][i]),
-            "std_train_score": float(grid_search.cv_results_["std_train_score"][i]),
-            "params": _params_text(grid_search.cv_results_["params"][i]),
-        }
-        rows.append(row)
-    with Path(path).open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(
-            handle,
-            fieldnames=[
-                "rank_test_score",
-                "mean_test_score",
-                "std_test_score",
-                "mean_train_score",
-                "std_train_score",
-                "params",
-            ],
-        )
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def _same_params_except_anchor_keys(candidate_params, best_params, ignored_keys):
-    for key, best_value in best_params.items():
-        if key in ignored_keys:
-            continue
-        if key not in candidate_params:
-            return False
-        if candidate_params[key] != best_value:
-            return False
-    return True
-
-
-def _anchor_method_label(method):
-    labels = {
-        "first_vs_last": "first vs last from all data",
-        "random_sample_first_last": "first vs last from random subsample",
-        "random_median": "random samples before and after median",
-        "percentile_medians": "median points of percentiles",
-    }
-    return labels.get(str(method), str(method))
-
-
-def _select_grid_params_with_min_n(grid, score_tolerance):
-    cv_results = grid.cv_results_
-    scores = np.asarray(cv_results["mean_test_score"], dtype=np.float64)
-    params_list = cv_results["params"]
-
-    best_idx = int(grid.best_index_)
-    best_score = float(scores[best_idx])
-    threshold = float(best_score - float(score_tolerance))
-
-    candidate_indices = []
-    for idx, score in enumerate(scores):
-        if not np.isfinite(score):
-            continue
-        if float(score) >= threshold:
-            candidate_indices.append(idx)
-
-    if not candidate_indices:
-        return dict(grid.best_params_), best_score, best_score
-
-    def _anchor_n_value(index):
-        value = params_list[index].get("anchor__n")
-        if value is None:
-            return np.inf
-        try:
-            return int(value)
-        except Exception:
-            return np.inf
-
-    selected_idx = min(
-        candidate_indices,
-        key=lambda idx: (
-            _anchor_n_value(idx),
-            -float(scores[idx]),
-            int(cv_results["rank_test_score"][idx]),
-        ),
-    )
-    return dict(params_list[selected_idx]), float(scores[selected_idx]), best_score
-
-
-def _n_sweep_from_grid(grid, reference_params=None):
-    cv_results = grid.cv_results_
-    split_keys = sorted(
-        [
-            key
-            for key in cv_results.keys()
-            if key.startswith("split") and key.endswith("_test_score")
-        ]
-    )
-
-    if reference_params is None:
-        reference_params = grid.best_params_
-
-    by_mode = {False: {}, True: {}}
-    for idx, params in enumerate(cv_results["params"]):
-        if not _same_params_except_anchor_keys(
-            params,
-            reference_params,
-            ignored_keys={"anchor__n", "anchor__method", "projection__regression"},
-        ):
-            continue
-        if "anchor__n" not in params:
-            continue
-        if "anchor__method" not in params:
-            continue
-        n_value = int(params["anchor__n"])
-        anchor_method = str(params["anchor__method"])
-        projection_regression = bool(params.get("projection__regression", False))
-        line_label = _anchor_method_label(anchor_method)
-        split_scores = []
-        for key in split_keys:
-            value = float(cv_results[key][idx])
-            if np.isfinite(value):
-                split_scores.append(value)
-        mean_score, ci95_score = mean_ci95(split_scores)
-        by_mode.setdefault(projection_regression, {}).setdefault(line_label, []).append(
-            (int(n_value), mean_score, ci95_score)
-        )
-
-    sweep = {False: {}, True: {}}
-    for projection_regression in [False, True]:
-        for anchor_method in sorted(by_mode[projection_regression].keys()):
-            points = sorted(
-                by_mode[projection_regression][anchor_method], key=lambda row: row[0]
-            )
-            n_values = [n for n, _, _ in points]
-            n_scores = [s for _, s, _ in points]
-            n_ci95 = [c for _, _, c in points]
-            sweep[projection_regression][anchor_method] = {
-                "n_values": n_values,
-                "scores": n_scores,
-                "ci95": n_ci95,
-            }
-
-    return sweep
-
-
-def _default_anchor_config(estimator):
-    params = estimator.get_params(deep=True)
-    method = str(params.get("anchor__method", "unknown"))
-    n_value = params.get("anchor__n", "unknown")
-    return method, n_value
-
-
-def run_experiment(settings, experiment_name):
-    if experiment_name not in settings.EXPERIMENTS:
-        raise ValueError(f"Unknown experiment: {experiment_name}")
-
-    spec = settings.EXPERIMENTS[experiment_name]
+def _check_backend(settings, experiment_name, spec):
     backend = (
         str(
             spec.get(
@@ -491,20 +59,27 @@ def run_experiment(settings, experiment_name):
         )
     os.environ[FEATURE_BACKEND_ENV] = backend
 
+
+def run_experiment(settings, experiment_name):
+    if experiment_name not in settings.EXPERIMENTS:
+        raise ValueError(f"Unknown experiment: {experiment_name}")
+
+    spec = settings.EXPERIMENTS[experiment_name]
+    _check_backend(settings, experiment_name, spec)
+
     repo_root = Path(__file__).resolve().parents[2]
-    output_root = output_root_for_experiment(repo_root, experiment_name)
-    cache_dir = cache_dir_for_experiment(repo_root, experiment_name)
     output_dir = create_folder(
-        output_root,
+        output_root_for_experiment(repo_root, experiment_name),
         {
             "experiment": experiment_name,
             "feature_backend": feature_backend_name(),
             "grid_size": len(spec["param_grid"]),
         },
     )
+    cache_dir = cache_dir_for_experiment(repo_root, experiment_name)
 
     print("[1/5] preparing rows, midi, embeddings")
-    rows, midi_paths = _prepare_rows_and_midi(
+    rows, midi_paths = prepare_rows_and_midi(
         experiment_name,
         spec["tsv_path"],
         repo_root,
@@ -514,16 +89,22 @@ def run_experiment(settings, experiment_name):
     )
     total_rows_before_outliers = len(rows)
     y = np.asarray([float(row[spec["target_col"]]) for row in rows], dtype=np.float64)
-    group_col = spec.get("group_col")
     group_labels = None
-    if group_col is not None:
-        group_labels = np.asarray([row[group_col] for row in rows], dtype=object)
+    if spec.get("group_col") is not None:
+        group_labels = np.asarray(
+            [row[spec["group_col"]] for row in rows], dtype=object
+        )
 
     outlier_iqr_factor = spec.get(
         "outlier_iqr_factor", getattr(settings, "OUTLIER_IQR_FACTOR", 1.5)
     )
     rows, y, group_labels, removed_outliers, outlier_low, outlier_high = (
-        _remove_target_outliers(rows, y, group_labels, iqr_factor=outlier_iqr_factor)
+        remove_target_outliers(
+            rows,
+            y,
+            group_labels,
+            iqr_factor=outlier_iqr_factor,
+        )
     )
     print(
         "  target outlier filter before CV: "
@@ -531,23 +112,18 @@ def run_experiment(settings, experiment_name):
         f"iqr_factor={outlier_iqr_factor}, range=[{outlier_low:.4f}, {outlier_high:.4f}]"
     )
 
-    query_ids = [row["query_id"] for row in rows]
     matrix = matrix_for_rows(rows, midi_paths, cache_dir, repo_root, "Features")
     np.save(output_dir / "embeddings.npy", matrix)
     write_tsv(
-        output_dir / "rows.tsv",
-        rows,
-        list(rows[0].keys()) if rows else ["query_id"],
+        output_dir / "rows.tsv", rows, list(rows[0].keys()) if rows else ["query_id"]
     )
 
     print("[2/5] running grid search")
-    base_estimator = clone(spec["pipeline"])
-    scorer = make_scorer(spearman_metric, greater_is_better=True)
     cv = KFold(n_splits=CV_FOLDS, shuffle=True, random_state=42)
     grid = GridSearchCV(
-        estimator=base_estimator,
+        estimator=clone(spec["pipeline"]),
         param_grid=spec["param_grid"],
-        scoring=scorer,
+        scoring=make_scorer(spearman_metric, greater_is_better=True),
         cv=cv,
         n_jobs=GRID_JOBS,
         refit=False,
@@ -559,94 +135,59 @@ def run_experiment(settings, experiment_name):
         grid.fit(matrix, y)
     else:
         grid.fit(matrix, y, group_labels=group_labels)
-    _write_gridsearch_csv(output_dir / "gridsearch_results.csv", grid)
+    write_gridsearch_csv(output_dir / "gridsearch_results.csv", grid)
 
     print("[3/5] cross-validated predictions for best pipeline")
-    selected_params, selected_score, best_score = _select_grid_params_with_min_n(
+    selected_params, selected_score, best_score = select_grid_params_with_min_n(
         grid, SCORE_TOLERANCE
     )
     best_estimator = clone(spec["pipeline"]).set_params(**selected_params)
-    selected_anchor_n = selected_params.get("anchor__n", "unknown")
     print(
         "  selected params with minimum n under tolerance: "
         f"best={best_score:.4f}, selected={selected_score:.4f}, "
-        f"tolerance={SCORE_TOLERANCE:.4f}, n={selected_anchor_n}"
+        f"tolerance={SCORE_TOLERANCE:.4f}, n={selected_params.get('anchor__n', 'unknown')}"
     )
-    y_hat_all, anchor_counts, trial_scores, _, _ = _crossval_oof_predictions(
+    y_hat_all, anchor_counts, trial_scores, _, _ = crossval_oof_predictions(
         best_estimator,
         matrix,
         y,
         cv,
         group_labels=group_labels,
     )
+
     valid_mask = np.isfinite(y_hat_all)
-    y_test = y[valid_mask]
-    y_test_hat = y_hat_all[valid_mask]
-    anchor_mask = anchor_counts > 0
-    anchor_test = anchor_mask[valid_mask]
-    if group_labels is None:
-        group_test = np.asarray(["all"] * int(np.sum(valid_mask)), dtype=object)
-    else:
-        group_test = np.asarray(group_labels, dtype=object)[valid_mask]
     score_mean, score_ci95 = mean_ci95(trial_scores)
-    anchor_method, anchor_n = _default_anchor_config(best_estimator)
-    scatter_title = (
-        f"{experiment_name} best pipeline | "
-        f"anchor={anchor_method}, n={anchor_n}\n"
-        f"spearman={score_mean:.4f} +/- {score_ci95:.4f}"
+    anchor_mask = anchor_counts > 0
+    anchor_method, anchor_n = default_anchor_config(best_estimator)
+    group_plot = (
+        np.asarray(["all"] * int(np.sum(valid_mask)), dtype=object)
+        if group_labels is None
+        else np.asarray(group_labels, dtype=object)[valid_mask]
     )
     save_predicted_vs_real_plot(
         output_dir / "predicted_vs_real.png",
-        y_test,
-        y_test_hat,
-        group_test,
-        anchor_test,
-        scatter_title,
+        y[valid_mask],
+        y_hat_all[valid_mask],
+        group_plot,
+        anchor_mask[valid_mask],
+        f"{experiment_name} best pipeline | anchor={anchor_method}, n={anchor_n}\n"
+        f"spearman={score_mean:.4f} +/- {score_ci95:.4f}",
     )
-
-    projection_rows = []
-    for i, query_id in enumerate(query_ids):
-        projection_rows.append(
-            {
-                "query_id": query_id,
-                "target": f"{y[i]:.10f}",
-                "predicted": f"{y_hat_all[i]:.10f}",
-                "is_anchor": "1" if anchor_mask[i] else "0",
-                "outliers_removed": str(removed_outliers),
-            }
-        )
-    write_tsv(
-        output_dir / "projections.tsv",
-        projection_rows,
-        ["query_id", "target", "predicted", "is_anchor", "outliers_removed"],
+    write_prediction_outputs(
+        output_dir, rows, y, y_hat_all, anchor_mask, removed_outliers
     )
-    write_tsv(
-        output_dir / "metrics.tsv",
-        [
-            {
-                "metric": "spearman",
-                "mean": f"{score_mean:.10f}",
-                "ci95": f"{score_ci95:.10f}",
-                "folds": "5",
-                "outliers_removed": str(removed_outliers),
-                "rows_total": str(total_rows_before_outliers),
-                "rows_kept": str(len(rows)),
-            }
-        ],
-        [
-            "metric",
-            "mean",
-            "ci95",
-            "folds",
-            "outliers_removed",
-            "rows_total",
-            "rows_kept",
-        ],
+    write_metrics_output(
+        output_dir,
+        score_mean,
+        score_ci95,
+        removed_outliers,
+        total_rows_before_outliers,
+        len(rows),
     )
 
     print("[4/5] sweeping n for best pipeline")
-    n_sweep = _n_sweep_from_grid(grid, reference_params=selected_params)
-    n_sweep_extra = _n_sweep_extra_metrics(
+    n_sweep = n_sweep_from_grid(grid, reference_params=selected_params)
+    n_sweep_extra = n_sweep_extra_metrics(
         grid,
         spec["pipeline"],
         matrix,
@@ -655,7 +196,6 @@ def run_experiment(settings, experiment_name):
         group_labels,
         selected_params,
     )
-
     save_n_vs_spearman(
         output_dir / "n_vs_spearman_mean_direction.png",
         n_sweep[False],
@@ -668,43 +208,7 @@ def run_experiment(settings, experiment_name):
         f"{experiment_name} | n vs Spearman | regression projection",
         linestyle="--",
     )
-    n_rows = []
-    for projection_regression, by_method in n_sweep.items():
-        for anchor_method, sweep_values in by_method.items():
-            n_values = sweep_values["n_values"]
-            n_scores = sweep_values["scores"]
-            n_ci95 = sweep_values["ci95"]
-            for n, s, c in zip(n_values, n_scores, n_ci95):
-                n_rows.append(
-                    {
-                        "projection_regression": "1" if projection_regression else "0",
-                        "anchor_method": anchor_method,
-                        "n": str(n),
-                        "spearman": f"{s:.10f}",
-                        "ci95": f"{c:.10f}",
-                        "outliers_removed": str(removed_outliers),
-                        "r2": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('r2', float('nan')):.10f}",
-                        "r2_ci95": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('r2_ci95', float('nan')):.10f}",
-                        "l1": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('l1', float('nan')):.10f}",
-                        "l1_ci95": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('l1_ci95', float('nan')):.10f}",
-                    }
-                )
-    write_tsv(
-        output_dir / "n_vs_spearman.tsv",
-        n_rows,
-        [
-            "projection_regression",
-            "anchor_method",
-            "n",
-            "spearman",
-            "ci95",
-            "outliers_removed",
-            "r2",
-            "r2_ci95",
-            "l1",
-            "l1_ci95",
-        ],
-    )
+    write_n_sweep_output(output_dir, n_sweep, n_sweep_extra, removed_outliers)
 
     print("[5/5] done")
     print(output_dir)

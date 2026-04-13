@@ -31,7 +31,9 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         if n_samples < 3:
             return 1, 1
         n_effective = max(2, min(int(n_value), n_samples - 1))
-        return n_effective // 2, (n_effective // 2) + 1
+        first_count = n_effective // 2
+        last_count = first_count + (n_effective % 2)
+        return first_count, last_count
 
     def _first_vs_last(self, idx, y_array, n_value):
         ranked = idx[np.argsort(y_array)]

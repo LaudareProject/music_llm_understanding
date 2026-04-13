@@ -26,15 +26,16 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         self.method = method
         self.n = n
         self.seed = seed
-        self.max_anchor_size = max_anchor_size
+        self.max_anchor_size = float(max_anchor_size)
 
     def _first_last_counts(self, n_value, n_samples):
         if n_samples < 3:
             return 1, 1
         n_effective = max(2, min(int(n_value), n_samples - 1))
         if self.max_anchor_size is not None:
-            max_total = max(2, int(np.floor(float(self.max_anchor_size) * n_samples)))
-            n_effective = min(n_effective, max_total)
+            max_total = int(np.round(self.max_anchor_size * n_samples))
+            if n_effective > max_total:
+                raise RuntimeError("max_anchor_size reached!")
         first_count = n_effective // 2
         last_count = first_count + (n_effective % 2)
         return first_count, last_count

@@ -8,6 +8,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LinearRegression, ElasticNetCV
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import FunctionTransformer
 
 
 from experiments.common.models import (
@@ -70,34 +71,30 @@ def default_param_grid():
     }
     # return common
 
-    return [
-        {
-            **common,
-            "pca": [PCA()],
-            "pca__n_components": [0.8, 0.9, 0.95, None],
-            "pca__whiten": [True, False],
-            "pls": [AnchorPLS()],
-            "pls__scale": [True, False],
-        },
-        {
-            **common,
-            "pca": [PCA()],
-            "pca__n_components": [0.8, 0.9, 0.95, None],
-            "pca__whiten": [True, False],
-            "pls": [LinearDiscriminantAnalysis()],
-        },
-        {
-            **common,
-            "pca": [VarianceThreshold()],
-            "pls": [AnchorPLS()],
-            "pls__scale": [True, False],
-        },
-        {
-            **common,
-            "pca": [VarianceThreshold()],
-            "pls": [LinearDiscriminantAnalysis()],
-        },
-    ]
+    ret = []
+    for pca in ['pca', 'identity', 'var']:
+        for pls in ['pls', 'identity', 'lda']:
+            payload = {**common}
+            if pca == 'pca':
+                payload['pca'] = [PCA()]
+                payload["pca__n_components"] = [0.8, 0.9, 0.95, None],
+                payload["pca__whiten"] = [True, False],
+            elif pca == 'variance':
+                payload['pca'] = [VarianceThreshold()]
+            elif pca == 'identity':
+                payload['pca'] = [FunctionTransformer(validate=False)]
+
+            if pls == 'pls':
+                payload['pls'] = [AnchorPLS()]
+                payload["pls__scale"] = [True, False],
+            elif pls == 'lda':
+                payload['pls'] = [LinearDiscriminantAnalysis()]
+            elif pls == 'identity':
+                payload['pls'] = [FunctionTransformer(validate=False)]
+
+            ret.append(payload)
+
+    return ret
 
 
 def _composer_axis_spec(dataset_name=None):

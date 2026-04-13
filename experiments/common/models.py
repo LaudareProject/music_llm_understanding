@@ -22,15 +22,19 @@ def _as_float_array(y):
 
 
 class AnchorSelection(BaseEstimator, TransformerMixin):
-    def __init__(self, method="first_vs_last", n=4, seed=1992):
+    def __init__(self, method="first_vs_last", n=4, seed=1992, max_anchor_size=None):
         self.method = method
         self.n = n
         self.seed = seed
+        self.max_anchor_size = max_anchor_size
 
     def _first_last_counts(self, n_value, n_samples):
         if n_samples < 3:
             return 1, 1
         n_effective = max(2, min(int(n_value), n_samples - 1))
+        if self.max_anchor_size is not None:
+            max_total = max(2, int(np.floor(float(self.max_anchor_size) * n_samples)))
+            n_effective = min(n_effective, max_total)
         first_count = n_effective // 2
         last_count = first_count + (n_effective % 2)
         return first_count, last_count
@@ -67,7 +71,9 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
 
     def _percentile_medians(self, idx, y_array, n_value):
         n_percentiles = int(n_value)
-        percentile_count = max(2, min(int(n_percentiles), len(idx)))
+        first_count, last_count = self._first_last_counts(n_percentiles, len(idx))
+        n_effective = first_count + last_count
+        percentile_count = max(2, min(int(n_percentiles), len(idx), n_effective))
         ranked = idx[np.argsort(y_array)]
         boundaries = np.linspace(0, len(ranked), percentile_count + 1, dtype=np.int64)
         picked = []
@@ -82,8 +88,9 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         unique = np.asarray(
             sorted(set(picked), key=lambda j: y_array[j]), dtype=np.int64
         )
-        split = max(1, len(unique) // 2)
-        return unique[:split], unique[-split:]
+        first_count = max(1, min(first_count, len(unique) - 1))
+        last_count = max(1, min(last_count, len(unique) - first_count))
+        return unique[:first_count], unique[-last_count:]
 
     def fit(self, X, y):
         y_array = _as_float_array(y)

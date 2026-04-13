@@ -402,7 +402,7 @@ def run_experiment(settings, experiment_name):
         n_jobs=GRID_JOBS,
         refit=False,
         return_train_score=True,
-        verbose=2,
+        verbose=1,
         error_score=np.nan,
     )
     if group_labels is None:

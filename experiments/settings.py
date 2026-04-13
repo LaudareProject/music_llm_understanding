@@ -20,6 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FEATURE_BACKEND = "aria"
 CV_FOLDS = 5
 GRID_JOBS = 20
+MAX_ANCHOR_SIZE = 0.15
 
 
 def default_pipeline():
@@ -27,7 +28,15 @@ def default_pipeline():
         [
             ("pca", VarianceThreshold()),
             # ("pca", PCA(n_components=0.9)),
-            ("anchor", AnchorSelection(method="percentile_medians", n=8, seed=42)),
+            (
+                "anchor",
+                AnchorSelection(
+                    method="percentile_medians",
+                    n=8,
+                    seed=42,
+                    max_anchor_size=MAX_ANCHOR_SIZE,
+                ),
+            ),
             ("pls", AnchorPLS(scale=True)),
             # ("lda", LinearDiscriminantAnalysis()),
             ("projection", Projection1D(regression=True)),

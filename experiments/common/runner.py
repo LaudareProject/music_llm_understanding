@@ -8,7 +8,7 @@ import mido
 import numpy as np
 from scipy.stats import spearmanr
 from sklearn.base import clone
-from sklearn.metrics import make_scorer
+from sklearn.metrics import make_scorer, mean_absolute_error, r2_score
 from sklearn.model_selection import GridSearchCV, KFold
 
 from experiments.settings import CV_FOLDS, GRID_JOBS, SCORE_TOLERANCE
@@ -93,6 +93,8 @@ def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
     oof_pred = np.full(n_samples, np.nan, dtype=np.float64)
     anchor_counts = np.zeros(n_samples, dtype=np.int64)
     trial_scores = []
+    trial_r2 = []
+    trial_l1 = []
 
     for train_idx, test_idx in cv.split(matrix, y):
         model = clone(estimator)
@@ -111,6 +113,14 @@ def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
 
         for trial_pred in fold_pred:
             trial_scores.append(float(spearman_metric(y[test_idx], trial_pred)))
+            try:
+                trial_r2.append(float(r2_score(y[test_idx], trial_pred)))
+            except Exception:
+                trial_r2.append(float("nan"))
+            try:
+                trial_l1.append(float(mean_absolute_error(y[test_idx], trial_pred)))
+            except Exception:
+                trial_l1.append(float("nan"))
 
         for metadata in model.trial_anchor_metadata_:
             local_anchor_idx = np.asarray(metadata["anchor_indices"], dtype=np.int64)
@@ -119,7 +129,60 @@ def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
             global_anchor_idx = np.asarray(train_idx, dtype=np.int64)[local_anchor_idx]
             anchor_counts[global_anchor_idx] += 1
 
-    return oof_pred, anchor_counts, trial_scores
+    return oof_pred, anchor_counts, trial_scores, trial_r2, trial_l1
+
+
+def _n_sweep_extra_metrics(
+    grid, base_pipeline, matrix, y, cv, group_labels, reference_params
+):
+    cv_results = grid.cv_results_
+    extra = {}
+    for params in cv_results["params"]:
+        if not _same_params_except_anchor_keys(
+            params,
+            reference_params,
+            ignored_keys={"anchor__n", "anchor__method", "projection__regression"},
+        ):
+            continue
+        if "anchor__n" not in params or "anchor__method" not in params:
+            continue
+
+        key = (
+            bool(params.get("projection__regression", False)),
+            _anchor_method_label(str(params["anchor__method"])),
+            int(params["anchor__n"]),
+        )
+        estimator = clone(base_pipeline).set_params(**params)
+        try:
+            _, _, _, trial_r2, trial_l1 = _crossval_oof_predictions(
+                estimator,
+                matrix,
+                y,
+                cv,
+                group_labels=group_labels,
+            )
+            r2_mean, r2_ci95 = mean_ci95(trial_r2)
+            l1_mean, l1_ci95 = mean_ci95(trial_l1)
+            extra[key] = {
+                "r2": float(r2_mean),
+                "r2_ci95": float(r2_ci95),
+                "l1": float(l1_mean),
+                "l1_ci95": float(l1_ci95),
+            }
+        except Exception as exc:
+            print(
+                "  skipping extra metrics for sweep point: "
+                f"anchor_method={params['anchor__method']}, "
+                f"n={params['anchor__n']}, "
+                f"projection_regression={params.get('projection__regression', False)} ({exc})"
+            )
+            extra[key] = {
+                "r2": float("nan"),
+                "r2_ci95": float("nan"),
+                "l1": float("nan"),
+                "l1_ci95": float("nan"),
+            }
+    return extra
 
 
 def _normalize_midi_to_piano(midi_path):
@@ -509,7 +572,7 @@ def run_experiment(settings, experiment_name):
         f"best={best_score:.4f}, selected={selected_score:.4f}, "
         f"tolerance={SCORE_TOLERANCE:.4f}, n={selected_anchor_n}"
     )
-    y_hat_all, anchor_counts, trial_scores = _crossval_oof_predictions(
+    y_hat_all, anchor_counts, trial_scores, _, _ = _crossval_oof_predictions(
         best_estimator,
         matrix,
         y,
@@ -583,6 +646,15 @@ def run_experiment(settings, experiment_name):
 
     print("[4/5] sweeping n for best pipeline")
     n_sweep = _n_sweep_from_grid(grid, reference_params=selected_params)
+    n_sweep_extra = _n_sweep_extra_metrics(
+        grid,
+        spec["pipeline"],
+        matrix,
+        y,
+        cv,
+        group_labels,
+        selected_params,
+    )
 
     save_n_vs_spearman(
         output_dir / "n_vs_spearman_mean_direction.png",
@@ -611,6 +683,10 @@ def run_experiment(settings, experiment_name):
                         "spearman": f"{s:.10f}",
                         "ci95": f"{c:.10f}",
                         "outliers_removed": str(removed_outliers),
+                        "r2": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('r2', float('nan')):.10f}",
+                        "r2_ci95": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('r2_ci95', float('nan')):.10f}",
+                        "l1": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('l1', float('nan')):.10f}",
+                        "l1_ci95": f"{n_sweep_extra.get((projection_regression, anchor_method, int(n)), {}).get('l1_ci95', float('nan')):.10f}",
                     }
                 )
     write_tsv(
@@ -623,6 +699,10 @@ def run_experiment(settings, experiment_name):
             "spearman",
             "ci95",
             "outliers_removed",
+            "r2",
+            "r2_ci95",
+            "l1",
+            "l1_ci95",
         ],
     )
 

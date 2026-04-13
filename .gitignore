@@ -12,3 +12,5 @@ cache/baseline_features/composer_axis/musif/music21/midi
 cache/baseline_features/polar_axis/musif/vgmidi/midi
 cache/baseline_features/valence_axis/musif/vgmidi/midi
 cache/experiments/composer_axis/prepare_tsv_midi
+.opencode/worktrees/fix
+.opencode/worktree-session-state.json

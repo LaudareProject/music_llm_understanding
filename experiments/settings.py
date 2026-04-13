@@ -18,6 +18,7 @@ from experiments.common.models import (
 )
 
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
@@ -25,6 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FEATURE_BACKEND = "aria"
 CV_FOLDS = 5
 GRID_JOBS = 20
+SCORE_TOLERANCE = 0.02
 
 
 def default_pipeline():
@@ -36,7 +38,7 @@ def default_pipeline():
                 "anchor",
                 AnchorSelection(
                     method="first_vs_last",
-                    n=8,
+                    n=1,
                     seed=42,
                     max_anchor_size=0.15,
                 ),
@@ -62,7 +64,7 @@ def default_param_grid():
         ],
         # "anchor__n": range(1, 32),
         "projection__regression": [False, True],
-        "anchor__n": [1, 2, 4, 8, 16, 32],
+        "anchor__n": [1, 2, 4, 8, 12, 16, 20, 24, 28, 32],
         # "anchor__n": [2, 16],
     }
     # return common

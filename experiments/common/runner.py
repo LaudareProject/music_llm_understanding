@@ -11,7 +11,7 @@ from sklearn.base import clone
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV, KFold
 
-from experiments.settings import CV_FOLDS, GRID_JOBS
+from experiments.settings import CV_FOLDS, GRID_JOBS, SCORE_TOLERANCE
 from experiments.common.feature_backend import (
     FEATURE_BACKEND_ARIA,
     FEATURE_BACKEND_ENV,
@@ -273,7 +273,46 @@ def _anchor_method_label(method):
     return labels.get(str(method), str(method))
 
 
-def _n_sweep_from_grid(grid):
+def _select_grid_params_with_min_n(grid, score_tolerance):
+    cv_results = grid.cv_results_
+    scores = np.asarray(cv_results["mean_test_score"], dtype=np.float64)
+    params_list = cv_results["params"]
+
+    best_idx = int(grid.best_index_)
+    best_score = float(scores[best_idx])
+    threshold = float(best_score - float(score_tolerance))
+
+    candidate_indices = []
+    for idx, score in enumerate(scores):
+        if not np.isfinite(score):
+            continue
+        if float(score) >= threshold:
+            candidate_indices.append(idx)
+
+    if not candidate_indices:
+        return dict(grid.best_params_), best_score, best_score
+
+    def _anchor_n_value(index):
+        value = params_list[index].get("anchor__n")
+        if value is None:
+            return np.inf
+        try:
+            return int(value)
+        except Exception:
+            return np.inf
+
+    selected_idx = min(
+        candidate_indices,
+        key=lambda idx: (
+            _anchor_n_value(idx),
+            -float(scores[idx]),
+            int(cv_results["rank_test_score"][idx]),
+        ),
+    )
+    return dict(params_list[selected_idx]), float(scores[selected_idx]), best_score
+
+
+def _n_sweep_from_grid(grid, reference_params=None):
     cv_results = grid.cv_results_
     split_keys = sorted(
         [
@@ -283,11 +322,14 @@ def _n_sweep_from_grid(grid):
         ]
     )
 
+    if reference_params is None:
+        reference_params = grid.best_params_
+
     by_mode = {False: {}, True: {}}
     for idx, params in enumerate(cv_results["params"]):
         if not _same_params_except_anchor_keys(
             params,
-            grid.best_params_,
+            reference_params,
             ignored_keys={"anchor__n", "anchor__method", "projection__regression"},
         ):
             continue
@@ -412,7 +454,16 @@ def run_experiment(settings, experiment_name):
     _write_gridsearch_csv(output_dir / "gridsearch_results.csv", grid)
 
     print("[3/5] cross-validated predictions for best pipeline")
-    best_estimator = clone(spec["pipeline"]).set_params(**grid.best_params_)
+    selected_params, selected_score, best_score = _select_grid_params_with_min_n(
+        grid, SCORE_TOLERANCE
+    )
+    best_estimator = clone(spec["pipeline"]).set_params(**selected_params)
+    selected_anchor_n = selected_params.get("anchor__n", "unknown")
+    print(
+        "  selected params with minimum n under tolerance: "
+        f"best={best_score:.4f}, selected={selected_score:.4f}, "
+        f"tolerance={SCORE_TOLERANCE:.4f}, n={selected_anchor_n}"
+    )
     y_hat_all, anchor_counts, trial_scores = _crossval_oof_predictions(
         best_estimator,
         matrix,
@@ -474,7 +525,7 @@ def run_experiment(settings, experiment_name):
     )
 
     print("[4/5] sweeping n for best pipeline")
-    n_sweep = _n_sweep_from_grid(grid)
+    n_sweep = _n_sweep_from_grid(grid, reference_params=selected_params)
 
     save_n_vs_spearman(
         output_dir / "n_vs_spearman_mean_direction.png",

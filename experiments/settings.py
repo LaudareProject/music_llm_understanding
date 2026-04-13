@@ -27,6 +27,7 @@ DEFAULT_FEATURE_BACKEND = "aria"
 CV_FOLDS = 5
 GRID_JOBS = 20
 SCORE_TOLERANCE = 0.02
+OUTLIER_IQR_FACTOR = 1.5
 
 
 def default_pipeline():

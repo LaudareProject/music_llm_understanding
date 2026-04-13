@@ -57,6 +57,37 @@ def mean_ci95(values):
     return mean, float(ci)
 
 
+def _remove_target_outliers(rows, y, group_labels=None, iqr_factor=1.5):
+    if iqr_factor is None:
+        return rows, y, group_labels, 0, float("nan"), float("nan")
+    iqr_factor = float(iqr_factor)
+    if iqr_factor <= 0.0:
+        return rows, y, group_labels, 0, float("nan"), float("nan")
+    if int(y.size) < 4:
+        return rows, y, group_labels, 0, float("nan"), float("nan")
+
+    q1, q3 = np.percentile(y, [25.0, 75.0])
+    iqr = float(q3 - q1)
+    if not np.isfinite(iqr):
+        return rows, y, group_labels, 0, float("nan"), float("nan")
+    if iqr == 0.0:
+        return rows, y, group_labels, 0, float("nan"), float("nan")
+
+    low = float(q1 - iqr_factor * iqr)
+    high = float(q3 + iqr_factor * iqr)
+    keep_mask = (y >= low) & (y <= high)
+    removed = int(np.sum(~keep_mask))
+    if removed <= 0:
+        return rows, y, group_labels, 0, low, high
+
+    filtered_rows = [row for row, keep in zip(rows, keep_mask) if keep]
+    filtered_y = np.asarray(y, dtype=np.float64)[keep_mask]
+    filtered_groups = None
+    if group_labels is not None:
+        filtered_groups = np.asarray(group_labels, dtype=object)[keep_mask]
+    return filtered_rows, filtered_y, filtered_groups, removed, low, high
+
+
 def _crossval_oof_predictions(estimator, matrix, y, cv, group_labels=None):
     n_samples = int(matrix.shape[0])
     oof_pred = np.full(n_samples, np.nan, dtype=np.float64)
@@ -418,12 +449,26 @@ def run_experiment(settings, experiment_name):
         row_filter_col=spec.get("row_filter_col"),
         row_filter_value=spec.get("row_filter_value"),
     )
-    query_ids = [row["query_id"] for row in rows]
+    total_rows_before_outliers = len(rows)
     y = np.asarray([float(row[spec["target_col"]]) for row in rows], dtype=np.float64)
     group_col = spec.get("group_col")
     group_labels = None
     if group_col is not None:
         group_labels = np.asarray([row[group_col] for row in rows], dtype=object)
+
+    outlier_iqr_factor = spec.get(
+        "outlier_iqr_factor", getattr(settings, "OUTLIER_IQR_FACTOR", 1.5)
+    )
+    rows, y, group_labels, removed_outliers, outlier_low, outlier_high = (
+        _remove_target_outliers(rows, y, group_labels, iqr_factor=outlier_iqr_factor)
+    )
+    print(
+        "  target outlier filter before CV: "
+        f"removed={removed_outliers}, kept={len(rows)}, total={total_rows_before_outliers}, "
+        f"iqr_factor={outlier_iqr_factor}, range=[{outlier_low:.4f}, {outlier_high:.4f}]"
+    )
+
+    query_ids = [row["query_id"] for row in rows]
     matrix = matrix_for_rows(rows, midi_paths, cache_dir, repo_root, "Features")
     np.save(output_dir / "embeddings.npy", matrix)
     write_tsv(
@@ -504,12 +549,13 @@ def run_experiment(settings, experiment_name):
                 "target": f"{y[i]:.10f}",
                 "predicted": f"{y_hat_all[i]:.10f}",
                 "is_anchor": "1" if anchor_mask[i] else "0",
+                "outliers_removed": str(removed_outliers),
             }
         )
     write_tsv(
         output_dir / "projections.tsv",
         projection_rows,
-        ["query_id", "target", "predicted", "is_anchor"],
+        ["query_id", "target", "predicted", "is_anchor", "outliers_removed"],
     )
     write_tsv(
         output_dir / "metrics.tsv",
@@ -519,9 +565,20 @@ def run_experiment(settings, experiment_name):
                 "mean": f"{score_mean:.10f}",
                 "ci95": f"{score_ci95:.10f}",
                 "folds": "5",
+                "outliers_removed": str(removed_outliers),
+                "rows_total": str(total_rows_before_outliers),
+                "rows_kept": str(len(rows)),
             }
         ],
-        ["metric", "mean", "ci95", "folds"],
+        [
+            "metric",
+            "mean",
+            "ci95",
+            "folds",
+            "outliers_removed",
+            "rows_total",
+            "rows_kept",
+        ],
     )
 
     print("[4/5] sweeping n for best pipeline")
@@ -553,12 +610,20 @@ def run_experiment(settings, experiment_name):
                         "n": str(n),
                         "spearman": f"{s:.10f}",
                         "ci95": f"{c:.10f}",
+                        "outliers_removed": str(removed_outliers),
                     }
                 )
     write_tsv(
         output_dir / "n_vs_spearman.tsv",
         n_rows,
-        ["projection_regression", "anchor_method", "n", "spearman", "ci95"],
+        [
+            "projection_regression",
+            "anchor_method",
+            "n",
+            "spearman",
+            "ci95",
+            "outliers_removed",
+        ],
     )
 
     print("[5/5] done")

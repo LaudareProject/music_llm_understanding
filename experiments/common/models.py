@@ -239,14 +239,6 @@ class Projection1D(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_array = np.asarray(X, dtype=np.float64)
-        if self.use_regression_projection_:
-            centered = X_array - self.origin_
-            numerator = centered @ self.direction_
-            direction_norm = max(float(np.linalg.norm(self.direction_)), 1e-12)
-            centered_norms = np.maximum(np.linalg.norm(centered, axis=1), 1e-12)
-            projected = numerator / (centered_norms * direction_norm)
-            return projected.reshape(-1, 1)
-
         projected = (X_array - self.origin_) @ self.direction_
         return projected.reshape(-1, 1)
 

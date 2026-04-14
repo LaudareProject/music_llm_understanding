@@ -13,23 +13,49 @@ uv sync
 
 3. Run the experiments.
 
+## Musif feature extraction
+
+Musif features are stored under `data/musif/<dataset>/features.csv` so that every experiment can reuse the same CSV per dataset. Run the helper script before invoking any of the `run_all_musif.py` scripts:
+
+```bash
+uv run python scripts/extract_musif_features.py --dataset vgmidi --tsv ./experiments/valence_axis/songs.tsv
+```
+
+Use `--force` to regenerate an existing CSV.
+
 ## Experiments
 
 ### Composer chronology:
 
 ```bash
 uv run python experiments/composer_axis/prepare_tsv.py
-uv run python experiments/composer_axis/run.py
+uv run python experiments/composer_axis/run_all.py
 ```
 
 ### Pitch axis C1-B6:
 
 ```bash
 uv run python experiments/pitch_axis/prepare_tsv.py
-uv run python experiments/pitch_axis/run.py
+uv run python experiments/pitch_axis/run_all.py
 ```
 
-Outputs are written under `outputs/experiments/<experiment>/<timestamp>/`.
+`prepare_tsv.py` builds `experiments/pitch_axis/notes.tsv` with note-level covariates (`duration_ticks`, `velocity`) used for control analyses.
+
+### Arousal and valence:
+
+```bash
+uv run python experiments/arousal_axis/prepare_tsv.py
+uv run python experiments/arousal_axis/run_all.py
+
+uv run python experiments/valence_axis/prepare_tsv.py
+uv run python experiments/valence_axis/run_all.py
+```
+
+All experiment pipelines and grid-search parameters are defined in `experiments/settings.py`.
+
+Each `run_all.py` executes a GridSearchCV over the configured pipelines with a single predefined split, writes `gridsearch_results.csv`, and then re-runs the best pipeline with anchors excluded from test for the final plots.
+
+Outputs are written under `outputs/aria_embeddings/<experiment>/<timestamp>/` or `outputs/baseline_features/<experiment>/<timestamp>/` based on `FEATURE_BACKEND`.
 
 ## Models
 

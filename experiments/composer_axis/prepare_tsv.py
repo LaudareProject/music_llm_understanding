@@ -551,9 +551,13 @@ def load_lifespans():
         for row in csv.DictReader(handle):
             composer = (row.get("composer") or "").strip()
             birth = parse_year(row.get("birth_year"))
-            death = parse_year(row.get("death_year"))
-            if composer and birth is not None and death is not None:
-                table[canonicalize(composer)] = (birth, death)
+            last_date = (
+                2026  # Year this study was conducted
+                if row.get("death_year") == "present"
+                else parse_year(row.get("death_year"))
+            )
+            if composer and birth is not None and last_date is not None:
+                table[canonicalize(composer)] = (birth, last_date)
     return table
 
 

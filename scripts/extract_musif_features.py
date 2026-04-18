@@ -17,7 +17,6 @@ from experiments.common.feature_backend import (
     run_musif_extraction,
 )
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
-from experiments.pitch_axis.pipeline import write_note_midi
 
 
 def parse_args():
@@ -65,14 +64,6 @@ def prepare_midi(row, source_dir, repo_root, bin_dir):
     query_id = row["query_id"]
     dest = source_dir / f"{query_id}.mid"
     if "path" not in row or not str(row.get("path", "")).strip():
-        if {"midi_note", "duration_ticks", "velocity"}.issubset(set(row.keys())):
-            write_note_midi(
-                dest,
-                int(row["midi_note"]),
-                int(row["duration_ticks"]),
-                int(row["velocity"]),
-            )
-            return
         raise ValueError(f"Missing path for query {query_id}")
 
     src = (repo_root / row["path"]).resolve()

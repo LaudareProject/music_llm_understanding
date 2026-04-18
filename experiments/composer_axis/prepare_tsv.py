@@ -10,6 +10,7 @@ import time
 import unicodedata
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 from urllib import parse, request
 
 import mido
@@ -107,20 +108,24 @@ MUSIC21_SUFFIXES = {
     ".kern": "kern",
 }
 
+RecordItem = dict[str, Any]
+Records = list[RecordItem]
+DateCacheEntryData = tuple[float, str, str] | tuple[None, None, None]
 
-def canonicalize(name):
+
+def canonicalize(name: str) -> str:
     normalized = unicodedata.normalize("NFKD", name)
     ascii_only = normalized.encode("ascii", "ignore").decode("ascii")
     return re.sub(r"[^a-z0-9]+", "", ascii_only.lower())
 
 
-def parse_year(value):
+def parse_year(value: str | None) -> int | None:
     text = str(value or "").strip()
     match = re.search(r"-?\d{3,4}", text)
     return int(match.group(0)) if match else None
 
 
-def parse_work_year(value):
+def parse_work_year(value: str | None) -> float | None:
     text = str(value or "").strip()
     if not text:
         return None
@@ -145,7 +150,7 @@ def parse_work_year(value):
     return (years[0] + years[-1]) / 2.0
 
 
-def parse_wikidata_time_year(value):
+def parse_wikidata_time_year(value: str | None) -> float | None:
     text = str(value or "").strip()
     match = re.match(r"^([+-])(\d{1,16})-", text)
     if not match:
@@ -157,7 +162,9 @@ def parse_wikidata_time_year(value):
     return float(year)
 
 
-def year_in_lifespan(row, year):
+def year_in_lifespan(row: RecordItem, year: float | None) -> bool:
+    if year is None:
+        return True
     try:
         value = float(year)
         birth = float(row["birth_year"])
@@ -169,20 +176,20 @@ def year_in_lifespan(row, year):
     return birth <= value <= death
 
 
-def load_cache(path: Path):
+def load_cache(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def save_cache(path: Path, cache):
+def save_cache(path: Path, cache: dict[str, Any]) -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         json.dump(cache, handle, indent=2, sort_keys=True, ensure_ascii=False)
 
 
-def fetch_text(url, headers=None, accept=None):
+def fetch_text(url: str, headers: dict | None = None, accept=None) -> str:
     request_headers = {"User-Agent": HTTP_USER_AGENT}
     if headers:
         request_headers.update(headers)
@@ -193,11 +200,11 @@ def fetch_text(url, headers=None, accept=None):
         return response.read().decode("utf-8")
 
 
-def fetch_json(url, headers=None, accept=None):
+def fetch_json(url: str, headers: dict | None = None, accept=None) -> dict:
     return json.loads(fetch_text(url, headers=headers, accept=accept))
 
 
-def strip_markup(text):
+def strip_markup(text: str | None) -> str:
     value = str(text or "")
     value = re.sub(r"\{\{[^{}]*\|([^{}|]+)\}\}", r"\1", value)
     value = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", value)
@@ -207,7 +214,7 @@ def strip_markup(text):
     return re.sub(r"\s+", " ", value).strip()
 
 
-def normalize_title_text(text):
+def normalize_title_text(text: str | None) -> str:
     value = str(text or "").replace("_", " ").strip()
     value = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", value)
     value = re.sub(r"(?<=[A-Za-z])(?=\d)", " ", value)
@@ -217,12 +224,12 @@ def normalize_title_text(text):
     return value.strip()
 
 
-def title_tokens(text):
+def title_tokens(text: str | None) -> str:
     folded = canonicalize(normalize_title_text(text))
     return folded
 
 
-def extract_catalog_queries(title, path):
+def extract_catalog_queries(title: str, path: str) -> list[str]:
     text = f"{title} {path}".lower().replace("_", " ").replace("/", " ")
     patterns = [
         (r"\bbwv\s*([0-9]+[a-z-]*)", "BWV {}"),
@@ -240,7 +247,7 @@ def extract_catalog_queries(title, path):
     return queries
 
 
-def path_context_queries(path):
+def path_context_queries(path: str) -> list[str]:
     parts = [normalize_title_text(part) for part in Path(path).parts[:-1]]
     queries = []
     for part in reversed(parts):
@@ -252,7 +259,7 @@ def path_context_queries(path):
     return queries[:3]
 
 
-def build_query_candidates(row):
+def build_query_candidates(row: RecordItem) -> list[str]:
     composer = row["composer"]
     title = normalize_title_text(row["title"])
     candidates = []
@@ -274,7 +281,7 @@ def build_query_candidates(row):
     return candidates
 
 
-def choose_imslp_hit(row, hits):
+def choose_imslp_hit(row: RecordItem, hits: list[str]) -> str | None:
     composer_key = canonicalize(row["composer"])
     title_key = canonicalize(normalize_title_text(row["title"]))
     catalogs = [
@@ -301,7 +308,7 @@ def choose_imslp_hit(row, hits):
     return best_title if (best_score or 0) > 0 else None
 
 
-def fetch_imslp_fields(page_title):
+def fetch_imslp_fields(page_title: str) -> dict[str, str]:
     params = parse.urlencode(
         {
             "action": "query",
@@ -313,7 +320,7 @@ def fetch_imslp_fields(page_title):
     )
     payload = fetch_json(f"{IMSLP_API_URL}?{params}")
     pages = payload.get("query", {}).get("pages", {})
-    page = next(iter(pages.values()), {})
+    page: dict = next(iter(pages.values()), {})
     revisions = page.get("revisions") or []
     if not revisions:
         return {}
@@ -356,7 +363,7 @@ def lookup_impls_query(row, query) -> tuple[float, str, str] | tuple[None, None,
     return None, None, None
 
 
-def lookup_imslp_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
+def lookup_imslp_year(row: RecordItem) -> DateCacheEntryData:
     for query in build_query_candidates(row):
         year, source, hit = lookup_impls_query(row, query)
         if year is not None:
@@ -366,7 +373,7 @@ def lookup_imslp_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
     return None, None, None
 
 
-def choose_wikipedia_hit(row, hits):
+def choose_wikipedia_hit(row: RecordItem, hits: list[dict]) -> dict | None:
     composer_words = [canonicalize(token) for token in row["composer"].split() if token]
     title_words = [
         canonicalize(token)
@@ -395,7 +402,7 @@ def choose_wikipedia_hit(row, hits):
     return best if (best_score or 0) > 0 else None
 
 
-def fetch_wikidata_year(row, qid) -> tuple[float, str, str] | tuple[None, None, None]:
+def fetch_wikidata_year(row: RecordItem, qid: str) -> DateCacheEntryData:
     payload = fetch_json(WIKIDATA_ENTITY_URL.format(qid=qid))
     entity = payload.get("entities", {}).get(qid, {})
     for prop, source in [
@@ -424,7 +431,7 @@ def fetch_wikidata_year(row, qid) -> tuple[float, str, str] | tuple[None, None, 
     return None, None, None
 
 
-def lookup_wikipedia_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
+def lookup_wikipedia_year(row: RecordItem) -> DateCacheEntryData:
     for query in build_query_candidates(row):
         params = parse.urlencode(
             {
@@ -451,7 +458,7 @@ def lookup_wikipedia_year(row) -> tuple[float, str, str] | tuple[None, None, Non
         )
         detail = fetch_json(f"{WIKIPEDIA_API_URL}?{detail_params}")
         pages = detail.get("query", {}).get("pages", {})
-        page = next(iter(pages.values()), {})
+        page: dict = next(iter(pages.values()), {})
         qid = page.get("pageprops", {}).get("wikibase_item")
         if not qid:
             continue
@@ -464,7 +471,7 @@ def lookup_wikipedia_year(row) -> tuple[float, str, str] | tuple[None, None, Non
     return None, None, None
 
 
-def choose_rism_item(row, items):
+def choose_rism_item(row: RecordItem, items: list[dict]) -> dict | None:
     composer_key = canonicalize(row["composer"])
     best = None
     best_score = None
@@ -491,7 +498,7 @@ def choose_rism_item(row, items):
     return best if (best_score or 0) > 0 else None
 
 
-def lookup_rism_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
+def lookup_rism_year(row: RecordItem) -> DateCacheEntryData:
     for query in build_query_candidates(row):
         params = parse.urlencode({"q": query, "rows": 20})
         payload = fetch_json(
@@ -523,7 +530,7 @@ def lookup_rism_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
     return None, None, None
 
 
-def lookup_network_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
+def lookup_network_year(row: RecordItem) -> DateCacheEntryData:
     for fn in [lookup_wikipedia_year, lookup_imslp_year, lookup_rism_year]:
         try:
             year, source, hit = fn(row)
@@ -539,7 +546,7 @@ def lookup_network_year(row) -> tuple[float, str, str] | tuple[None, None, None]
     return None, None, None
 
 
-def assign_work_years(records):
+def assign_work_years(records: Records) -> None:
     with COMPOSITION_DATES_PATH.open("r") as f:
         composition_dates = json.load(f)
     for i, row in enumerate(records):
@@ -623,7 +630,7 @@ def assign_work_years(records):
     #     save_cache(DATE_CACHE_PATH, cache)
 
 
-def load_lifespans():
+def load_lifespans() -> dict[str, tuple[int, int]]:
     table = {}
     with LIFESPANS_CSV.open("r", encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
@@ -639,7 +646,12 @@ def load_lifespans():
     return table
 
 
-def resolve_lifespan(composer, table, fallback_birth=None, fallback_death=None):
+def resolve_lifespan(
+    composer: str,
+    table: dict,
+    fallback_birth: float | None = None,
+    fallback_death: float | None = None,
+):
     if canonicalize(composer) in table:
         return table[canonicalize(composer)]
     if fallback_birth is not None and fallback_death is not None:
@@ -647,17 +659,17 @@ def resolve_lifespan(composer, table, fallback_birth=None, fallback_death=None):
     return None
 
 
-def ensure_asap_dataset():
+def ensure_asap_dataset() -> None:
     if (ASAP_ROOT / "metadata.csv").exists():
         return
     subprocess.run(["git", "clone", ASAP_REPO_URL, str(ASAP_ROOT)], check=True)
 
 
-def relpath(path):
+def relpath(path: str | Path) -> str:
     return os.path.relpath(Path(path).resolve(), REPO_ROOT)
 
 
-def downsample(records, rng):
+def downsample(records: Records, rng: random.Random) -> Records:
     grouped = defaultdict(list)
     for row in records:
         grouped[row["composer"]].append(row)
@@ -676,7 +688,7 @@ def downsample(records, rng):
     return out
 
 
-def collect_asap(table, rng):
+def collect_asap(table: dict, rng: random.Random) -> tuple[Records, set[str]]:
     rows = []
     missing = set()
     seen_paths = set()
@@ -720,7 +732,7 @@ def collect_asap(table, rng):
     return rows, missing
 
 
-def collect_music21(table, rng):
+def collect_music21(table: dict, rng: random.Random) -> tuple[Records, set[str]]:
     from music21 import corpus
 
     rows = []
@@ -757,7 +769,7 @@ def collect_music21(table, rng):
     return rows, missing
 
 
-def collect_ewld(table, rng):
+def collect_ewld(table: dict, rng: random.Random) -> tuple[Records, set[str]]:
     rows = []
     missing = set()
     conn = sqlite3.connect(EWLD_DB_PATH)
@@ -831,7 +843,7 @@ def collect_ewld(table, rng):
     return rows, missing
 
 
-def keep_composers_with_enough_songs(records):
+def keep_composers_with_enough_songs(records: Records) -> Records:
     grouped = defaultdict(list)
     for row in records:
         grouped[row["composer"]].append(row)
@@ -842,8 +854,8 @@ def keep_composers_with_enough_songs(records):
     return out
 
 
-def assign_query_ids(records):
-    counters = defaultdict(int)
+def assign_query_ids(records: Records) -> None:
+    counters: dict = defaultdict(int)
     for row in sorted(
         records,
         key=lambda row: (
@@ -860,7 +872,7 @@ def assign_query_ids(records):
         )
 
 
-def quantiles5(values):
+def quantiles5(values: list[float]) -> list[float]:
     if not values:
         return [float("nan")] * 5
     return [
@@ -871,7 +883,7 @@ def quantiles5(values):
     ]
 
 
-def prepare_feature_midi(row, midi_dir):
+def prepare_feature_midi(row: RecordItem, midi_dir: Path) -> Path:
     source_path = (REPO_ROOT / row["path"]).resolve()
     midi_path = midi_dir / f"{row['query_id']}.mid"
     if row["input_kind"] == "midi":
@@ -885,7 +897,7 @@ def prepare_feature_midi(row, midi_dir):
     raise ValueError(row["input_kind"])
 
 
-def midi_covariates(midi_path):
+def midi_covariates(midi_path: Path) -> dict[str, float]:
     midi = mido.MidiFile(str(midi_path))
     note_pitches = []
     note_durations = []
@@ -928,7 +940,7 @@ def midi_covariates(midi_path):
     }
 
 
-def assign_midi_covariates(records):
+def assign_midi_covariates(records: Records) -> None:
     FEATURES_MIDI_DIR.mkdir(parents=True, exist_ok=True)
     cache = load_cache(COVARIATE_CACHE_PATH)
     dirty = False
@@ -976,14 +988,14 @@ def assign_midi_covariates(records):
         save_cache(COVARIATE_CACHE_PATH, cache)
 
 
-def format_float(value):
+def format_float(value: float) -> str:
     number = float(value)
     if np.isnan(number):
         return "nan"
     return f"{number:.6f}"
 
 
-def format_int(value):
+def format_int(value: float) -> str:
     number = float(value)
     if np.isnan(number):
         return "nan"

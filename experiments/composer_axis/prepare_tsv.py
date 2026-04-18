@@ -1,8 +1,6 @@
-from collections import defaultdict
 import csv
 import json
 import os
-from pathlib import Path
 import random
 import re
 import sqlite3
@@ -10,6 +8,8 @@ import subprocess
 import sys
 import time
 import unicodedata
+from collections import defaultdict
+from pathlib import Path
 from urllib import parse, request
 
 import mido
@@ -20,16 +20,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.tsv import write_tsv
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ASAP_REPO_URL = "https://github.com/fosfrancesco/asap-dataset"
 ASAP_ROOT = REPO_ROOT / "ASAP"
 EWLD_ROOT = REPO_ROOT / "EWLD"
 EWLD_DB_PATH = EWLD_ROOT / "EWLD.db"
 LIFESPANS_CSV = REPO_ROOT / "data" / "composer_lifespans.csv"
+COMPOSITION_DATES_PATH = REPO_ROOT / "data" / "composition_dates.json"
 OUTPUT_TSV = REPO_ROOT / "experiments" / "composer_axis" / "songs.tsv"
 CACHE_DIR = REPO_ROOT / "cache" / "experiments" / "composer_axis"
 DATE_CACHE_PATH = CACHE_DIR / "prepare_tsv_date_cache.json"
+COVARIATE_CACHE_PATH = CACHE_DIR / "prepare_tsv_covariate_cache.json"
 BIN_DIR = REPO_ROOT / "bin"
 FEATURES_MIDI_DIR = CACHE_DIR / "prepare_tsv_midi"
 MIN_SONGS_PER_COMPOSER = 4
@@ -168,17 +169,17 @@ def year_in_lifespan(row, year):
     return birth <= value <= death
 
 
-def load_date_cache():
-    if not DATE_CACHE_PATH.exists():
+def load_cache(path: Path):
+    if not path.exists():
         return {}
-    with DATE_CACHE_PATH.open("r", encoding="utf-8") as handle:
+    with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def save_date_cache(cache):
+def save_cache(path: Path, cache):
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    with DATE_CACHE_PATH.open("w", encoding="utf-8") as handle:
-        json.dump(cache, handle, indent=2, sort_keys=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(cache, handle, indent=2, sort_keys=True, ensure_ascii=False)
 
 
 def fetch_text(url, headers=None, accept=None):
@@ -258,16 +259,17 @@ def build_query_candidates(row):
 
     def add(query):
         value = re.sub(r"\s+", " ", str(query or "")).strip()
+        value = re.sub(r"_+", " ", str(value or "")).strip()
         if value and value not in candidates:
             candidates.append(value)
 
-    add(f"{title} {composer}")
+    add(f"{composer} {title}")
     add(title)
     for catalog in extract_catalog_queries(row["title"], row["path"]):
-        add(f"{catalog} {composer}")
+        add(f"{composer} {catalog}")
         add(catalog)
     for context in path_context_queries(row["path"]):
-        add(f"{context} {composer}")
+        add(f"{composer} {context}")
         add(context)
     return candidates
 
@@ -328,31 +330,40 @@ def fetch_imslp_fields(page_title):
     return fields
 
 
-def lookup_imslp_year(row):
+def lookup_impls_query(row, query) -> tuple[float, str, str] | tuple[None, None, None]:
+    params = parse.urlencode(
+        {
+            "action": "query",
+            "list": "search",
+            "srsearch": query,
+            "format": "json",
+        }
+    )
+    payload = fetch_json(f"{IMSLP_API_URL}?{params}")
+    titles = [
+        item.get("title", "") for item in payload.get("query", {}).get("search", [])
+    ]
+    chosen = choose_imslp_hit(row, titles)
+    if not chosen:
+        return None, None, None
+    fields = fetch_imslp_fields(chosen)
+    composition_year = parse_work_year(fields.get("Year/Date of Composition"))
+    if composition_year is not None and year_in_lifespan(row, composition_year):
+        return composition_year, "imslp_composition", chosen
+    publication_year = parse_work_year(fields.get("Year of First Publication"))
+    if publication_year is not None and year_in_lifespan(row, publication_year):
+        return publication_year, "imslp_first_publication", chosen
+    return None, None, None
+
+
+def lookup_imslp_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
     for query in build_query_candidates(row):
-        params = parse.urlencode(
-            {
-                "action": "query",
-                "list": "search",
-                "srsearch": query,
-                "format": "json",
-            }
-        )
-        payload = fetch_json(f"{IMSLP_API_URL}?{params}")
-        titles = [
-            item.get("title", "") for item in payload.get("query", {}).get("search", [])
-        ]
-        chosen = choose_imslp_hit(row, titles)
-        if not chosen:
-            continue
-        fields = fetch_imslp_fields(chosen)
-        composition_year = parse_work_year(fields.get("Year/Date of Composition"))
-        if composition_year is not None and year_in_lifespan(row, composition_year):
-            return composition_year, "imslp_composition"
-        publication_year = parse_work_year(fields.get("Year of First Publication"))
-        if publication_year is not None and year_in_lifespan(row, publication_year):
-            return publication_year, "imslp_first_publication"
-    return None, None
+        year, source, hit = lookup_impls_query(row, query)
+        if year is not None:
+            assert source is not None
+            assert hit is not None
+            return year, source, hit
+    return None, None, None
 
 
 def choose_wikipedia_hit(row, hits):
@@ -384,24 +395,36 @@ def choose_wikipedia_hit(row, hits):
     return best if (best_score or 0) > 0 else None
 
 
-def fetch_wikidata_year(qid):
+def fetch_wikidata_year(row, qid) -> tuple[float, str, str] | tuple[None, None, None]:
     payload = fetch_json(WIKIDATA_ENTITY_URL.format(qid=qid))
     entity = payload.get("entities", {}).get(qid, {})
     for prop, source in [
         ("P571", "wikipedia_inception"),
         ("P577", "wikipedia_publication"),
+        ("P839", "wikipedia_imslp_link"),
     ]:
         claims = entity.get("claims", {}).get(prop) or []
         for claim in claims:
             datavalue = claim.get("mainsnak", {}).get("datavalue", {})
             value = datavalue.get("value", {})
+
+            if prop == "P839":
+                query = re.sub(r"_", r" ", str(value or "")).strip()
+                year, _, hit = lookup_impls_query(row, query)
+                if year is not None and year_in_lifespan(row, year):
+                    assert hit is not None
+                    return year, "wikipedia_imslp_link", hit
+                continue
+
             year = parse_wikidata_time_year(value.get("time"))
             if year is not None:
-                return year, source
-    return None, None
+                label = entity.get("labels", {}).get("en", {}).get("value", qid)
+                label = f"{WIKIDATA_ENTITY_URL.format(qid=qid)} ({label})"
+                return year, source, label
+    return None, None, None
 
 
-def lookup_wikipedia_year(row):
+def lookup_wikipedia_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
     for query in build_query_candidates(row):
         params = parse.urlencode(
             {
@@ -432,10 +455,13 @@ def lookup_wikipedia_year(row):
         qid = page.get("pageprops", {}).get("wikibase_item")
         if not qid:
             continue
-        year, source = fetch_wikidata_year(qid)
+
+        year, source, hit = fetch_wikidata_year(row, qid)
         if year is not None and year_in_lifespan(row, year):
-            return year, source
-    return None, None
+            assert source is not None
+            assert hit is not None
+            return year, source, hit
+    return None, None, None
 
 
 def choose_rism_item(row, items):
@@ -465,7 +491,7 @@ def choose_rism_item(row, items):
     return best if (best_score or 0) > 0 else None
 
 
-def lookup_rism_year(row):
+def lookup_rism_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
     for query in build_query_candidates(row):
         params = parse.urlencode({"q": query, "rows": 20})
         payload = fetch_json(
@@ -490,59 +516,111 @@ def lookup_rism_year(row):
         if earliest is not None and latest is not None:
             year = (earliest + latest) / 2.0
             if year_in_lifespan(row, year):
-                return year, "rism_source_date"
+                return year, "rism_source_date", chosen["id"]
         date_statement = parse_work_year(dates.get("dateStatement"))
         if date_statement is not None and year_in_lifespan(row, date_statement):
-            return date_statement, "rism_source_date"
-    return None, None
+            return date_statement, "rism_source_date", chosen[""]
+    return None, None, None
 
 
-def lookup_network_year(row):
-    for fn in [lookup_imslp_year, lookup_wikipedia_year, lookup_rism_year]:
+def lookup_network_year(row) -> tuple[float, str, str] | tuple[None, None, None]:
+    for fn in [lookup_wikipedia_year, lookup_imslp_year, lookup_rism_year]:
         try:
-            year, source = fn(row)
-        except Exception:
-            year, source = None, None
+            year, source, hit = fn(row)
+        except Exception as err:
+            lineno = err.__traceback__.tb_lineno if err.__traceback__ else "unknown"
+            print(f"Error in {fn.__name__} for row {row}: {err} (Line {lineno})")
+            year, source, hit = None, None, None
         if year is not None and year_in_lifespan(row, year):
-            return year, source
+            assert source is not None
+            assert hit is not None
+            return year, source, hit
         time.sleep(0.1)
-    return None, None
+    return None, None, None
 
 
 def assign_work_years(records):
-    cache = load_date_cache()
-    dirty = False
-    for row in records:
+    with COMPOSITION_DATES_PATH.open("r") as f:
+        composition_dates = json.load(f)
+    for i, row in enumerate(records):
         cache_key = "|".join(
             [row["dataset"], row["composer"], row["title"], row["path"]]
         )
-        cached = cache.get(cache_key)
-        if cached is not None and not year_in_lifespan(row, cached.get("year")):
-            cache.pop(cache_key, None)
-            cached = None
-            dirty = True
+        print(
+            "Checking record {}/{}: {} - {} ({})".format(
+                i + 1,
+                len(records),
+                row["composer"],
+                row["title"],
+                row["path"],
+            )
+        )
+        cached = composition_dates.get(cache_key)
         if cached is None:
-            if row["dataset"] == "ewld":
-                year = parse_work_year(row.get("first_performance_date"))
-                if year is not None and year_in_lifespan(row, year):
-                    cached = {"year": year, "source": "ewld_first_performance_date"}
-                else:
-                    cached = {
-                        "year": row["midpoint_year"],
-                        "source": "lifespan_midpoint",
-                    }
-            else:
-                year, source = lookup_network_year(row)
-                if year is None:
-                    year = row["midpoint_year"]
-                    source = "lifespan_midpoint"
-                cached = {"year": year, "source": source}
-            cache[cache_key] = cached
-            dirty = True
+            print(
+                f"No year assigned for {row['composer']} - {row['title']}. Using lifespan midpoint."
+            )
+            row["midpoint_year"] = float(row["midpoint_year"])
+            row["year_source"] = "lifespan_midpoint"
+            continue
         row["midpoint_year"] = float(cached["year"])
         row["year_source"] = cached["source"]
-    if dirty:
-        save_date_cache(cache)
+
+    # -------------
+    #   SCAPPING
+    # -------------
+    #
+    # cache = load_cache(DATE_CACHE_PATH)
+    # dirty = False
+    # for i, row in enumerate(records):
+    #     cache_key = "|".join(
+    #         [row["dataset"], row["composer"], row["title"], row["path"]]
+    #     )
+    #     print(
+    #         "Checking record {}/{}: {} - {} ({})".format(
+    #             i + 1,
+    #             len(records),
+    #             row["composer"],
+    #             row["title"],
+    #             row["path"],
+    #         )
+    #     )
+    #     cached = composition_dates.get(cache_key)
+    #     if cached is not None and not year_in_lifespan(row, cached.get("year")):
+    #         cache.pop(cache_key, None)
+    #         cached = None
+    #         dirty = True
+    #     if cached is None:
+    #         if row["dataset"] == "ewld":
+    #             year = parse_work_year(row.get("first_performance_date"))
+    #             if year is not None and year_in_lifespan(row, year):
+    #                 cached = {"year": year, "source": "ewld_first_performance_date"}
+    #             else:
+    #                 cached = {
+    #                     "year": row["midpoint_year"],
+    #                     "source": "lifespan_midpoint",
+    #                 }
+    #         else:
+    #             year, source, hit = lookup_network_year(row)
+    #             if year is None:
+    #                 year = row["midpoint_year"]
+    #                 source = "lifespan_midpoint"
+    #             cached = {"year": year, "source": source, "hit": hit}
+    #         cache[cache_key] = cached
+    #         dirty = True
+    #     row["midpoint_year"] = float(cached["year"])
+    #     row["year_source"] = cached["source"]
+    #     print(
+    #         "  Assigned year {} from source '{}'".format(
+    #             cached["year"], cached["source"]
+    #         )
+    #     )
+    #     if i % 10 == 0 and dirty:
+    #         print("Saving date cache with {} entries...".format(len(cache)))
+    #         save_cache(DATE_CACHE_PATH, cache)
+    #         dirty = False
+    # if dirty:
+    #     save_cache(DATE_CACHE_PATH, cache)
 
 
 def load_lifespans():
@@ -639,7 +717,7 @@ def collect_asap(table, rng):
                     "path": relpath(source_path),
                 }
             )
-    return downsample(rows, rng), missing
+    return rows, missing
 
 
 def collect_music21(table, rng):
@@ -660,8 +738,6 @@ def collect_music21(table, rng):
                 if Path(item).suffix.lower() in MUSIC21_SUFFIXES
             }
         )
-        if len(work_paths) > MAX_SONGS_PER_COMPOSER:
-            work_paths = sorted(rng.sample(work_paths, MAX_SONGS_PER_COMPOSER))
         birth_year, death_year = lifespan
         for work_path in work_paths:
             if not work_path.exists():
@@ -752,7 +828,7 @@ def collect_ewld(table, rng):
                 "work_id": str(work_id),
             }
         )
-    return downsample(rows, rng), missing
+    return rows, missing
 
 
 def keep_composers_with_enough_songs(records):
@@ -854,7 +930,19 @@ def midi_covariates(midi_path):
 
 def assign_midi_covariates(records):
     FEATURES_MIDI_DIR.mkdir(parents=True, exist_ok=True)
-    for row in records:
+    cache = load_cache(COVARIATE_CACHE_PATH)
+    dirty = False
+    for i, row in enumerate(records):
+        cache_key = "|".join(
+            [row["dataset"], row["composer"], row["title"], row["path"]]
+        )
+        cached = cache.get(cache_key)
+        if cached is not None:
+            row.update(cached)
+            continue
+        print(
+            f"Computing MIDI covariates for record {i + 1}/{len(records)}: {row['query_id']}"
+        )
         try:
             midi_path = prepare_feature_midi(row, FEATURES_MIDI_DIR)
             stats = midi_covariates(midi_path)
@@ -875,7 +963,17 @@ def assign_midi_covariates(records):
                 "note_duration_q75": float("nan"),
                 "note_duration_q100": float("nan"),
             }
+        cache[cache_key] = stats
+        dirty = True
         row.update(stats)
+
+        if i % 10 == 0 and dirty:
+            print(f"  saving covariate cache with {len(cache)} entries...")
+            dirty = False
+            save_cache(COVARIATE_CACHE_PATH, cache)
+
+    if dirty:
+        save_cache(COVARIATE_CACHE_PATH, cache)
 
 
 def format_float(value):
@@ -902,6 +1000,10 @@ def main():
     ewld_rows, missing_ewld = collect_ewld(lifespans, rng)
 
     print("[2/6] filtering composers")
+    asap_rows = downsample(asap_rows, rng)
+    music21_rows = downsample(music21_rows, rng)
+    ewld_rows = downsample(ewld_rows, rng)
+
     by_dataset = {
         "asap": keep_composers_with_enough_songs(asap_rows),
         "music21": keep_composers_with_enough_songs(music21_rows),

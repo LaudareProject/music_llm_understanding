@@ -12,7 +12,7 @@ GET_GLOBAL_EMBEDDING = None
 REPO_ID = "loubb/aria-medium-embedding"
 CHECKPOINT_FILENAME = "model.safetensors"
 MODEL_CONFIG_NAME = "medium-emb"
-DEVICE = "cpu"
+DEVICE = "cuda"
 
 
 def load_model():

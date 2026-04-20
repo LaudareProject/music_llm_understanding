@@ -63,8 +63,8 @@ def default_param_grid():
             "percentile_medians",
         ],
         # "anchor__n": range(1, 32),
-        "projection__regression": [False, True],
-        "anchor__n": [1, 2, 4, 8, 12, 16, 20, 24, 28, 32],
+        # "projection__regression": [False, True],
+        "anchor__n": [2, 4, 8, 12, 16, 20, 24, 28, 32],
         # "anchor__n": [2, 16],
     }
     # return common
@@ -72,25 +72,32 @@ def default_param_grid():
     ret = []
     for pca in ["pca", "identity", "var"]:
         for pls in ["pls", "identity", "lda"]:
-            payload = {**common}
-            if pca == "pca":
-                payload["pca"] = [PCA()]
-                payload["pca__n_components"] = [0.8, 0.9, 0.95, None]
-                payload["pca__whiten"] = [True, False]
-            elif pca == "variance":
-                payload["pca"] = [VarianceThreshold()]
-            elif pca == "identity":
-                payload["pca"] = [FunctionTransformer(validate=False)]
+            for projection in ["project1d", "identity"]:
+                payload = {**common}
+                if pca == "pca":
+                    payload["pca"] = [PCA()]
+                    payload["pca__n_components"] = [0.8, 0.9, 0.95, None]
+                    payload["pca__whiten"] = [True, False]
+                elif pca == "variance":
+                    payload["pca"] = [VarianceThreshold()]
+                elif pca == "identity":
+                    payload["pca"] = [FunctionTransformer(validate=False)]
 
-            if pls == "pls":
-                payload["pls"] = [AnchorPLS()]
-                payload["pls__scale"] = [True, False]
-            elif pls == "lda":
-                payload["pls"] = [LinearDiscriminantAnalysis()]
-            elif pls == "identity":
-                payload["pls"] = [FunctionTransformer(validate=False)]
+                if pls == "pls":
+                    payload["pls"] = [AnchorPLS()]
+                    payload["pls__scale"] = [True, False]
+                elif pls == "lda":
+                    payload["pls"] = [LinearDiscriminantAnalysis()]
+                elif pls == "identity":
+                    payload["pls"] = [FunctionTransformer(validate=False)]
 
-            ret.append(payload)
+                if projection == "project1d":
+                    payload["projection"] = [Projection1D(regression=False)]
+                    # payload["projection__regression"] = [False, True]
+                elif projection == "identity":
+                    payload["projection"] = [FunctionTransformer(validate=False)]
+
+                ret.append(payload)
 
     return ret
 

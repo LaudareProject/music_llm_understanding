@@ -126,12 +126,14 @@ def save_n_vs_spearman_combined(path, n_sweep, title):
     color_by_method = {method: color for method, color in zip(all_methods, palette)}
 
     all_n_values = set()
+    mode_has_points = {False: False, True: False}
     for mode in (False, True):
         for anchor_method in sorted(n_sweep.get(mode, {}).keys()):
             sweep_values = n_sweep[mode][anchor_method]
             n_array = np.asarray(sweep_values["n_values"], dtype=np.int64)
             if n_array.size == 0:
                 continue
+            mode_has_points[mode] = True
             all_n_values.update(int(n) for n in n_array.tolist())
 
             s_array = np.asarray(sweep_values["scores"], dtype=np.float64)
@@ -174,28 +176,22 @@ def save_n_vs_spearman_combined(path, n_sweep, title):
         )
         for anchor_method in all_methods
     ]
-    mode_handles = [
-        Line2D(
-            [0],
-            [0],
-            color="black",
-            linestyle=mode_styles[False]["linestyle"],
-            marker=mode_styles[False]["marker"],
-            markersize=5.5,
-            linewidth=1.6,
-            label=mode_styles[False]["mode_label"],
-        ),
-        Line2D(
-            [0],
-            [0],
-            color="black",
-            linestyle=mode_styles[True]["linestyle"],
-            marker=mode_styles[True]["marker"],
-            markersize=5.5,
-            linewidth=1.6,
-            label=mode_styles[True]["mode_label"],
-        ),
-    ]
+    mode_handles = []
+    for mode in (False, True):
+        if not mode_has_points[mode]:
+            continue
+        mode_handles.append(
+            Line2D(
+                [0],
+                [0],
+                color="black",
+                linestyle=mode_styles[mode]["linestyle"],
+                marker=mode_styles[mode]["marker"],
+                markersize=5.5,
+                linewidth=1.6,
+                label=mode_styles[mode]["mode_label"],
+            )
+        )
     legend_handles = method_handles + mode_handles
     if legend_handles:
         ax.legend(
@@ -212,6 +208,33 @@ def save_n_vs_spearman_combined(path, n_sweep, title):
     ax.set_xlabel("n")
     ax.set_ylabel("Spearman")
     ax.set_title(title)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=180)
+    plt.close(fig)
+
+
+def save_projection_dependency_plot(path, projection_results, title):
+    out_path = Path(path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    sns.set_theme(style="whitegrid")
+    fig, ax = plt.subplots(figsize=(6.8, 6.2))
+
+    x_values = np.asarray(projection_results.get("identity_scores", []), dtype=np.float64)
+    y_values = np.asarray(projection_results.get("project1d_scores", []), dtype=np.float64)
+    valid_mask = np.isfinite(x_values) & np.isfinite(y_values)
+    x_valid = x_values[valid_mask]
+    y_valid = y_values[valid_mask]
+
+    if x_valid.size > 0:
+        ax.scatter(x_valid, y_valid, s=36, alpha=0.82, color="#2a6fbb", edgecolors="none")
+        low = float(min(np.min(x_valid), np.min(y_valid)))
+        high = float(max(np.max(x_valid), np.max(y_valid)))
+        ax.plot([low, high], [low, high], linestyle="--", linewidth=1.4, color="black", alpha=0.75)
+
+    ax.set_xlabel("Spearman (identity / FunctionTransformer)")
+    ax.set_ylabel("Spearman (project1d)")
+    ax.set_title(title)
+
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
     plt.close(fig)

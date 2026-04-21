@@ -235,6 +235,64 @@ def n_sweep_extra_metrics(
     return extra
 
 
+def projection_results_from_grid(grid):
+    cv_results = grid.cv_results_
+
+    def _projection_label(params):
+        projection = params.get("projection")
+        projection_name = type(projection).__name__
+        if projection_name == "FunctionTransformer":
+            return "identity"
+        elif projection_name == "Projection1D":
+            return "project1d"
+        else:
+            return projection_name
+
+    def _params_key_without_projection(params):
+        key = []
+
+        def _normalize(value):
+            if isinstance(value, (str, int, float, bool, type(None))):
+                return value
+            if isinstance(value, np.generic):
+                return value.item()
+            if hasattr(value, "get_params"):
+                estimator_params = value.get_params(deep=False)
+                estimator_key = []
+                for param_name in sorted(estimator_params.keys()):
+                    estimator_key.append((param_name, repr(estimator_params[param_name])))
+                return (type(value).__name__, tuple(estimator_key))
+            return repr(value)
+
+        for param_name in sorted(params.keys()):
+            if param_name == "projection" or param_name.startswith("projection__"):
+                continue
+            key.append((param_name, _normalize(params[param_name])))
+        return tuple(key)
+
+    grouped_scores = {}
+    for idx, params in enumerate(cv_results["params"]):
+        value = float(cv_results["mean_test_score"][idx])
+        if not np.isfinite(value):
+            continue
+        key = _params_key_without_projection(params)
+        grouped_scores.setdefault(key, {})
+        grouped_scores[key][_projection_label(params)] = float(value)
+
+    identity_scores = []
+    project1d_scores = []
+    for projection_scores in grouped_scores.values():
+        if "identity" not in projection_scores or "project1d" not in projection_scores:
+            continue
+        identity_scores.append(float(projection_scores["identity"]))
+        project1d_scores.append(float(projection_scores["project1d"]))
+
+    return {
+        "identity_scores": identity_scores,
+        "project1d_scores": project1d_scores,
+    }
+
+
 def default_anchor_config(estimator):
     params = estimator.get_params(deep=True)
     return str(params.get("anchor__method", "unknown")), params.get(

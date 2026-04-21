@@ -22,6 +22,7 @@ from experiments.common.folder_handling import create_folder
 from experiments.common.plotting import (
     save_n_vs_spearman_combined,
     save_predicted_vs_real_plot,
+    save_projection_dependency_plot,
 )
 from experiments.common.runner_data import prepare_rows_and_midi
 from experiments.common.runner_io import (
@@ -35,6 +36,7 @@ from experiments.common.runner_search import (
     default_anchor_config,
     n_sweep_extra_metrics,
     n_sweep_from_grid,
+    projection_results_from_grid,
     select_grid_params_with_min_n,
     split_score_stats_for_params,
 )
@@ -140,6 +142,12 @@ def run_experiment(settings, experiment_name):
     else:
         grid.fit(matrix, y, group_labels=group_labels)
     write_gridsearch_csv(output_dir / "gridsearch_results.csv", grid)
+    projection_results = projection_results_from_grid(grid)
+    save_projection_dependency_plot(
+        output_dir / "projection_dependency.png",
+        projection_results,
+        f"{experiment_name} | projection dependency",
+    )
 
     print("[3/5] cross-validated predictions for best pipeline")
     selected_params, selected_score, best_score = select_grid_params_with_min_n(

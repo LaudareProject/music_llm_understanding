@@ -63,7 +63,7 @@ def default_param_grid():
             "percentile_medians",
         ],
         # "anchor__n": range(1, 32),
-        # "projection__regression": [False, True],
+        "projection__regression": [False, True],
         "anchor__n": [2, 4, 8, 12, 16, 20, 24, 28, 32],
         # "anchor__n": [2, 16],
     }
@@ -91,11 +91,11 @@ def default_param_grid():
                 elif pls == "identity":
                     payload["pls"] = [FunctionTransformer(validate=False)]
 
-                if projection == "project1d":
-                    payload["projection"] = [Projection1D(regression=False)]
-                    # payload["projection__regression"] = [False, True]
-                elif projection == "identity":
-                    payload["projection"] = [FunctionTransformer(validate=False)]
+                # if projection == "project1d":
+                #     payload["projection"] = [Projection1D(regression=False)]
+                #     # payload["projection__regression"] = [False, True]
+                # elif projection == "identity":
+                #     payload["projection"] = [FunctionTransformer(validate=False)]
 
                 ret.append(payload)
 

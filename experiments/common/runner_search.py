@@ -72,10 +72,10 @@ def _params_equal(candidate_params, target_params):
 
 def _anchor_method_label(method):
     labels = {
-        "first_vs_last": "first vs last from all data",
-        "random_sample_first_last": "first vs last from random subsample",
-        "random_median": "random samples before and after median",
-        "percentile_medians": "median points of percentiles",
+        "first_vs_last": "Deterministc Extremes",
+        "random_sample_first_last": "Random Subsample",
+        "random_median": "Median Random Subsample",
+        "percentile_medians": "Percentile Medians",
     }
     return labels.get(str(method), str(method))
 

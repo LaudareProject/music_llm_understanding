@@ -72,10 +72,10 @@ def _params_equal(candidate_params, target_params):
 
 def _anchor_method_label(method):
     labels = {
-        "first_vs_last": "first vs last from all data",
-        "random_sample_first_last": "first vs last from random subsample",
-        "random_median": "random samples before and after median",
-        "percentile_medians": "median points of percentiles",
+        "first_vs_last": "Deterministic extremes",
+        "random_sample_first_last": "Random sample",
+        "random_median": "Median random samples",
+        "percentile_medians": "Percentile medians",
     }
     return labels.get(str(method), str(method))
 
@@ -260,7 +260,9 @@ def projection_results_from_grid(grid):
                 estimator_params = value.get_params(deep=False)
                 estimator_key = []
                 for param_name in sorted(estimator_params.keys()):
-                    estimator_key.append((param_name, repr(estimator_params[param_name])))
+                    estimator_key.append(
+                        (param_name, repr(estimator_params[param_name]))
+                    )
                 return (type(value).__name__, tuple(estimator_key))
             return repr(value)
 

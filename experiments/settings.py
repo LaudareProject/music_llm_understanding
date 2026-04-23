@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
+# import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.linear_model import LinearRegression, ElasticNetCV
+from sklearn.linear_model import LinearRegression #, ElasticNetCV
 from sklearn.feature_selection import VarianceThreshold
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.preprocessing import FunctionTransformer, StandardScaler, MinMaxScaler
+# from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import FunctionTransformer, StandardScaler
 
 
 from experiments.common.models import (
@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURE_BACKEND = "aria"
+DEFAULT_FEATURE_BACKEND = "musif"
 CV_FOLDS = 5
 GRID_JOBS = 20
 SCORE_TOLERANCE = 0.02
@@ -57,7 +57,7 @@ def default_pipeline():
 
 def default_param_grid():
     common = {
-        "std": [StandardScaler(), MinMaxScaler(), FunctionTransformer(validate=False)],
+        "std": [StandardScaler(), FunctionTransformer(validate=False)],
         "anchor__method": [
             "first_vs_last",
             "random_sample_first_last",

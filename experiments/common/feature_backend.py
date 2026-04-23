@@ -88,7 +88,7 @@ def run_musif_extraction(source_dir, output_csv, cache_dir, repo_root, njobs=2):
         tweaks={
             "features": MUSIF_FEATURES,
             "basic_modules": ["scoring"],
-            "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "12g"),
+            "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "50g"),
         },
     )
 

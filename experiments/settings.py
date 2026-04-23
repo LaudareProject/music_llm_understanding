@@ -8,7 +8,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LinearRegression, ElasticNetCV
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import FunctionTransformer, StandardScaler, MinMaxScaler
 
 
 from experiments.common.models import (
@@ -34,6 +34,7 @@ OUTLIER_IQR_FACTOR = 1.5
 def default_pipeline():
     return build_transparent_pipeline(
         [
+            ("std", StandardScaler()),
             ("pca", PCA(n_components=0.8, whiten=True)),
             (
                 "anchor",
@@ -56,6 +57,7 @@ def default_pipeline():
 
 def default_param_grid():
     common = {
+        "std": [StandardScaler(), MinMaxScaler(), FunctionTransformer(validate=False)],
         "anchor__method": [
             "first_vs_last",
             "random_sample_first_last",

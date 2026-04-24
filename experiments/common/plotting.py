@@ -137,8 +137,8 @@ def save_n_vs_spearman_combined(path, n_sweep, title):
     set_plotting_style()
     fig, ax = plt.subplots(figsize=(9.5, 5.2))
 
-    direction_label = "direction-based"
-    regression_label = "regression line"
+    direction_label = "Direction-based"
+    regression_label = "Regression Line"
     mode_styles = {
         False: {"linestyle": "-", "marker": "o", "mode_label": direction_label},
         True: {"linestyle": "--", "marker": "s", "mode_label": regression_label},

@@ -35,7 +35,7 @@ class AnchorSelection(BaseEstimator, TransformerMixin):
         if self.max_anchor_size is not None:
             max_total = int(np.round(self.max_anchor_size * n_samples))
             if n_effective > max_total:
-                raise RuntimeError("max_anchor_size reached!")
+                raise RuntimeError(f"n_effective={n_effective}, max_anchor_size reached (set to {self.max_anchor_size}×{n_samples}={max_total})!")
         first_count = n_effective // 2
         last_count = first_count + (n_effective % 2)
         return first_count, last_count

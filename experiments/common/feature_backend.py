@@ -86,6 +86,7 @@ def run_musif_extraction(source_dir, output_csv, cache_dir, repo_root, njobs=2):
         ignore_errors=True,
         njobs=njobs,
         tweaks={
+            "max_nan_columns": 1000,
             "features": MUSIF_FEATURES,
             "basic_modules": ["scoring"],
             "jsymbolic_max_ram": os.environ.get("JSYMBOLIC_MAX_RAM", "50g"),
@@ -163,6 +164,11 @@ def _to_float(value):
         return float("nan")
 
 
+def _is_nan_token(value):
+    text = str(value or "").strip().lower()
+    return text in {"nan", "none"}
+
+
 def _read_dataset_musif_features(csv_path):
     out = {}
     with csv_path.open("r", encoding="utf-8") as handle:
@@ -179,8 +185,10 @@ def _read_dataset_musif_features(csv_path):
                     continue
                 number = _to_float(value)
                 if np.isnan(number):
-                    has_nan = True
-                    break
+                    if _is_nan_token(value):
+                        has_nan = True
+                        break
+                    continue
                 numeric[key] = number
             if has_nan:
                 continue

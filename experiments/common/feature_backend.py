@@ -173,12 +173,17 @@ def _read_dataset_musif_features(csv_path):
                 continue
             query_id = Path(file_name).stem
             numeric = {}
+            has_nan = False
             for key, value in row.items():
                 if key in MUSIF_IGNORE_COLUMNS:
                     continue
                 number = _to_float(value)
-                if not np.isnan(number):
-                    numeric[key] = number
+                if np.isnan(number):
+                    has_nan = True
+                    break
+                numeric[key] = number
+            if has_nan:
+                continue
             out[query_id] = numeric
     return out
 

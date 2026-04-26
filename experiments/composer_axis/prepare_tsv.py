@@ -19,6 +19,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
+from experiments.common.musif_filter import filter_rows_with_musif_nan
 from experiments.common.tsv import write_tsv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -1025,8 +1026,10 @@ def main():
     print("[3/6] assigning work years")
     assign_work_years(rows)
     assign_query_ids(rows)
-    print("[4/6] computing midi covariates")
-    assign_midi_covariates(rows)
+
+    print("[4/6] filtering rows with musif NaNs")
+    rows, dropped = filter_rows_with_musif_nan(rows, REPO_ROOT)
+    print(f"  dropped rows with musif NaN values: {len(dropped)}")
 
     print("[5/6] writing tsv")
     out_rows = []
@@ -1043,19 +1046,6 @@ def main():
                 "year_source": row["year_source"],
                 "input_kind": row["input_kind"],
                 "path": row["path"],
-                "midi_note_count": format_int(row["midi_note_count"]),
-                "midi_duration_seconds": format_float(row["midi_duration_seconds"]),
-                "midi_track_count": format_int(row["midi_track_count"]),
-                "midi_pitch_q0": format_float(row["pitch_q0"]),
-                "midi_pitch_q25": format_float(row["pitch_q25"]),
-                "midi_pitch_q50": format_float(row["pitch_q50"]),
-                "midi_pitch_q75": format_float(row["pitch_q75"]),
-                "midi_pitch_q100": format_float(row["pitch_q100"]),
-                "midi_note_duration_q0": format_float(row["note_duration_q0"]),
-                "midi_note_duration_q25": format_float(row["note_duration_q25"]),
-                "midi_note_duration_q50": format_float(row["note_duration_q50"]),
-                "midi_note_duration_q75": format_float(row["note_duration_q75"]),
-                "midi_note_duration_q100": format_float(row["note_duration_q100"]),
             }
         )
     write_tsv(
@@ -1072,19 +1062,6 @@ def main():
             "year_source",
             "input_kind",
             "path",
-            "midi_note_count",
-            "midi_duration_seconds",
-            "midi_track_count",
-            "midi_pitch_q0",
-            "midi_pitch_q25",
-            "midi_pitch_q50",
-            "midi_pitch_q75",
-            "midi_pitch_q100",
-            "midi_note_duration_q0",
-            "midi_note_duration_q25",
-            "midi_note_duration_q50",
-            "midi_note_duration_q75",
-            "midi_note_duration_q100",
         ],
     )
 

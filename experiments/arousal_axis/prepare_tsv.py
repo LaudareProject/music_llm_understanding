@@ -10,6 +10,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from experiments.common.tsv import write_tsv
+from experiments.common.musif_filter import filter_rows_with_musif_nan
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -241,8 +242,9 @@ def main():
     rows = parse_annotations()
     assign_query_ids(rows)
 
-    print("[2/3] computing midi covariates")
-    assign_midi_covariates(rows)
+    print("[2/3] filtering rows with musif NaNs")
+    rows, dropped = filter_rows_with_musif_nan(rows, REPO_ROOT)
+    print(f"  dropped rows with musif NaN values: {len(dropped)}")
 
     print("[3/3] writing tsv")
     output_rows = []
@@ -261,19 +263,6 @@ def main():
                 "arousal_annotator_count": row["arousal_annotator_count"],
                 "input_kind": row["input_kind"],
                 "path": row["path"],
-                "midi_note_count": format_int(row["midi_note_count"]),
-                "midi_duration_seconds": format_float(row["midi_duration_seconds"]),
-                "midi_track_count": format_int(row["midi_track_count"]),
-                "midi_pitch_q0": format_float(row["pitch_q0"]),
-                "midi_pitch_q25": format_float(row["pitch_q25"]),
-                "midi_pitch_q50": format_float(row["pitch_q50"]),
-                "midi_pitch_q75": format_float(row["pitch_q75"]),
-                "midi_pitch_q100": format_float(row["pitch_q100"]),
-                "midi_note_duration_q0": format_float(row["note_duration_q0"]),
-                "midi_note_duration_q25": format_float(row["note_duration_q25"]),
-                "midi_note_duration_q50": format_float(row["note_duration_q50"]),
-                "midi_note_duration_q75": format_float(row["note_duration_q75"]),
-                "midi_note_duration_q100": format_float(row["note_duration_q100"]),
             }
         )
 
@@ -293,19 +282,6 @@ def main():
             "arousal_annotator_count",
             "input_kind",
             "path",
-            "midi_note_count",
-            "midi_duration_seconds",
-            "midi_track_count",
-            "midi_pitch_q0",
-            "midi_pitch_q25",
-            "midi_pitch_q50",
-            "midi_pitch_q75",
-            "midi_pitch_q100",
-            "midi_note_duration_q0",
-            "midi_note_duration_q25",
-            "midi_note_duration_q50",
-            "midi_note_duration_q75",
-            "midi_note_duration_q100",
         ],
     )
     print(f"wrote {OUTPUT_TSV}")

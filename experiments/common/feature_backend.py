@@ -1,4 +1,3 @@
-import csv
 import os
 from pathlib import Path
 import sys
@@ -7,6 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 from experiments.common.embed_aria import encode_midi
+from experiments.common.musif_filter import read_musif_features_by_query
 
 
 FEATURE_BACKEND_ENV = "FEATURE_BACKEND"
@@ -26,7 +26,6 @@ MUSIF_FEATURES = [
     "music21",
     "jsymbolic",
 ]
-MUSIF_IGNORE_COLUMNS = {"FileName", "Id", "WindowId", "WindowRange"}
 
 
 def feature_backend_name():
@@ -149,53 +148,6 @@ def aria_embedding_path_for_row(row, repo_root):
     return candidate
 
 
-def _to_float(value):
-    text = str(value or "").strip()
-    if not text or text in {"-", "nan", "NaN", "None"}:
-        return float("nan")
-    lowered = text.lower()
-    if lowered == "true":
-        return 1.0
-    if lowered == "false":
-        return 0.0
-    try:
-        return float(text)
-    except Exception:
-        return float("nan")
-
-
-def _is_nan_token(value):
-    text = str(value or "").strip().lower()
-    return text in {"nan", "none"}
-
-
-def _read_dataset_musif_features(csv_path):
-    out = {}
-    with csv_path.open("r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            file_name = str(row.get("FileName", "") or "")
-            if not file_name:
-                continue
-            query_id = Path(file_name).stem
-            numeric = {}
-            has_nan = False
-            for key, value in row.items():
-                if key in MUSIF_IGNORE_COLUMNS:
-                    continue
-                number = _to_float(value)
-                if np.isnan(number):
-                    if _is_nan_token(value):
-                        has_nan = True
-                        break
-                    continue
-                numeric[key] = number
-            if has_nan:
-                continue
-            out[query_id] = numeric
-    return out
-
-
 def _matrix_for_rows_musif(rows, midi_paths, cache_dir, repo_root):
     by_dataset = {}
     for row in rows:
@@ -212,7 +164,7 @@ def _matrix_for_rows_musif(rows, midi_paths, cache_dir, repo_root):
                     f"Run scripts/extract_musif_features.py --dataset {dataset_name} --tsv path/to/tsv"
                 )
             )
-        feature_by_query.update(_read_dataset_musif_features(csv_path))
+        feature_by_query.update(read_musif_features_by_query(csv_path))
 
     columns = sorted(
         {

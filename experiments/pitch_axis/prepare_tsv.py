@@ -29,7 +29,7 @@ def note_name(midi_note):
 
 def main():
     rows = []
-    for midi_note in range(24, 96):
+    for midi_note in range(21, 108):
         name = note_name(midi_note)
         for duration_ticks, duration_name in LENGTHS:
             for velocity in VELOCITIES:

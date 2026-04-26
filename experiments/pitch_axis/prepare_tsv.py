@@ -12,10 +12,10 @@ OUTPUT_TSV = REPO_ROOT / "experiments" / "pitch_axis" / "notes.tsv"
 
 PITCH_CLASS_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 LENGTHS = [
-    (60, "eighth"),
-    (30, "sixteenth"),
+    (120, "sixteenth"),
+    (240, "eighth"),
+    (480, "quarter"),
     (960, "two_quarters"),
-    (1440, "three_quarters"),
     (1920, "whole"),
 ]
 VELOCITIES = [25, 50, 75, 100, 127]

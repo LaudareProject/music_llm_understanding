@@ -216,9 +216,10 @@ class Projection1D(BaseEstimator, TransformerMixin):
                 model = LinearRegression()
                 model.fit(X_array[anchor_idx], y_anchor)
                 direction = np.asarray(model.coef_, dtype=np.float64).ravel()
-                if float(np.linalg.norm(direction)) > 1e-12:
-                    self.direction_ = direction
-                    self.origin_ = np.mean(X_array[anchor_idx], axis=0).astype(
+                norm = float(np.linalg.norm(direction))
+                if norm > 1e-12:
+                    self.direction_ = direction / norm
+                    self.origin_ = np.zeros_like(X_array[0]).astype(
                         np.float64, copy=False
                     )
                     self.use_regression_projection_ = True

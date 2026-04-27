@@ -24,11 +24,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURE_BACKEND = "musif"
+DEFAULT_FEATURE_BACKEND = "aria"
 CV_FOLDS = 5
 GRID_JOBS = 20
 SCORE_TOLERANCE = 0.02
 OUTLIER_IQR_FACTOR = 1.5
+RESTRICTED_PITCHES = None # [28, 52]
 
 
 def default_pipeline():

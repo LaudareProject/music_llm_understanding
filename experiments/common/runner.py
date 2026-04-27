@@ -66,6 +66,32 @@ def _check_backend(settings, experiment_name, spec):
     os.environ[FEATURE_BACKEND_ENV] = backend
 
 
+def _apply_pitch_restriction(rows, midi_paths, settings):
+    restricted = getattr(settings, "RESTRICTED_PITCHES", None)
+    if restricted is None:
+        return rows, midi_paths
+    if len(restricted) != 2:
+        raise ValueError("RESTRICTED_PITCHES must contain exactly two values [min, max]")
+
+    low = int(float(restricted[0]))
+    high = int(float(restricted[1]))
+    if low > high:
+        low, high = high, low
+
+    kept_rows = [
+        row for row in rows if low <= int(float(row.get("midi_note", -1))) <= high
+    ]
+    kept_ids = {row["query_id"] for row in kept_rows}
+    kept_midi_paths = {k: v for k, v in midi_paths.items() if k in kept_ids}
+
+    print(
+        f"  pitch restriction: [{low}, {high}] -> kept {len(kept_rows)}/{len(rows)} rows"
+    )
+    if not kept_rows:
+        raise ValueError(f"No rows left after RESTRICTED_PITCHES=[{low}, {high}]")
+    return kept_rows, kept_midi_paths
+
+
 def run_experiment(settings, experiment_name):
     if experiment_name not in settings.EXPERIMENTS:
         raise ValueError(f"Unknown experiment: {experiment_name}")
@@ -93,6 +119,8 @@ def run_experiment(settings, experiment_name):
         row_filter_col=spec.get("row_filter_col"),
         row_filter_value=spec.get("row_filter_value"),
     )
+    if experiment_name == "pitch_axis":
+        rows, midi_paths = _apply_pitch_restriction(rows, midi_paths, settings)
     total_rows_before_outliers = len(rows)
     y = np.asarray([float(row[spec["target_col"]]) for row in rows], dtype=np.float64)
     group_labels = None

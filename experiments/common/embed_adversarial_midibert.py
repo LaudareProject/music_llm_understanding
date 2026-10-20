@@ -75,6 +75,7 @@ def _build_vocabularies():
     vocab["Instrument"]["Instrument <CLS>"] = 133
     vocab["Instrument"]["Instrument <SEP>"] = 134
     return vocab
+
 def _pitch_vocab():
     yield from (f"Pitch {i}" for i in range(MAX_PITCH + 1))
     yield from (f"Pitch percussion {i}" for i in range(MAX_PITCH + 1))

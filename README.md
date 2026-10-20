@@ -64,13 +64,33 @@ Select a backend with the `FEATURE_BACKEND` environment variable or the explicit
 ## Models and benchmark matrix
 
 - **Aria**: `aria` global MIDI embeddings.
-- **CLaMP 3 C2**: official symbolic checkpoint and MTF preprocessing; `clamp3_c2` backend.
+- **BEAT piano**: official `MIDIToPianoNPZ` preprocessing, `PianoTokenizer`, and inference loader; `beat` backend. Uses the piano checkpoint, pools final-layer content-token states into a 768-dimensional vector, and windows at 2048 tokens. For inputs beyond PrettyMIDI's tick-allocation guard, it scales ticks on a temporary copy while preserving event times to the new PPQ resolution; the source MIDI is unchanged.
+- **CLaMP 3 C2**: project-owned symbolic inference source, separate from the `aria` submodule; it uses the official C2 checkpoint and MTF preprocessing through `clamp3_c2`.
 - **Adversarial-MidiBERT**: official Octuple tokenizer and pretrained weights; `adversarial_midibert` backend. Inputs whose time signature changes inside a bar (the official converter rejects them, e.g. scores with an anacrusis) close the short bar at the change and start the new signature at position 0; the official 256-bar vocabulary limit still applies.
 - **MIDI-GPT yellow_medium**: official MIDI-GPT tokenizer and completed checkpoint; install the optional `models` extra and select `midigpt`. Bars whose time signature is missing from the checkpoint vocabulary (the official encoder rejects them) are reduced by gcd, else mapped to the nearest supported bar length, with `beat_length` following the mapped signature.
+
 Install MIDI-GPT support with:
 
 ```bash
 uv sync --extra models
+```
+
+### BEAT setup
+
+Install the adapter's Python prerequisite and both optional model extras:
+
+```bash
+uv sync --extra beat --extra models
+git clone https://github.com/Lekai-Qian/BEAT-code.git
+```
+
+Install the official BEAT-code runtime requirements in the same environment. Set `BEAT_CODE_PATH` if the checkout is not at `./BEAT-code`. Extract the supplied checkpoint archive at the project root so that `checkpoints/piano/backbone.pt` exists, or set `BEAT_CHECKPOINT_PATH` to that file. The loader uses the official piano inference loader to support the released older vocabulary checkpoint; it does not download or copy weights. `BEAT_DEVICE` optionally selects the inference device (defaults to CUDA when available, otherwise CPU).
+
+```bash
+tar -xzf BEAT-checkpoints.tar.gz checkpoints/piano/backbone.pt
+export BEAT_CODE_PATH="$PWD/BEAT-code"
+export BEAT_CHECKPOINT_PATH="$PWD/checkpoints/piano/backbone.pt"
+uv run python scripts/run_embedding_benchmark.py --backend beat
 ```
 
 
@@ -80,18 +100,17 @@ The default command attempts the full matrix in order. It returns a failure summ
 uv run python scripts/run_embedding_benchmark.py
 ```
 
-Because `beat` is not yet identifiable, use the four available backends explicitly:
+Run the benchmark's full default matrix, or choose any available embedding backends explicitly:
 
 ```bash
-uv run python scripts/run_embedding_benchmark.py --backend aria clamp3_c2 adversarial_midibert midigpt
+uv run python scripts/run_embedding_benchmark.py --backend aria beat clamp3_c2 adversarial_midibert midigpt
 ```
 
 Use the same backend selection when generating reports:
 
 ```bash
-uv run python scripts/report_embedding_benchmark.py --backend aria clamp3_c2 adversarial_midibert midigpt
+uv run python scripts/report_embedding_benchmark.py --backend aria beat clamp3_c2 adversarial_midibert midigpt
 ```
-
 
 Run Musif independently with `uv run python scripts/run_embedding_benchmark.py --backend musif`. The optional `--experiment` and `--backend` arguments restrict a run.
 
@@ -102,8 +121,6 @@ uv run python scripts/report_embedding_benchmark.py
 ```
 
 Reports include exact source-run paths, Spearman means and 95% confidence intervals for axis experiments, and class plus balanced-class accuracy for sentiment prediction. Report generation refuses to write unless every requested experiment/backend result is present.
-
-The `beat` backend remains unavailable: the task brief identifies “BEAT piano weights” but neither the project nor published model repositories provide an identifiable model/checkpoint/API. No substitute model is used.
 
 ## Troubleshooting
 

@@ -33,6 +33,7 @@ BACKEND_OUTPUT_DIRS = {
     FEATURE_BACKEND_MIDIGPT: "midigpt_embeddings",
 }
 BACKEND_ENCODERS = {
+    FEATURE_BACKEND_BEAT: ("experiments.common.embed_beat", "encode_midi"),
     FEATURE_BACKEND_CLAMP3_C2: ("experiments.common.embed_clamp3", "encode_midi"),
     FEATURE_BACKEND_ADVERSARIAL_MIDIBERT: (
         "experiments.common.embed_adversarial_midibert",

@@ -11,7 +11,7 @@ import pytest
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from experiments.common import feature_backend, runner_data
+from experiments.common import embed_beat, feature_backend, runner_data
 from experiments.common.comparison_report import generate_comparison_reports
 from experiments.common.embed_adversarial_midibert import (
     BEAT_NOTE_FACTOR,
@@ -179,6 +179,138 @@ def test_midigpt_pool_weights_windows_by_valid_token_count():
     with pytest.raises(ValueError, match="valid-token counts"):
         _weighted_window_pool([torch.ones(2)], [0])
 
+
+
+class _FakeBeatDecoder:
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, input_ids, attention_mask, output_hidden_states, use_cache):
+        self.calls.append(input_ids[0].tolist())
+        assert output_hidden_states is True
+        assert use_cache is False
+        values = input_ids.to(torch.float32)
+        hidden = torch.stack((values, values * 2), dim=-1)
+        return SimpleNamespace(hidden_states=(hidden,))
+
+
+class _FakeBeatModel:
+    def __init__(self):
+        self.anchor = torch.nn.Parameter(torch.zeros(1))
+        self.model = _FakeBeatDecoder()
+
+    def parameters(self):
+        return iter((self.anchor,))
+
+
+def test_beat_excludes_header_eos_and_padding_across_context_windows():
+    config = SimpleNamespace(
+        max_position_embeddings=5,
+        bos_token_id=1,
+        eos_token_id=10,
+        pad_token_id=0,
+        hidden_size=2,
+    )
+    model = _FakeBeatModel()
+
+    vector = embed_beat._encode_tokens(
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0], model, config
+    )
+
+    assert vector.tolist() == [6.5, 13.0]
+    assert model.model.calls == [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]
+    assert max(map(len, model.model.calls)) <= config.max_position_embeddings
+
+
+def test_beat_uses_official_conversion_save_and_tokenizer_flow():
+    config = SimpleNamespace(
+        max_position_embeddings=5,
+        bos_token_id=1,
+        eos_token_id=10,
+        pad_token_id=0,
+        hidden_size=2,
+    )
+    model = _FakeBeatModel()
+    calls = []
+
+    class Converter:
+        def convert(self, midi_path):
+            calls.append(("convert", midi_path))
+            return ["segment"], {"tempo": 120}, ["measure"], ["pedal"]
+
+    class Tokenizer:
+        def encode_file(self, npz_path):
+            assert Path(npz_path).is_file()
+            calls.append(("tokenize", Path(npz_path).suffix))
+            return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    def save_npz(segments, metadata, measure_info, pedal, output_path):
+        assert (segments, metadata, measure_info, pedal) == (
+            ["segment"], {"tempo": 120}, ["measure"], ["pedal"]
+        )
+        Path(output_path).write_bytes(b"fake npz")
+        calls.append(("save", Path(output_path).suffix))
+
+    vector = embed_beat._encode_midi_with_components(
+        "song.mid", model, Tokenizer(), Converter(), config, save_npz
+    )
+
+    assert vector.tolist() == [6.5, 13.0]
+    assert calls[0] == ("convert", "song.mid")
+    assert calls[1:] == [("save", ".npz"), ("tokenize", ".npz")]
+
+
+def test_beat_rescales_high_resolution_midi_without_mutating_source(tmp_path):
+    source_path = tmp_path / "long-score.mid"
+    midi = mido.MidiFile(ticks_per_beat=10_080)
+    track = mido.MidiTrack()
+    track.extend(
+        [
+            mido.Message("note_on", note=60, velocity=90, time=0),
+            mido.Message("note_off", note=60, velocity=0, time=12_482_820),
+        ]
+    )
+    midi.tracks.append(track)
+    midi.save(source_path)
+
+    scaled_path = embed_beat._rescale_midi_tick_resolution(
+        source_path, tmp_path / "scaled.mid"
+    )
+    source = mido.MidiFile(str(source_path))
+    scaled = mido.MidiFile(str(scaled_path))
+    original_end_tick = sum(message.time for message in source.tracks[0])
+    scaled_end_tick = sum(message.time for message in scaled.tracks[0])
+
+    assert source.ticks_per_beat == 10_080
+    assert scaled.ticks_per_beat < source.ticks_per_beat
+    assert scaled_end_tick + 1 <= embed_beat.PRETTY_MIDI_MAX_TICK
+    assert abs(
+        original_end_tick / source.ticks_per_beat
+        - scaled_end_tick / scaled.ticks_per_beat
+    ) <= 0.5 / scaled.ticks_per_beat
+
+
+def test_beat_rejects_empty_content_and_invalid_pool_weights():
+    config = SimpleNamespace(
+        max_position_embeddings=8,
+        bos_token_id=1,
+        eos_token_id=10,
+        pad_token_id=0,
+        hidden_size=2,
+    )
+    with pytest.raises(ValueError, match="no valid content tokens"):
+        embed_beat._encode_tokens([1, 2, 3, 10], _FakeBeatModel(), config)
+    with pytest.raises(ValueError, match="positive valid-token counts"):
+        embed_beat._weighted_window_pool([torch.ones(2)], [0])
+    with pytest.raises(ValueError, match="matching nonempty windows"):
+        embed_beat._weighted_window_pool([torch.ones(2)], [])
+
+
+def test_beat_backend_is_registered():
+    assert feature_backend.BACKEND_ENCODERS["beat"] == (
+        "experiments.common.embed_beat",
+        "encode_midi",
+    )
 
 def test_midigpt_normalizes_unsupported_time_signatures():
     supported = {(1, 16), (1, 8), (2, 4), (3, 8), (3, 4), (4, 4), (5, 4), (9, 8)}

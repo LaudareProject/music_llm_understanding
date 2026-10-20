@@ -22,3 +22,5 @@ cache/musif_sources/music21/midi
 cache/musif_features/ewld
 cache/musif_features/music21/run_midi
 BEAT-checkpoints.tar.gz
+checkpoints/
+cache/embeddings

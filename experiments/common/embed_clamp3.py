@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
-import sys
 
 import mido
 import numpy as np
 import torch
 from huggingface_hub import hf_hub_download
+
+from experiments.common.clamp3_source import (
+    M3Patchilizer,
+    get_midi_embedding,
+    load_symbolic_encoder,
+)
 
 
 REPO_ID = "sander-wood/clamp3"
@@ -29,34 +33,20 @@ def _load_model():
     device = os.environ.get(
         "CLAMP3_DEVICE", "cuda" if torch.cuda.is_available() else "cpu"
     )
-    aria_path = Path(__file__).resolve().parents[2] / "aria"
-    if str(aria_path) not in sys.path:
-        sys.path.insert(0, str(aria_path))
-
-    from aria.eval.m3.emb import load_clamp3_model
-
     checkpoint_path = hf_hub_download(
         repo_id=REPO_ID, filename=CHECKPOINT_FILENAME
     )
-    model, patchilizer = load_clamp3_model(checkpoint_path, device=device)
+    MODEL = load_symbolic_encoder(checkpoint_path, device=device)
+    PATCHILIZER = M3Patchilizer()
     DEVICE = device
-    MODEL = model
-    PATCHILIZER = patchilizer
     return MODEL, PATCHILIZER
 
 
 def encode_midi(midi_path):
     model, patchilizer = _load_model()
     midi = mido.MidiFile(str(midi_path))
-    from aria.eval.m3.emb import get_midi_embedding
-
     with torch.inference_mode():
-        embedding = get_midi_embedding(
-            mid=midi,
-            model=model,
-            patchilizer=patchilizer,
-            get_global=True,
-        )
+        embedding = get_midi_embedding(midi, model, patchilizer)
     vector = np.asarray(embedding.detach().cpu().numpy(), dtype=np.float32).reshape(-1)
     if vector.size != 768 or not np.isfinite(vector).all():
         raise ValueError(f"CLaMP3 C2 produced an invalid embedding for {midi_path}")

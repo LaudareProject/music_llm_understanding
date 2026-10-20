@@ -26,6 +26,9 @@ models = [
     "remi-z",
     "midigpt[inference]>=0.3.4",
 ]
+beat = [
+    "pretty-midi>=0.2.10",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

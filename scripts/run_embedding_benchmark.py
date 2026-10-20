@@ -11,7 +11,6 @@ sys.path.insert(0, str(REPO_ROOT))
 from experiments import settings
 from experiments.common.feature_backend import EMBEDDING_BACKENDS, FEATURE_BACKENDS
 from experiments.common.runner import run_experiment
-from experiments.sentiment_prediction.run_all import run_sentiment_prediction
 
 
 def main():
@@ -39,14 +38,9 @@ def main():
         for experiment_name in args.experiment:
             print(f"\n=== {experiment_name} | backend={backend} ===", flush=True)
             try:
-                if experiment_name == "sentiment_prediction":
-                    output_dir = run_sentiment_prediction(
-                        settings, experiment_name, feature_backend=backend
-                    )
-                else:
-                    output_dir = run_experiment(
-                        settings, experiment_name, feature_backend=backend
-                    )
+                output_dir = run_experiment(
+                    settings, experiment_name, feature_backend=backend
+                )
                 print(f"Completed: {output_dir}", flush=True)
             except Exception as exc:
                 failures.append((experiment_name, backend, exc))

@@ -149,12 +149,4 @@ EXPERIMENTS = {
         "pipeline": default_pipeline(),
         "param_grid": default_param_grid(),
     },
-    "sentiment_prediction": {
-        "tsv_path": REPO_ROOT / "experiments" / "valence_axis" / "songs.tsv",
-        "target_col": "valence_mean",
-        "group_col": "game",
-        "feature_backend": DEFAULT_FEATURE_BACKEND,
-        "pipeline": default_pipeline(),
-        "cv_folds": 10,
-    },
 }

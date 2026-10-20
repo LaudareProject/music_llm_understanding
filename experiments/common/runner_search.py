@@ -70,7 +70,7 @@ def _params_equal(candidate_params, target_params):
     return True
 
 
-def _anchor_method_label(method):
+def anchor_method_label(method):
     labels = {
         "first_vs_last": "Deterministic extremes",
         "random_sample_first_last": "Random sample",
@@ -143,7 +143,7 @@ def n_sweep_from_grid(grid, reference_params=None):
                 split_scores.append(value)
         mean_score, ci95_score = mean_ci95(split_scores)
         projection_regression = bool(params.get("projection__regression", False))
-        line_label = _anchor_method_label(str(params["anchor__method"]))
+        line_label = anchor_method_label(str(params["anchor__method"]))
         by_mode.setdefault(projection_regression, {}).setdefault(line_label, []).append(
             (int(params["anchor__n"]), mean_score, ci95_score)
         )
@@ -199,7 +199,7 @@ def n_sweep_extra_metrics(
 
         key = (
             bool(params.get("projection__regression", False)),
-            _anchor_method_label(str(params["anchor__method"])),
+            anchor_method_label(str(params["anchor__method"])),
             int(params["anchor__n"]),
         )
         estimator = clone(base_pipeline).set_params(**params)

@@ -63,35 +63,34 @@ Select a backend with the `FEATURE_BACKEND` environment variable or the explicit
 
 ## Models and benchmark matrix
 
-- **Aria**: `aria` global MIDI embeddings.
-- **BEAT piano**: official `MIDIToPianoNPZ` preprocessing, `PianoTokenizer`, and inference loader; `beat` backend. Uses the piano checkpoint, pools final-layer content-token states into a 768-dimensional vector, and windows at 2048 tokens. For inputs beyond PrettyMIDI's tick-allocation guard, it scales ticks on a temporary copy while preserving event times to the new PPQ resolution; the source MIDI is unchanged.
-- **CLaMP 3 C2**: project-owned symbolic inference source, separate from the `aria` submodule; it uses the official C2 checkpoint and MTF preprocessing through `clamp3_c2`.
-- **Adversarial-MidiBERT**: official Octuple tokenizer and pretrained weights; `adversarial_midibert` backend. Inputs whose time signature changes inside a bar (the official converter rejects them, e.g. scores with an anacrusis) close the short bar at the change and start the new signature at position 0; the official 256-bar vocabulary limit still applies.
-- **MIDI-GPT yellow_medium**: official MIDI-GPT tokenizer and completed checkpoint; install the optional `models` extra and select `midigpt`. Bars whose time signature is missing from the checkpoint vocabulary (the official encoder rejects them) are reduced by gcd, else mapped to the nearest supported bar length, with `beat_length` following the mapped signature.
+- **Aria**: global MIDI embeddings from the `aria` submodule.
+- **BEAT piano**: `beat` backend using the official BEAT-code submodule and piano checkpoint.
+- **CLaMP3 C2**: `clamp3_c2` backend using official M3 symbolic code from the `aria` submodule.
+- **Adversarial-MidiBERT**: `adversarial_midibert` backend; loads the official model from its submodule and uses a small adapter for MIDI-to-Octuple conversion.
+- **MIDI-GPT yellow_medium**: `midigpt` backend; install the optional `models` extra.
 
-Install MIDI-GPT support with:
+Initialize the source submodules. MIDI-GPT users also install its optional dependencies:
 
 ```bash
+git submodule update --init --recursive
 uv sync --extra models
 ```
 
 ### BEAT setup
 
-Install the adapter's Python prerequisite and both optional model extras:
+BEAT's Python dependencies are not part of the default project environment. Install the submodule's official requirements, then extract the supplied checkpoint archive:
 
 ```bash
-uv sync --extra beat --extra models
-git clone https://github.com/Lekai-Qian/BEAT-code.git
-```
-
-Install the official BEAT-code runtime requirements in the same environment. Set `BEAT_CODE_PATH` if the checkout is not at `./BEAT-code`. Extract the supplied checkpoint archive at the project root so that `checkpoints/piano/backbone.pt` exists, or set `BEAT_CHECKPOINT_PATH` to that file. The loader uses the official piano inference loader to support the released older vocabulary checkpoint; it does not download or copy weights. `BEAT_DEVICE` optionally selects the inference device (defaults to CUDA when available, otherwise CPU).
-
-```bash
+git submodule update --init --recursive
+uv sync
+uv pip install -r BEAT-code/requirements.txt
 tar -xzf BEAT-checkpoints.tar.gz checkpoints/piano/backbone.pt
-export BEAT_CODE_PATH="$PWD/BEAT-code"
-export BEAT_CHECKPOINT_PATH="$PWD/checkpoints/piano/backbone.pt"
 uv run python scripts/run_embedding_benchmark.py --backend beat
 ```
+
+Set `BEAT_CODE_PATH` or `BEAT_CHECKPOINT_PATH` only if the checkout or checkpoint is elsewhere. `BEAT_DEVICE` optionally selects inference hardware; the default is CUDA when available, otherwise CPU.
+
+The compatibility adjustments affect a small part of the current benchmark inputs: of 643 successfully converted source MIDIs, the Adversarial-MidiBERT short-bar rule handles 23 files (32 signature changes), and MIDI-GPT maps unsupported meters in 4 files (147 track/bar records). Three composer files fail during MIDI conversion before either encoder runs. The 2,200 generated pitch inputs use 4/4 and trigger neither adjustment. MIDI-GPT's mapping updates `beat_length` to the mapped meter; BEAT's tick rescaling is only a fallback for PrettyMIDI's allocation guard and can shift events by at most half a new tick on a temporary copy.
 
 
 The default command attempts the full matrix in order. It returns a failure summary if any backend/experiment pair fails.
@@ -114,13 +113,19 @@ uv run python scripts/report_embedding_benchmark.py --backend aria beat clamp3_c
 
 Run Musif independently with `uv run python scripts/run_embedding_benchmark.py --backend musif`. The optional `--experiment` and `--backend` arguments restrict a run.
 
-After a complete matrix has finished, produce per-experiment TSV tables and PNG plots (composer datasets remain in separate experiment reports):
+After a complete matrix has finished, generate per-experiment metric reports and aggregate multi-backend plots:
 
 ```bash
 uv run python scripts/report_embedding_benchmark.py
 ```
 
-Reports include exact source-run paths, Spearman means and 95% confidence intervals for axis experiments, and class plus balanced-class accuracy for sentiment prediction. Report generation refuses to write unless every requested experiment/backend result is present.
+Use `--backend aria beat clamp3_c2 adversarial_midibert midigpt musif` to include Musif when its runs cover the requested experiments. Each task report includes an overlay of out-of-fold predictions versus real values, with the selected anchor count and grid configuration in the figure notes, plus an n-sweep comparison split by selection algorithm and projection mode. `plot_coverage.tsv` records missing per-run prediction/grid/sweep artifacts; only runs with those artifacts appear in the corresponding plots.
+
+For a Musif comparison on song-level tasks:
+
+```bash
+uv run python scripts/report_embedding_benchmark.py --backend aria beat clamp3_c2 adversarial_midibert midigpt musif --experiment arousal_axis valence_axis composer_axis_asap composer_axis_ewld composer_axis_music21
+```
 
 ## Troubleshooting
 

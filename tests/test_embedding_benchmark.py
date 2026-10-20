@@ -17,6 +17,7 @@ from experiments.common.embed_adversarial_midibert import (
     BEAT_NOTE_FACTOR,
     MAX_BARS,
     POSITION_RESOLUTION,
+    _RelativeBertSelfAttention,
     _build_vocabularies,
     _encode_notes,
     _pool_window,
@@ -111,6 +112,35 @@ def test_midi_bert_octuple_mapping_and_masked_mean():
     pooled, count = _pool_window(hidden, torch.tensor([True, False, True]))
     assert count == 2
     assert pooled.tolist() == [3.0, 5.0]
+
+
+def test_adversarial_attention_uses_checkpoint_relative_distance_terms():
+    from transformers import BertConfig
+
+    config = BertConfig(
+        hidden_size=8,
+        num_attention_heads=2,
+        max_position_embeddings=4,
+        position_embedding_type="relative_key_query",
+    )
+    attention = _RelativeBertSelfAttention(config).eval()
+    with torch.no_grad():
+        for projection in (attention.query, attention.key, attention.value):
+            projection.weight.copy_(torch.eye(8))
+            projection.bias.zero_()
+        attention.distance_embedding.weight.zero_()
+    hidden = torch.arange(24, dtype=torch.float32).view(1, 3, 8) / 10
+    mask = torch.zeros((1, 1, 1, 3))
+    content_only, _ = attention(hidden, attention_mask=mask)
+
+    with torch.no_grad():
+        attention.distance_embedding.weight.fill_(0.5)
+    relative, probabilities = attention(hidden, attention_mask=mask)
+
+    assert attention.distance_embedding.weight.shape == (7, 4)
+    assert relative.shape == (1, 3, 8)
+    assert probabilities.shape == (1, 2, 3, 3)
+    assert not torch.allclose(relative, content_only)
 
 
 def test_midi_bert_closes_short_bar_on_mid_bar_time_signature_change():
@@ -344,7 +374,7 @@ def test_backend_override_has_priority_over_environment_and_settings(monkeypatch
     assert feature_backend.feature_backend_name() == "musif"
 
 
-def _write_fake_run(repo_root, experiment, backend, metrics):
+def _write_fake_run(repo_root, experiment, backend, metrics, with_plot_artifacts=True):
     output_root = repo_root / "outputs" / feature_backend.BACKEND_OUTPUT_DIRS[backend] / experiment
     run_dir = output_root / f"run_{backend}"
     run_dir.mkdir(parents=True)
@@ -353,10 +383,72 @@ def _write_fake_run(repo_root, experiment, backend, metrics):
         encoding="utf-8",
     )
     write_tsv(run_dir / "metrics.tsv", metrics, list(metrics[0]))
+    if not with_plot_artifacts:
+        return
+
+    write_tsv(
+        run_dir / "projections.tsv",
+        [
+            {
+                "query_id": f"q{index}",
+                "target": str(float(index)),
+                "predicted": str(float(index) + (0.1 if backend == "aria" else -0.1)),
+                "is_anchor": "0",
+                "outliers_removed": "0",
+            }
+            for index in range(1, 5)
+        ],
+        ["query_id", "target", "predicted", "is_anchor", "outliers_removed"],
+    )
+    sweep_rows = []
+    for mode in ("0", "1"):
+        for method, offset in (("Deterministic extremes", 0.0), ("Random sample", 0.1)):
+            for n in (2, 4):
+                sweep_rows.append(
+                    {
+                        "projection_regression": mode,
+                        "anchor_method": method,
+                        "n": str(n),
+                        "spearman": str(float(n) / 10.0 + offset),
+                        "ci95": "0.05",
+                        "outliers_removed": "0",
+                        "r2": "0.1",
+                        "r2_ci95": "0.02",
+                        "l1": "0.2",
+                        "l1_ci95": "0.03",
+                    }
+                )
+    write_tsv(
+        run_dir / "n_vs_spearman.tsv",
+        sweep_rows,
+        [
+            "projection_regression",
+            "anchor_method",
+            "n",
+            "spearman",
+            "ci95",
+            "outliers_removed",
+            "r2",
+            "r2_ci95",
+            "l1",
+            "l1_ci95",
+        ],
+    )
+    score = metrics[0]["mean"]
+    params = (
+        "anchor__method=first_vs_last; anchor__n=8; pca=PCA; "
+        "pca__n_components=0.9; pca__whiten=False; pls=AnchorPLS; "
+        "pls__scale=True; projection__regression=False; std=StandardScaler"
+    )
+    (run_dir / "gridsearch_results.csv").write_text(
+        "rank_test_score,mean_test_score,std_test_score,mean_train_score,std_train_score,params\n"
+        f"1,{score},0.0,{score},0.0,{params}\n",
+        encoding="utf-8",
+    )
 
 
-def test_comparison_report_generation_uses_complete_exact_runs(tmp_path):
-    backends = ("aria", "clamp3_c2")
+def test_comparison_report_generation_includes_musif_and_prediction_sweeps(tmp_path):
+    backends = ("aria", "musif")
     for backend, value in zip(backends, (0.4, 0.6)):
         _write_fake_run(
             tmp_path,
@@ -364,28 +456,49 @@ def test_comparison_report_generation_uses_complete_exact_runs(tmp_path):
             backend,
             [{"metric": "spearman", "mean": str(value), "ci95": "0.1", "folds": "5", "rows_kept": "20"}],
         )
-        _write_fake_run(
-            tmp_path,
-            "sentiment_prediction",
-            backend,
-            [
-                {"metric": "class_accuracy", "value": str(value), "support": "20"},
-                {"metric": "balanced_class_accuracy", "value": str(value - 0.1), "support": "20"},
-            ],
-        )
 
     report_dir = generate_comparison_reports(
         tmp_path,
-        experiments=("arousal_axis", "sentiment_prediction"),
+        experiments=("arousal_axis",),
         backends=backends,
     )
 
     assert (report_dir / "arousal_axis.tsv").is_file()
     assert (report_dir / "arousal_axis.png").is_file()
-    assert (report_dir / "sentiment_prediction.tsv").is_file()
-    assert (report_dir / "sentiment_prediction.png").is_file()
+    assert (report_dir / "arousal_axis_predicted_vs_real.png").is_file()
+    assert (report_dir / "arousal_axis_selection_sweep.png").is_file()
+    assert (report_dir / "all_embeddings_spearman.png").is_file()
     report_rows = (report_dir / "arousal_axis.tsv").read_text(encoding="utf-8")
-    assert "run_aria" in report_rows and "run_clamp3_c2" in report_rows
+    assert "run_aria" in report_rows and "run_musif" in report_rows
+    coverage = (report_dir / "plot_coverage.tsv").read_text(encoding="utf-8")
+    assert "aria" in coverage and "musif" in coverage and "available" in coverage
+
+
+def test_comparison_report_marks_missing_plot_artifacts(tmp_path):
+    _write_fake_run(
+        tmp_path,
+        "arousal_axis",
+        "aria",
+        [{"metric": "spearman", "mean": "0.4", "ci95": "0.1", "folds": "5", "rows_kept": "20"}],
+        with_plot_artifacts=False,
+    )
+    _write_fake_run(
+        tmp_path,
+        "arousal_axis",
+        "musif",
+        [{"metric": "spearman", "mean": "0.6", "ci95": "0.1", "folds": "5", "rows_kept": "20"}],
+    )
+
+    report_dir = generate_comparison_reports(
+        tmp_path,
+        experiments=("arousal_axis",),
+        backends=("aria", "musif"),
+    )
+
+    assert (report_dir / "arousal_axis_predicted_vs_real.png").is_file()
+    assert (report_dir / "arousal_axis_selection_sweep.png").is_file()
+    coverage = (report_dir / "plot_coverage.tsv").read_text(encoding="utf-8")
+    assert "aria" in coverage and "missing" in coverage
 
 
 def test_comparison_reports_refuse_incomplete_matrix_without_outputs(tmp_path):

@@ -10,7 +10,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from experiments import settings
 from experiments.common.comparison_report import generate_comparison_reports
-from experiments.common.feature_backend import EMBEDDING_BACKENDS
+from experiments.common.feature_backend import EMBEDDING_BACKENDS, FEATURE_BACKENDS
 
 
 def main():
@@ -19,10 +19,10 @@ def main():
     )
     parser.add_argument(
         "--backend",
-        choices=EMBEDDING_BACKENDS,
+        choices=FEATURE_BACKENDS,
         nargs="+",
         default=list(EMBEDDING_BACKENDS),
-        help="Backends that must have completed runs (default: all embedding backends).",
+        help="Backends to compare; include musif to add the handcrafted-feature baseline.",
     )
     parser.add_argument(
         "--experiment",

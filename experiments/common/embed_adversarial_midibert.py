@@ -1,31 +1,34 @@
 """Adversarial-MidiBERT embedding adapter.
 
-Octuple conversion follows the official muzic/MusicBERT ``preprocess.py`` and
-RS2002/PianoBart ``Data/data_generation/convert.py``: positions are quantized
-at 16 steps per beat, bar boundaries are derived from the active time
-signature, and only the official 256-bar vocabulary is accepted.
+The model class and checkpoint are official. Its repository does not provide
+an inference MIDI-to-Octuple converter, so the small local adapter follows the
+published Muzic/PianoBART conversion rules: positions are quantized at 16 steps
+per beat, bars follow the active meter, and only the official 256-bar
+vocabulary is accepted.
 
 Deviation: the official converter raises when a time signature changes while
 a bar is still open (``cnt == measure_length`` assertion). Such inputs also
 occur for scores with an anacrusis, where MIDI carries no bar-line marker.
 For those inputs only, this adapter closes the current short bar at the change
 position and starts the new bar at position 0 with the new signature. All
-other inputs produce exactly the official encoding. Notes beyond the official
-256-bar vocabulary (``Bar 0``-``Bar 255``) are dropped, matching the
-converter's vocabulary limit.
+other inputs produce exactly the published encoding. Notes beyond the official
+256-bar vocabulary (``Bar 0``-``Bar 255``) are dropped, matching its limit.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import math
 import os
+from pathlib import Path
+import sys
 
 import mido
 import numpy as np
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
-from transformers import BertConfig, BertModel
+from transformers import BertConfig
 from transformers.models.bert.modeling_bert import BertSelfAttention
 
 
@@ -178,6 +181,12 @@ def _metadata_at(events, tick, default):
 
 
 def _encode_notes(midi, vocab):
+    """Convert MIDI events to the model's eight-field Octuple representation.
+
+    General MIDI parsers do not implement this checkpoint's quantization and
+    vocabulary conventions. The official model repository lacks a converter,
+    so this adapter follows the published conversion rules documented above.
+    """
     notes, time_signatures, tempos = _midi_events(midi)
     if not notes:
         raise ValueError("MIDI file contains no paired note-on/note-off events")
@@ -250,6 +259,75 @@ def _encode_notes(midi, vocab):
     return [sos, *encoded, eos]
 
 
+def _official_midibert_class():
+    """Import the model class from the official Adversarial-MidiBERT submodule."""
+    module_name = "_official_adversarial_midibert_model"
+    if module_name in sys.modules:
+        return sys.modules[module_name].MidiBert
+
+    model_path = (
+        Path(__file__).resolve().parents[2]
+        / "Adversarial-MidiBERT"
+        / "model.py"
+    )
+    if not model_path.is_file():
+        raise ImportError(
+            "Adversarial-MidiBERT source is missing; initialize submodules with "
+            "`git submodule update --init --recursive`."
+        )
+    spec = importlib.util.spec_from_file_location(module_name, model_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load official MidiBERT source at {model_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module.MidiBert
+
+
+class _RelativeBertSelfAttention(BertSelfAttention):
+    """Add the checkpoint's relative-key-query terms to Transformers BERT.
+
+    Transformers 5's built-in BertSelfAttention no longer creates the
+    ``distance_embedding`` weights stored in this checkpoint. This narrow
+    replacement matches the projection structure and checkpoint parameter
+    names, then adds the two learned relative-distance score terms used by
+    the pretrained model.
+    """
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.distance_embedding = torch.nn.Embedding(
+            2 * config.max_position_embeddings - 1, self.attention_head_size
+        )
+
+    def forward(self, hidden_states, attention_mask=None, **kwargs):
+        batch_size, sequence_length, _ = hidden_states.shape
+        head_shape = (
+            batch_size,
+            sequence_length,
+            self.num_attention_heads,
+            self.attention_head_size,
+        )
+        query = self.query(hidden_states).view(head_shape).transpose(1, 2)
+        key = self.key(hidden_states).view(head_shape).transpose(1, 2)
+        value = self.value(hidden_states).view(head_shape).transpose(1, 2)
+        positions = torch.arange(sequence_length, device=hidden_states.device)
+        relative_positions = positions[:, None] - positions[None, :]
+        relative_positions += self.config.max_position_embeddings - 1
+        positional_embeddings = self.distance_embedding(relative_positions).to(query.dtype)
+        scores = torch.matmul(query, key.transpose(-1, -2))
+        scores += torch.einsum("bhld,lrd->bhlr", query, positional_embeddings)
+        scores += torch.einsum("bhrd,lrd->bhlr", key, positional_embeddings)
+        scores *= self.scaling
+        if attention_mask is not None:
+            scores += attention_mask
+        probabilities = torch.softmax(scores, dim=-1)
+        probabilities = self.dropout(probabilities)
+        context = torch.matmul(probabilities, value)
+        context = context.transpose(1, 2).reshape(batch_size, sequence_length, -1)
+        return context.contiguous(), probabilities
+
+
 def _load_model():
     global MODEL, VOCABULARIES, DEVICE
     if MODEL is None:
@@ -259,12 +337,25 @@ def _load_model():
         )
         device = torch.device(requested_device)
         vocab = _build_vocabularies()
+        vocab_inverse = {
+            name: {index: token for token, index in values.items()}
+            for name, values in vocab.items()
+        }
+        # Each of the eight official Embeddings modules wraps nn.Embedding, a
+        # learned ID-to-vector lookup table named `lut`. Its output is scaled
+        # by sqrt(256), as the released model expects.
+        # The checkpoint's relative-key-query attention adds learned distance
+        # terms to query/key scores. Transformers 5 omits these weights from
+        # its built-in layer, so the adapter installs the narrow implementation
+        # below rather than reimplementing the rest of the official MidiBert.
         config = BertConfig(
             max_position_embeddings=MAX_SEQUENCE_LENGTH,
             position_embedding_type="relative_key_query",
             hidden_size=768,
         )
-        model = _MidiBert(config, vocab).to(device)
+        model = _official_midibert_class()(config, vocab, vocab_inverse).to(device)
+        for layer in model.bert.encoder.layer:
+            layer.attention.self = _RelativeBertSelfAttention(config)
         weights_path = hf_hub_download(
             repo_id=REPO_ID, filename="model.safetensors"
         )
@@ -279,79 +370,12 @@ def _load_model():
     return MODEL, VOCABULARIES, DEVICE
 
 
-class _AttributeEmbedding(torch.nn.Module):
-    def __init__(self, count, dimension=256):
-        super().__init__()
-        self.lut = torch.nn.Embedding(count, dimension)
-        self.dimension = dimension
-
-    def forward(self, ids):
-        return self.lut(ids) * math.sqrt(self.dimension)
-
-
-class _RelativeBertSelfAttention(BertSelfAttention):
-    def __init__(self, config):
-        super().__init__(config)
-        self.distance_embedding = torch.nn.Embedding(
-            2 * config.max_position_embeddings - 1, self.attention_head_size
-        )
-
-    def forward(self, hidden_states, attention_mask=None, **kwargs):
-        batch_size, sequence_length, _ = hidden_states.shape
-        head_shape = (batch_size, sequence_length, self.num_attention_heads, self.attention_head_size)
-        query = self.query(hidden_states).view(head_shape).transpose(1, 2)
-        key = self.key(hidden_states).view(head_shape).transpose(1, 2)
-        value = self.value(hidden_states).view(head_shape).transpose(1, 2)
-        positions = torch.arange(sequence_length, device=hidden_states.device)
-        relative_positions = positions[:, None] - positions[None, :]
-        relative_positions = relative_positions + self.config.max_position_embeddings - 1
-        positional_embeddings = self.distance_embedding(relative_positions).to(query.dtype)
-        scores = torch.matmul(query, key.transpose(-1, -2))
-        scores = scores + torch.einsum("bhld,lrd->bhlr", query, positional_embeddings)
-        scores = scores + torch.einsum("bhrd,lrd->bhlr", key, positional_embeddings)
-        scores = scores * self.scaling
-        if attention_mask is not None:
-            scores = scores + attention_mask
-        probabilities = torch.softmax(scores, dim=-1)
-        probabilities = self.dropout(probabilities)
-        context = torch.matmul(probabilities, value)
-        context = context.transpose(1, 2).reshape(batch_size, sequence_length, -1).contiguous()
-        return context, probabilities
-
-
-class _MidiBert(torch.nn.Module):
-    def __init__(self, config, vocab):
-        super().__init__()
-        self.classes = tuple(vocab)
-        self.bert = BertModel(config)
-        for layer in self.bert.encoder.layer:
-            layer.attention.self = _RelativeBertSelfAttention(config)
-        self.word_emb = torch.nn.ModuleList(
-            _AttributeEmbedding(len(vocab[name])) for name in self.classes
-        )
-        self.in_linear = torch.nn.Linear(8 * 256, config.hidden_size)
-        self.attention_linear = torch.nn.Sequential(
-            torch.nn.Linear(8 * 256, 4 * 256),
-            torch.nn.ReLU(),
-            torch.nn.Linear(4 * 256, 4 * 256),
-            torch.nn.ReLU(),
-            torch.nn.Linear(4 * 256, 8 * 256),
-            torch.nn.Sigmoid(),
-        )
-    def forward(self, input_ids, attn_mask):
-        embeddings = torch.cat(
-            [layer(input_ids[..., index]) for index, layer in enumerate(self.word_emb)],
-            dim=-1,
-        )
-        return self.bert(
-            inputs_embeds=self.in_linear(embeddings),
-            attention_mask=attn_mask,
-            output_hidden_states=False,
-            return_dict=True,
-        )
-
-
 def _pool_window(hidden, valid_mask):
+    """Mean the final states of non-padding Octuples in one context window.
+
+    The valid count is returned so the caller can merge windows into the same
+    global mean without letting a short final window count as a full window.
+    """
     weights = valid_mask.to(hidden.dtype).view(1, -1, 1)
     count = weights.sum(dim=1)
     if count.item() == 0:
@@ -360,6 +384,11 @@ def _pool_window(hidden, valid_mask):
 
 
 def encode_midi(midi_path):
+    """Encode the shared runner's normalized MIDI without merging its tracks.
+
+    The runner sets channel and program values to zero for every backend;
+    direct adapter calls do not apply that shared preprocessing themselves.
+    """
     model, vocab, device = _load_model()
     midi = mido.MidiFile(str(midi_path))
     encoded = _encode_notes(midi, vocab)
@@ -379,6 +408,8 @@ def encode_midi(midi_path):
             window_sizes.append(valid_count)
     if not pooled_windows:
         raise ValueError(f"MidiBERT produced no valid token embeddings for {midi_path}")
+    # A weighted mean of window means preserves the global mean over valid
+    # Octuples while still giving the final partial window its actual weight.
     weights = torch.tensor(window_sizes, dtype=pooled_windows[0].dtype, device=device)
     vector = (torch.stack(pooled_windows) * weights[:, None]).sum(dim=0) / weights.sum()
     result = np.asarray(vector.cpu().numpy(), dtype=np.float32).reshape(-1)

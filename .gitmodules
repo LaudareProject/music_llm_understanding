@@ -7,3 +7,9 @@
 [submodule "musif"]
 	path = musif
 	url = https://codeberg.org/00sapo/musif
+[submodule "BEAT-code"]
+	path = BEAT-code
+	url = https://github.com/Lekai-Qian/BEAT-code.git
+[submodule "Adversarial-MidiBERT"]
+	path = Adversarial-MidiBERT
+	url = https://github.com/RS2002/Adversarial-MidiBERT.git

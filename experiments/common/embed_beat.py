@@ -97,7 +97,12 @@ def _load_model():
 
 
 def _rescale_midi_tick_resolution(midi_path, output_path):
-    """Keep absolute MIDI timing while reducing high PPQ files below PrettyMIDI's tick cap."""
+    """Scale a high-tick temporary copy only after PrettyMIDI's guard rejects it.
+
+    Absolute event ticks are rounded at the lower PPQ resolution, so this is
+    not bit-exact: each event can shift by at most half a new tick, and very
+    short gaps may collapse. The caller's source MIDI is never rewritten.
+    """
     midi = mido.MidiFile(str(midi_path))
     absolute_ticks_by_track = []
     largest_tick = 0
@@ -138,7 +143,14 @@ def _rescale_midi_tick_resolution(midi_path, output_path):
 
 
 def _tokens_for_midi(midi_path, converter, tokenizer, save_npz):
-    """Use upstream preprocessing; rescale only inputs that exceed its tick allocation guard."""
+    """Run BEAT preprocessing, retrying only PrettyMIDI's tick-allocation guard.
+
+    The converter raises ``largest tick of`` when PrettyMIDI would allocate
+    beyond its 10,000,000-tick guard; that error indicates its allocation
+    limit, not malformed music. Rescaling is performed on a temporary MIDI
+    copy and is not lossless below the new tick resolution. Ordinary inputs
+    use the original file unchanged.
+    """
     with tempfile.TemporaryDirectory(prefix="beat-midi-") as temp_dir:
         try:
             converted = converter.convert(str(midi_path))
@@ -161,6 +173,11 @@ def _tokens_for_midi(midi_path, converter, tokenizer, save_npz):
 
 
 def _weighted_window_pool(window_means, token_counts):
+    """Merge chunk means into the mean over all valid content tokens.
+
+    Weight by each chunk's token count so a short final chunk does not count
+    as much as a full one.
+    """
     if not window_means or len(window_means) != len(token_counts):
         raise ValueError("BEAT needs matching nonempty windows and valid-token counts")
     if any(count <= 0 for count in token_counts):
@@ -172,7 +189,12 @@ def _weighted_window_pool(window_means, token_counts):
 
 
 def _encode_tokens(tokens, model, model_config, device=None):
-    """Run fixed-size non-overlapping windows and mean-pool content states."""
+    """Pool content states into one vector using non-overlapping context chunks.
+
+    Each chunk is limited by the checkpoint's context length. The BOS,
+    time-signature, and tempo header plus EOS/PAD tokens are excluded; weighted
+    pooling then combines valid content tokens across the whole piece.
+    """
     if not tokens:
         raise ValueError("BEAT tokenizer produced no tokens")
     max_context = int(model_config.max_position_embeddings)

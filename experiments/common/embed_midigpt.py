@@ -35,6 +35,12 @@ def _supported_time_signatures(config_json):
 
 
 def _time_signature_for(numerator, denominator, supported):
+    """Map a checkpoint-unsupported meter to one the official encoder accepts.
+
+    First reduce the ratio by its gcd (for example, 12/16 becomes 3/4). If
+    that meter is still absent, choose the supported bar length nearest in
+    quarter notes; ties prefer the smaller denominator, then numerator.
+    """
     common = math.gcd(numerator, denominator)
     reduced = (numerator // common, denominator // common)
     if reduced in supported:
@@ -51,6 +57,10 @@ def _time_signature_for(numerator, denominator, supported):
 
 
 def _normalize_time_signatures(score, supported):
+    """Map only unsupported bars and update each bar's derived beat length.
+
+    The return value counts changed track/bar records, not distinct measures.
+    """
     changed = 0
     for track in score.tracks:
         for bar in track.bars:
@@ -133,6 +143,9 @@ def encode_midi(midi_path):
     pooled_windows = []
     window_sizes = []
 
+    # Preserve each tokenizer window's tokens, but split any window longer
+    # than the model context. The backend contract is one piece-level vector,
+    # so the chunk means are merged below rather than returned separately.
     for tokens in token_windows:
         for offset in range(0, len(tokens), max_context):
             window = tokens[offset : offset + max_context]
@@ -182,6 +195,11 @@ def _load_model():
 
 
 def _weighted_window_pool(window_means, valid_token_counts):
+    """Combine chunk means into one mean over all valid token states.
+
+    Token-count weights preserve the global mean and prevent a short final
+    chunk from receiving the same weight as a full chunk.
+    """
     if not window_means or len(window_means) != len(valid_token_counts):
         raise ValueError("MIDI-GPT needs matching nonempty windows and valid-token counts")
     if any(count <= 0 for count in valid_token_counts):

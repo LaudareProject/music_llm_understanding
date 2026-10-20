@@ -5,7 +5,6 @@ import sys
 import numpy as np
 from tqdm import tqdm
 
-from experiments.common.embed_aria import encode_midi
 from experiments.common.musif_filter import read_musif_features_by_query
 
 
@@ -33,6 +32,9 @@ BACKEND_OUTPUT_DIRS = {
     FEATURE_BACKEND_MIDIGPT: "midigpt_embeddings",
 }
 BACKEND_ENCODERS = {
+    # Keep one adapter contract for every embedding backend; matrix validation,
+    # row alignment, and cache handling stay shared below.
+    FEATURE_BACKEND_ARIA: ("experiments.common.embed_aria", "encode_midi"),
     FEATURE_BACKEND_BEAT: ("experiments.common.embed_beat", "encode_midi"),
     FEATURE_BACKEND_CLAMP3_C2: ("experiments.common.embed_clamp3", "encode_midi"),
     FEATURE_BACKEND_ADVERSARIAL_MIDIBERT: (
@@ -142,8 +144,6 @@ def matrix_for_rows(rows, midi_paths, cache_dir, repo_root, progress_label="Feat
 
 
 def _encoder_for_backend(backend):
-    if backend == FEATURE_BACKEND_ARIA:
-        return encode_midi
     if backend not in _LOADED_ENCODERS:
         import importlib
 
@@ -162,6 +162,7 @@ def _encoder_for_backend(backend):
 def _matrix_for_rows_embeddings(rows, midi_paths, repo_root, progress_label, backend):
     vectors = []
     encoder = _encoder_for_backend(backend)
+    # Aria's cache path remains stable; only encoder dispatch is unified.
     for row in tqdm(rows, desc=progress_label, unit="query"):
         cache_path = (
             aria_embedding_path_for_row(row, repo_root)

@@ -10,6 +10,7 @@ dependencies = [
   "safetensors>=0.4",
   "huggingface-hub>=0.21",
   "music21>=9.1",
+  "pretty-midi>=0.2.10",
   "ariautils",
   "transformers>=5.1.0",
   "matplotlib>=3.10.8",
@@ -25,9 +26,6 @@ dependencies = [
 models = [
     "remi-z",
     "midigpt[inference]>=0.3.4",
-]
-beat = [
-    "pretty-midi>=0.2.10",
 ]
 
 [tool.pytest.ini_options]

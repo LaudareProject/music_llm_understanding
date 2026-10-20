@@ -9,6 +9,12 @@ from experiments.common.tsv import read_tsv
 
 
 def _normalize_midi_to_piano(midi_path):
+    """Normalize instrument routing for every backend before encoding.
+
+    This changes channel/program values to zero in place, but preserves tracks;
+    it does not merge notes onto track 0. The shared runner applies it before
+    backend dispatch, while Aria also guards direct encoder calls separately.
+    """
     midi = mido.MidiFile(str(midi_path))
     changed = False
     for track in midi.tracks:

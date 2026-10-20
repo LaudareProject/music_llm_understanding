@@ -16,9 +16,8 @@ from experiments import settings
 
 
 from experiments.common.feature_backend import (
-    FEATURE_BACKEND_ARIA,
     FEATURE_BACKEND_ENV,
-    FEATURE_BACKEND_MUSIF,
+    FEATURE_BACKENDS,
     cache_dir_for_experiment,
     feature_backend_name,
     matrix_for_rows,
@@ -29,22 +28,21 @@ from experiments.common.runner_data import prepare_rows_and_midi
 from experiments.common.tsv import write_tsv
 
 
-def _check_backend(settings, experiment_name, spec):
-    backend_default = (
-        str(
-            spec.get(
-                "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
-            )
-        )
-        .strip()
-        .lower()
+def _check_backend(settings, experiment_name, spec, feature_backend_override=None):
+    configured = spec.get(
+        "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
     )
     backend_env = str(os.environ.get(FEATURE_BACKEND_ENV, "")).strip().lower()
-    backend = backend_env if backend_env else backend_default
-    if backend not in {FEATURE_BACKEND_ARIA, FEATURE_BACKEND_MUSIF}:
+    backend = (
+        feature_backend_override
+        if feature_backend_override is not None
+        else backend_env or configured
+    )
+    backend = str(backend).strip().lower()
+    if backend not in FEATURE_BACKENDS:
         raise ValueError(
             f"Invalid feature_backend '{backend}' for {experiment_name}. "
-            f"Use '{FEATURE_BACKEND_ARIA}' or '{FEATURE_BACKEND_MUSIF}'."
+            f"Use one of {', '.join(FEATURE_BACKENDS)}."
         )
     os.environ[FEATURE_BACKEND_ENV] = backend
 
@@ -60,12 +58,14 @@ def _class_label(value):
     return "+1" if int(value) == 1 else "-1"
 
 
-def run_sentiment_prediction(settings, experiment_name="sentiment_prediction"):
+def run_sentiment_prediction(
+    settings, experiment_name="sentiment_prediction", feature_backend=None
+):
     if experiment_name not in settings.EXPERIMENTS:
         raise ValueError(f"Unknown experiment: {experiment_name}")
 
     spec = settings.EXPERIMENTS[experiment_name]
-    _check_backend(settings, experiment_name, spec)
+    _check_backend(settings, experiment_name, spec, feature_backend)
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = create_folder(

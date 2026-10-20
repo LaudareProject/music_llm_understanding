@@ -4,7 +4,6 @@ from pathlib import Path
 
 import mido
 
-from experiments.common.feature_backend import aria_embedding_path_for_row
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 from experiments.common.tsv import read_tsv
 
@@ -95,9 +94,6 @@ def prepare_rows_and_midi(
     skipped = set()
     for row in rows:
         query_id = row["query_id"]
-        cache_embedding = aria_embedding_path_for_row(row, repo_root)
-        if cache_embedding.exists():
-            continue
         try:
             midi_paths[query_id] = _prepare_midi_for_row(
                 row, repo_root, midi_dir, bin_dir

@@ -10,9 +10,8 @@ from sklearn.model_selection import GridSearchCV, KFold
 
 from experiments.settings import CV_FOLDS, GRID_JOBS, SCORE_TOLERANCE
 from experiments.common.feature_backend import (
-    FEATURE_BACKEND_ARIA,
     FEATURE_BACKEND_ENV,
-    FEATURE_BACKEND_MUSIF,
+    FEATURE_BACKENDS,
     cache_dir_for_experiment,
     feature_backend_name,
     matrix_for_rows,
@@ -48,20 +47,17 @@ from experiments.common.runner_stats import (
 from experiments.common.tsv import write_tsv
 
 
-def _check_backend(settings, experiment_name, spec):
-    backend = (
-        str(
-            spec.get(
-                "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
-            )
-        )
-        .strip()
-        .lower()
+def _check_backend(settings, experiment_name, spec, feature_backend=None):
+    configured = spec.get(
+        "feature_backend", getattr(settings, "DEFAULT_FEATURE_BACKEND", "aria")
     )
-    if backend not in {FEATURE_BACKEND_ARIA, FEATURE_BACKEND_MUSIF}:
+    env_backend = os.environ.get(FEATURE_BACKEND_ENV, "").strip()
+    selected = feature_backend if feature_backend is not None else env_backend or configured
+    backend = str(selected).strip().lower()
+    if backend not in FEATURE_BACKENDS:
         raise ValueError(
             f"Invalid feature_backend '{backend}' for {experiment_name}. "
-            f"Use '{FEATURE_BACKEND_ARIA}' or '{FEATURE_BACKEND_MUSIF}'."
+            f"Use one of {', '.join(FEATURE_BACKENDS)}."
         )
     os.environ[FEATURE_BACKEND_ENV] = backend
 
@@ -92,12 +88,12 @@ def _apply_pitch_restriction(rows, midi_paths, settings):
     return kept_rows, kept_midi_paths
 
 
-def run_experiment(settings, experiment_name):
+def run_experiment(settings, experiment_name, feature_backend=None):
     if experiment_name not in settings.EXPERIMENTS:
         raise ValueError(f"Unknown experiment: {experiment_name}")
 
     spec = settings.EXPERIMENTS[experiment_name]
-    _check_backend(settings, experiment_name, spec)
+    _check_backend(settings, experiment_name, spec, feature_backend)
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = create_folder(

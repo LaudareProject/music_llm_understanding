@@ -57,13 +57,53 @@ All experiment pipelines and grid-search parameters are defined in `experiments/
 
 Each `run_all.py` executes a GridSearchCV over the configured pipelines with a single predefined split, writes `gridsearch_results.csv`, and then re-runs the best pipeline while varying n, projection method, and anchor selection algorithm.
 
-Outputs are written under `outputs/aria_embeddings/<experiment>/<timestamp>/` or `outputs/baseline_features/<experiment>/<timestamp>/` based on `FEATURE_BACKEND`.
+Outputs are isolated under `outputs/<backend>_embeddings/<experiment>/<timestamp>/` (and under `outputs/baseline_features/` for Musif); each embedding backend also has its own cache under `cache/embeddings/<backend>/`. ARIA keeps its existing cache under `data/<dataset>/aria_embeddings/`.
 
-To switch to musif features, use `settings.FEATURE_BACKEND='musif'`
+Select a backend with the `FEATURE_BACKEND` environment variable or the explicit `feature_backend` argument on the shared runner. Musif remains independently runnable with `FEATURE_BACKEND=musif`.
 
-## Models
+## Models and benchmark matrix
 
-- **Aria embedding**: uses `aria` to generate global MIDI embeddings.
+- **Aria**: `aria` global MIDI embeddings.
+- **CLaMP 3 C2**: official symbolic checkpoint and MTF preprocessing; `clamp3_c2` backend.
+- **Adversarial-MidiBERT**: official Octuple tokenizer and pretrained weights; `adversarial_midibert` backend. Inputs whose time signature changes inside a bar (the official converter rejects them, e.g. scores with an anacrusis) close the short bar at the change and start the new signature at position 0; the official 256-bar vocabulary limit still applies.
+- **MIDI-GPT yellow_medium**: official MIDI-GPT tokenizer and completed checkpoint; install the optional `models` extra and select `midigpt`. Bars whose time signature is missing from the checkpoint vocabulary (the official encoder rejects them) are reduced by gcd, else mapped to the nearest supported bar length, with `beat_length` following the mapped signature.
+Install MIDI-GPT support with:
+
+```bash
+uv sync --extra models
+```
+
+
+The default command attempts the full matrix in order. It returns a failure summary if any backend/experiment pair fails.
+
+```bash
+uv run python scripts/run_embedding_benchmark.py
+```
+
+Because `beat` is not yet identifiable, use the four available backends explicitly:
+
+```bash
+uv run python scripts/run_embedding_benchmark.py --backend aria clamp3_c2 adversarial_midibert midigpt
+```
+
+Use the same backend selection when generating reports:
+
+```bash
+uv run python scripts/report_embedding_benchmark.py --backend aria clamp3_c2 adversarial_midibert midigpt
+```
+
+
+Run Musif independently with `uv run python scripts/run_embedding_benchmark.py --backend musif`. The optional `--experiment` and `--backend` arguments restrict a run.
+
+After a complete matrix has finished, produce per-experiment TSV tables and PNG plots (composer datasets remain in separate experiment reports):
+
+```bash
+uv run python scripts/report_embedding_benchmark.py
+```
+
+Reports include exact source-run paths, Spearman means and 95% confidence intervals for axis experiments, and class plus balanced-class accuracy for sentiment prediction. Report generation refuses to write unless every requested experiment/backend result is present.
+
+The `beat` backend remains unavailable: the task brief identifies “BEAT piano weights” but neither the project nor published model repositories provide an identifiable model/checkpoint/API. No substitute model is used.
 
 ## Troubleshooting
 

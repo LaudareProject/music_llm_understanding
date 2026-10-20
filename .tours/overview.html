@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embedding benchmark suite — codebase overview</title>
+  <style>
+    :root { color-scheme: light dark; --fg: #202522; --muted: #59645e; --border: #b9c4bd; --surface: #f3f6f3; --accent: #176b55; --success: #216b43; --warning: #865d08; --error: #9a3434; }
+    @media (prefers-color-scheme: dark) { :root { --fg: #edf2ee; --muted: #b9c5bd; --border: #526059; --surface: #252e29; --accent: #76d6b3; --success: #8ad7a6; --warning: #e7c66c; --error: #ff9d9d; } }
+    * { box-sizing: border-box; }
+    body { margin: 0 auto; padding: clamp(1rem, 3vw, 2.5rem); max-width: 1100px; color: var(--fg); background: transparent; font: 1.05rem/1.62 Georgia, "Times New Roman", serif; }
+    h1, h2, h3, th, .eyebrow, .stat, .diagram-label { font-family: system-ui, sans-serif; }
+    h1 { line-height: 1.15; font-size: clamp(2rem, 4vw, 3.1rem); margin: .15rem 0 .8rem; }
+    h2 { font-size: clamp(1.45rem, 2.4vw, 2rem); margin: 2.4rem 0 .75rem; line-height: 1.22; }
+    h3 { font-size: 1.12rem; line-height: 1.3; margin: 1.35rem 0 .3rem; }
+    p { max-width: 82ch; margin: .65rem 0; }
+    code, .path { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .91em; overflow-wrap: anywhere; }
+    .eyebrow { color: var(--accent); font-size: .82rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    .lede { color: var(--muted); font-size: 1.13rem; max-width: 75ch; }
+    .diagram { border: 1px solid var(--border); border-radius: .65rem; background: var(--surface); margin: 1rem 0 1.4rem; overflow: hidden; }
+    .diagram-scroll { overflow-x: auto; overscroll-behavior-x: contain; padding: .7rem; }
+    svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+    .architecture svg { max-width: 1040px; min-width: 900px; }
+    .focused svg { max-width: 960px; min-width: 840px; }
+    svg text { fill: var(--fg); font-family: system-ui, sans-serif; }
+    svg .node { fill: var(--surface); stroke: var(--border); stroke-width: 2; }
+    svg .external { stroke: var(--warning); stroke-dasharray: 8 5; }
+    svg .node-title { font-size: 17px; font-weight: 700; }
+    svg .node-copy { font-size: 14px; }
+    svg .edge { fill: none; stroke: var(--accent); stroke-width: 2.3; marker-end: url(#arrow); }
+    svg .edge-soft { fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-dasharray: 6 4; marker-end: url(#arrow-muted); }
+    svg .edge-label { font-size: 13px; fill: var(--muted); }
+    svg .boundary { fill: none; stroke: var(--warning); stroke-width: 1.5; stroke-dasharray: 9 6; }
+    svg .boundary-label { font-size: 14px; font-weight: 700; fill: var(--warning); }
+    .callout { border-left: 4px solid var(--accent); padding: .7rem 1rem; margin: 1.1rem 0; background: var(--surface); }
+    .callout.warning { border-color: var(--warning); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: .8rem; margin: 1rem 0; }
+    .stat { border: 1px solid var(--border); border-radius: .55rem; padding: .85rem 1rem; background: var(--surface); }
+    .stat strong { display: block; font-size: 1.4rem; }
+    .stat span { color: var(--muted); font-size: .9rem; }
+    .scope { border: 1px solid var(--border); border-radius: .55rem; padding: .8rem 1rem; overflow-wrap: anywhere; }
+    ul { padding-left: 1.35rem; max-width: 88ch; }
+    li { margin: .35rem 0; }
+    footer { border-top: 1px solid var(--border); color: var(--muted); margin-top: 2.5rem; padding-top: .8rem; font-size: .92rem; }
+    @media (max-width: 520px) { body { padding: 1rem; font-size: 1rem; } .diagram-scroll { padding: .45rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Repository field guide · benchmark suite and current changes</div>
+    <h1>From experiment matrix to model comparison</h1>
+    <p class="lede">Commit <code>5d49e7e763c19811e262b51176510311e9470099</code> connects several MIDI embedding backends to a shared benchmark and reporting path. Current worktree changes add BEAT piano inference and replace CLaMP3's Aria-submodule dependency with local symbolic inference. This companion explains execution boundaries, outputs and evidence limits; the linked CodeTour remains the source navigator.</p>
+  </header>
+
+  <section aria-labelledby="architecture-title">
+    <h2 id="architecture-title">Architecture and data boundaries</h2>
+    <p>The CLI dispatches backend × experiment pairs. Shared row preparation and feature routing feed either the regression-axis runner or a separate sentiment pipeline. Encoders are independent adapters; model code, pretrained weights and caches cross different external/persistence boundaries. The current worktree adds BEAT and standalone CLaMP3 source beyond the committed adapter set.</p>
+    <div class="diagram architecture"><div class="diagram-scroll">
+      <svg viewBox="0 0 1040 590" width="100%" role="img" aria-labelledby="arch-svg-title arch-svg-desc">
+        <title id="arch-svg-title">Embedding benchmark architecture and data flow</title>
+        <desc id="arch-svg-desc">The benchmark CLI selects backend and experiment. Settings and shared runner prepare row-aligned MIDI, the backend router reads cached vectors or dispatches one of five encoder adapters, and a validated feature matrix feeds regression or sentiment analysis. Results are stored in backend-specific runs and the report generator reads complete runs into staged comparison artifacts. Encoder weights/code are external dependencies.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--accent)"/></marker>
+          <marker id="arrow-muted" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="var(--muted)"/></marker>
+        </defs>
+        <rect class="node" x="25" y="35" width="235" height="95" rx="12"/>
+        <text x="45" y="65" class="node-title"><tspan x="45">Benchmark CLI</tspan></text>
+        <text x="45" y="91" class="node-copy"><tspan x="45">scripts/run_embedding_</tspan><tspan x="45" dy="18">benchmark.py · matrix</tspan></text>
+        <rect class="node" x="355" y="35" width="270" height="95" rx="12"/>
+        <text x="375" y="65" class="node-title"><tspan x="375">Settings + shared runner</tspan></text>
+        <text x="375" y="91" class="node-copy"><tspan x="375">experiments/settings.py</tspan><tspan x="375" dy="18">runner.py · axis or sentiment</tspan></text>
+        <path class="edge" d="M260 82 H355"/><text x="271" y="70" class="edge-label">backend × experiment</text>
+        <rect class="node" x="35" y="195" width="245" height="105" rx="12"/>
+        <text x="55" y="225" class="node-title"><tspan x="55">Row + MIDI prep</tspan></text>
+        <text x="55" y="251" class="node-copy"><tspan x="55">runner_data.py</tspan><tspan x="55" dy="18">TSV rows ↔ MIDI paths</tspan></text>
+        <path class="edge" d="M475 130 C475 165 280 160 230 195"/><text x="335" y="169" class="edge-label">target rows</text>
+        <rect class="node" x="355" y="195" width="270" height="120" rx="12"/>
+        <text x="375" y="225" class="node-title"><tspan x="375">Backend router + cache</tspan></text>
+        <text x="375" y="251" class="node-copy"><tspan x="375">feature_backend.py</tspan><tspan x="375" dy="18">cache hit .npy / lazy encode</tspan><tspan x="375" dy="18">finite, aligned 2-D matrix</tspan></text>
+        <path class="edge" d="M280 247 H355"/><text x="288" y="235" class="edge-label">rows + MIDI</text>
+        <path class="edge" d="M490 195 V130"/><text x="502" y="170" class="edge-label">feature matrix</text>
+        <rect class="node" x="720" y="180" width="285" height="155" rx="12"/>
+        <text x="740" y="210" class="node-title"><tspan x="740">Encoder adapters</tspan></text>
+        <text x="740" y="236" class="node-copy"><tspan x="740">ARIA · Adversarial-MidiBERT</tspan><tspan x="740" dy="18">MIDI-GPT · CLaMP3 C2</tspan><tspan x="740" dy="18">BEAT (current worktree)</tspan><tspan x="740" dy="18">MIDI → finite float32 vector</tspan></text>
+        <path class="edge" d="M625 247 H720"/><text x="632" y="235" class="edge-label">cache miss</text>
+        <rect class="boundary" x="700" y="375" width="325" height="115" rx="14"/>
+        <text x="720" y="402" class="boundary-label"><tspan x="720">External systems</tspan></text>
+        <text x="725" y="430" class="node-copy"><tspan x="725">model hubs · BEAT-code checkout</tspan><tspan x="725" dy="20">runtime dependencies + weights</tspan></text>
+        <path class="edge-soft" d="M860 335 V375"/><text x="874" y="360" class="edge-label">weights + code</text>
+        <rect class="node" x="350" y="385" width="285" height="105" rx="12"/>
+        <text x="370" y="415" class="node-title"><tspan x="370">Analysis outputs</tspan></text>
+        <text x="370" y="441" class="node-copy"><tspan x="370">outputs/&lt;backend&gt;_embeddings/</tspan><tspan x="370" dy="18">metrics · predictions · plots</tspan></text>
+        <path class="edge" d="M490 315 V385"/><text x="502" y="355" class="edge-label">fit + validate</text>
+        <rect class="node" x="35" y="385" width="245" height="105" rx="12"/>
+        <text x="55" y="415" class="node-title"><tspan x="55">Embedding cache</tspan></text>
+        <text x="55" y="441" class="node-copy"><tspan x="55">cache/embeddings/</tspan><tspan x="55" dy="18">&lt;backend&gt;/&lt;dataset&gt;/&lt;id&gt;.npy</tspan></text>
+        <path class="edge-soft" d="M355 280 C315 305 280 360 240 385"/><text x="276" y="331" class="edge-label">validated vectors</text>
+        <path class="edge-soft" d="M240 405 C300 365 325 260 355 260"/><text x="268" y="376" class="edge-label">future cache hit</text>
+        <rect class="node" x="720" y="515" width="285" height="60" rx="12"/>
+        <text x="740" y="541" class="node-title"><tspan x="740">Comparison report</tspan></text>
+        <text x="740" y="562" class="node-copy"><tspan x="740">complete runs → staged TSV + PNG</tspan></text>
+        <path class="edge" d="M635 440 C675 440 675 545 720 545"/><text x="645" y="505" class="edge-label">latest run metrics</text>
+      </svg>
+    </div></div>
+    <p class="diagram-label">Observed persistence boundaries: per-query embeddings under <code>cache/embeddings/</code>, backend-specific experiment runs under <code>outputs/</code>, and comparison snapshots under <code>outputs/model_comparison/</code>. The cache does not encode checkpoint hashes, so code alone cannot establish that two cached matrices use identical model state.</p>
+  </section>
+
+  <section aria-labelledby="entry-title">
+    <h2 id="entry-title">1. Selection and shared dispatch</h2>
+    <p><code>scripts/run_embedding_benchmark.py</code> loops over backend/experiment pairs, with a separate call for sentiment. The runner resolves explicit/environment/config backend precedence; the shared router maps to a registered encoder. `FEATURE_BACKENDS` also includes Musif, but the CLI defaults to embedding backends. Invalid names fail before feature extraction; a cache hit bypasses model inference.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 320" width="100%" role="img" aria-labelledby="select-title select-desc">
+        <title id="select-title">Selection and backend dispatch</title>
+        <desc id="select-desc">The CLI accepts a selected backend, the runner validates and sets it, the shared router selects the registered encoder, and a cache hit bypasses inference. Invalid backend names fail before feature extraction.</desc>
+        <rect class="node" x="25" y="90" width="205" height="120" rx="12"/><text x="45" y="122" class="node-title"><tspan x="45">CLI choice</tspan></text><text x="45" y="151" class="node-copy"><tspan x="45">--backend NAME</tspan><tspan x="45" dy="18">embedding backends</tspan><tspan x="45" dy="18">default; Musif solo</tspan></text>
+        <rect class="node" x="275" y="90" width="205" height="105" rx="12"/><text x="295" y="122" class="node-title"><tspan x="295">_check_backend()</tspan></text><text x="295" y="151" class="node-copy"><tspan x="295">explicit &gt; env &gt; config</tspan><tspan x="295" dy="20">sets FEATURE_BACKEND</tspan></text>
+        <rect class="node" x="525" y="90" width="205" height="105" rx="12"/><text x="545" y="122" class="node-title"><tspan x="545">matrix_for_rows()</tspan></text><text x="545" y="151" class="node-copy"><tspan x="545">lazy adapter lookup</tspan><tspan x="545" dy="20">validate matrix result</tspan></text>
+        <rect class="node" x="775" y="40" width="165" height="90" rx="12"/><text x="795" y="71" class="node-title"><tspan x="795">Cache hit</tspan></text><text x="795" y="99" class="node-copy"><tspan x="795">load .npy</tspan><tspan x="795" dy="19">no inference</tspan></text>
+        <rect class="node" x="775" y="165" width="165" height="90" rx="12"/><text x="795" y="196" class="node-title"><tspan x="795">Cache miss</tspan></text><text x="795" y="224" class="node-copy"><tspan x="795">resolve MIDI</tspan><tspan x="795" dy="19">call encoder</tspan></text>
+        <path class="edge" d="M230 142 H275"/><path class="edge" d="M480 142 H525"/><path class="edge" d="M730 118 C750 100 753 85 775 85"/><path class="edge" d="M730 160 C750 183 753 210 775 210"/>
+        <text x="236" y="127" class="edge-label">backend</text><text x="485" y="127" class="edge-label">valid</text><text x="736" y="72" class="edge-label">exists</text><text x="739" y="198" class="edge-label">absent</text>
+        <rect class="node" x="275" y="235" width="205" height="65" rx="10"/><text x="295" y="262" class="node-title"><tspan x="295">Fail closed</tspan></text><text x="295" y="285" class="node-copy"><tspan x="295">unknown name → error</tspan></text><path class="edge-soft" d="M375 195 V235"/>
+      </svg>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="midi-title">
+    <h2 id="midi-title">2. Row preparation and BEAT preprocessing</h2>
+    <p><code>prepare_rows_and_midi()</code> preserves row/path alignment while filtering failed inputs. It resolves MIDI, converts MusicXML/Kern or generates pitch MIDI, then normalizes non-meta events to channel 0/program 0. The current BEAT adapter passes MIDI through official conversion, a temporary NPZ and <code>PianoTokenizer</code>. Only the upstream “largest tick of” error triggers a lower-PPQ temporary MIDI retry: absolute event ticks are rounded into new delta times, preserving the source file while reducing timing precision. Other errors propagate; later token encoding checks nonempty output.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 340" width="100%" role="img" aria-labelledby="prep-title prep-desc">
+        <title id="prep-title">MIDI acquisition and BEAT preprocessing</title>
+        <desc id="prep-desc">TSV rows resolve source MIDI, convert MusicXML or Kern, or create pitch-note MIDI. Input preparation failures skip a row while preserving row-path alignment. Valid MIDI is normalized and sent through official BEAT conversion and tokenization. Only the upstream “largest tick of” error triggers a retry: a lower-PPQ temporary MIDI copy is made by rescaling absolute event ticks, preserving source data; malformed converter output and empty tokens fail.</desc>
+        <rect class="node" x="20" y="65" width="190" height="105" rx="12"/><text x="40" y="97" class="node-title"><tspan x="40">Experiment TSV</tspan></text><text x="40" y="126" class="node-copy"><tspan x="40">query_id, path, kind</tspan><tspan x="40" dy="20">optional row filter</tspan></text>
+        <rect class="node" x="250" y="45" width="220" height="160" rx="12"/><text x="270" y="78" class="node-title"><tspan x="270">MIDI conversion</tspan></text><text x="270" y="107" class="node-copy"><tspan x="270">MIDI · MusicXML · Kern</tspan><tspan x="270" dy="20">or generated pitch-note</tspan><tspan x="270" dy="20">MIDI; errors skip row</tspan></text>
+        <rect class="node" x="510" y="65" width="190" height="105" rx="12"/><text x="530" y="97" class="node-title"><tspan x="530">Piano MIDI</tspan></text><text x="530" y="126" class="node-copy"><tspan x="530">channel = 0</tspan><tspan x="530" dy="20">program = 0</tspan></text>
+        <rect class="node" x="740" y="45" width="200" height="160" rx="12"/><text x="760" y="78" class="node-title"><tspan x="760">MIDIToPianoNPZ</tspan></text><text x="760" y="107" class="node-copy"><tspan x="760">convert() → 4 values</tspan><tspan x="760" dy="20">save_npz() → temp NPZ</tspan><tspan x="760" dy="20">PianoTokenizer</tspan><tspan x="760" dy="20">encode_file()</tspan><tspan x="760" dy="20">tick guard → temp copy</tspan></text>
+        <rect class="node external" x="740" y="240" width="200" height="85" rx="10"/><text x="760" y="270" class="node-title"><tspan x="760">Encoding error</tspan></text><text x="760" y="294" class="node-copy"><tspan x="760">bad 4-tuple or empty</tspan><tspan x="760" dy="18">tokens</tspan></text><path class="edge-soft" d="M840 205 V240"/>
+        <rect class="node external" x="250" y="240" width="220" height="85" rx="10"/><text x="270" y="270" class="node-title"><tspan x="270">Row skipped</tspan></text><text x="270" y="294" class="node-copy"><tspan x="270">error logged; row/path</tspan><tspan x="270" dy="18">removed together</tspan></text><path class="edge-soft" d="M360 185 V240"/>
+      </svg>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="load-title">
+    <h2 id="load-title">3. Lazy loader and external runtime</h2>
+    <p>The adapter has module-level references for the model, tokenizer, converter, config, NPZ saver and device. A warm call reuses these references. A cold call checks the BEAT checkout files, imports upstream components, verifies the configured piano checkpoint, and calls the official inference loader. The device default is CUDA when available, otherwise CPU; an explicit <code>BEAT_DEVICE</code> overrides that choice.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 330" width="100%" role="img" aria-labelledby="load-svg-title load-svg-desc">
+        <title id="load-svg-title">Lazy BEAT model loading</title>
+        <desc id="load-svg-desc">encode_midi reuses an already initialized model. Otherwise it validates the external BEAT checkout and piano checkpoint, imports upstream configuration, inference, tokenizer and converter modules, chooses a device and calls the official model loader. Missing code, imports, or checkpoint fail before inference; successful components are kept in module scope.</desc>
+        <rect class="node" x="25" y="105" width="170" height="90" rx="12"/><text x="45" y="137" class="node-title"><tspan x="45">encode_midi()</tspan></text><text x="45" y="166" class="node-copy"><tspan x="45">encode MIDI</tspan></text>
+        <rect class="node" x="230" y="45" width="190" height="90" rx="12"/><text x="250" y="77" class="node-title"><tspan x="250">Warm state</tspan></text><text x="250" y="106" class="node-copy"><tspan x="250">reuse model state</tspan></text>
+        <rect class="node" x="230" y="175" width="190" height="90" rx="12"/><text x="250" y="207" class="node-title"><tspan x="250">Cold start</tspan></text><text x="250" y="236" class="node-copy"><tspan x="250">_load_model()</tspan></text>
+        <path class="edge" d="M195 130 C215 110 215 90 230 90"/><path class="edge" d="M195 170 C215 190 215 215 230 215"/>
+        <rect class="node external" x="465" y="45" width="210" height="105" rx="12"/><text x="485" y="77" class="node-title"><tspan x="485">BEAT_CODE_PATH</tspan></text><text x="485" y="106" class="node-copy"><tspan x="485">config.py</tspan><tspan x="485" dy="20">inference.py</tspan><tspan x="485" dy="20">tokenizer + MIDI prep</tspan></text>
+        <rect class="node external" x="465" y="175" width="210" height="90" rx="12"/><text x="485" y="207" class="node-title"><tspan x="485">Piano checkpoint</tspan></text><text x="485" y="236" class="node-copy"><tspan x="485">BEAT_CHECKPOINT_PATH</tspan></text>
+        <path class="edge" d="M420 215 H465"/><path class="edge" d="M675 100 C710 100 710 165 740 165"/><path class="edge" d="M675 220 H740"/>
+        <rect class="node" x="740" y="105" width="200" height="120" rx="12"/><text x="760" y="137" class="node-title"><tspan x="760">Official loader</tspan></text><text x="760" y="166" class="node-copy"><tspan x="760">load_model()</tspan><tspan x="760" dy="20">checkpoint + config</tspan><tspan x="760" dy="20">device; eval(); cache</tspan></text>
+        <rect class="node external" x="25" y="255" width="170" height="75" rx="10"/><text x="45" y="280" class="node-title"><tspan x="45">Fail closed</tspan></text><text x="45" y="302" class="node-copy"><tspan x="45">missing checkout</tspan><tspan x="45" dy="18">or weights/imports</tspan></text>
+      </svg>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="infer-title">
+    <h2 id="infer-title">4. Windowed inference and validation</h2>
+    <p>The token sequence must start with BOS and have a positive configured context. Each non-overlapping chunk is forwarded independently under inference mode. Content positions are defined by absolute token index (at least 3) and exclusion of EOS/PAD; each chunk’s final-layer mean is weighted by its valid content count. A final dimensionality or finiteness failure is raised before the shared cache can persist it.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="infer-svg-title infer-svg-desc">
+        <title id="infer-svg-title">BEAT token-window inference and validation</title>
+        <desc id="infer-svg-desc">Input tokens are validated for nonempty sequence, positive context and BOS. Context is capped at 2048 and divided into non-overlapping chunks. Chunks without content after header, EOS and PAD exclusion are skipped. Remaining chunks produce final hidden-state means weighted by token count; the pooled vector must have configured hidden size and finite values or the operation fails before cache write.</desc>
+        <rect class="node" x="20" y="60" width="175" height="100" rx="12"/><text x="40" y="92" class="node-title"><tspan x="40">Token IDs</tspan></text><text x="40" y="121" class="node-copy"><tspan x="40">official piano IDs</tspan><tspan x="40" dy="20">BOS required</tspan></text>
+        <rect class="node" x="230" y="50" width="195" height="120" rx="12"/><text x="250" y="82" class="node-title"><tspan x="250">Validate + chunk</tspan></text><text x="250" y="111" class="node-copy"><tspan x="250">cap at 2048</tspan><tspan x="250" dy="20">disjoint windows</tspan><tspan x="250" dy="20">bad context/BOS error</tspan></text>
+        <rect class="node" x="460" y="50" width="205" height="120" rx="12"/><text x="480" y="82" class="node-title"><tspan x="480">Model forward</tspan></text><text x="480" y="111" class="node-copy"><tspan x="480">inference_mode()</tspan><tspan x="480" dy="20">states on · cache off</tspan><tspan x="480" dy="20">shape validated</tspan></text>
+        <rect class="node" x="700" y="50" width="235" height="120" rx="12"/><text x="720" y="82" class="node-title"><tspan x="720">Content selection</tspan></text><text x="720" y="111" class="node-copy"><tspan x="720">exclude positions below 3</tspan><tspan x="720" dy="20">exclude EOS and PAD</tspan><tspan x="720" dy="20">mean final-layer states</tspan></text>
+        <rect class="node" x="700" y="230" width="235" height="100" rx="12"/><text x="720" y="262" class="node-title"><tspan x="720">Weighted pool</tspan></text><text x="720" y="291" class="node-copy"><tspan x="720">window mean × valid count</tspan><tspan x="720" dy="20">divide by valid count</tspan></text>
+        <rect class="node" x="460" y="230" width="205" height="110" rx="12"/><text x="480" y="262" class="node-title"><tspan x="480">Vector checks</tspan></text><text x="480" y="291" class="node-copy"><tspan x="480">hidden_size matches</tspan><tspan x="480" dy="18">finite float32 output</tspan><tspan x="480" dy="18">flat vector returned</tspan></text>
+        <path class="edge" d="M817 170 V230"/><path class="edge" d="M700 280 H665"/>
+        <rect class="node external" x="230" y="230" width="195" height="110" rx="12"/><text x="250" y="262" class="node-title"><tspan x="250">Skip / fail</tspan></text><text x="250" y="291" class="node-copy"><tspan x="250">no content: error</tspan><tspan x="250" dy="18">missing states: error</tspan></text>
+        <path class="edge-soft" d="M565 170 V215 H425 V230"/><path class="edge-soft" d="M328 170 V230"/>
+        <path class="edge" d="M460 280 H425"/>
+        <rect class="node" x="20" y="230" width="175" height="100" rx="12"/><text x="40" y="262" class="node-title"><tspan x="40">Shared cache</tspan></text><text x="40" y="291" class="node-copy"><tspan x="40">checked output only</tspan><tspan x="40" dy="20">.npy per query</tspan></text>
+        <path class="edge" d="M460 340 C430 375 220 375 195 330"/><text x="285" y="397" class="edge-label">valid vector</text>
+      </svg>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="encoders-title">
+    <h2 id="encoders-title">5. Adapter representations and pooling</h2>
+    <p>Each registered adapter transforms MIDI differently before the shared cache sees a vector. Adversarial-MidiBERT quantizes note/metadata events into eight-field Octuples; MIDI-GPT parses score/bar windows and normalizes unsupported time signatures; local CLaMP3 converts MIDI to MTF then 64-character patches; BEAT delegates to its piano converter and tokenizer. Their outputs are not interchangeable by construction.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="enc-svg-title enc-svg-desc">
+        <title id="enc-svg-title">Four adapter-specific MIDI representation routes</title>
+        <desc id="enc-svg-desc">Four rows show distinct paths from MIDI through adapter-specific events or tokens, windowed pooling and vector validation. Adversarial-MidiBERT uses quantized Octuple events and 1024-token windows; MIDI-GPT uses normalized score tokens and context chunks; CLaMP3 uses 64-character MTF patches and 512-patch overlapping final segments; BEAT uses official piano tokens capped at 2048 with header, EOS and PAD excluded. Invalid outputs raise rather than yielding fallback vectors.</desc>
+        <rect class="node" x="20" y="20" width="220" height="82" rx="10"/><text x="36" y="47" class="node-title"><tspan x="36">Adversarial-MidiBERT</tspan></text><text x="36" y="75" class="node-copy"><tspan x="36">Octuple events · 8 fields</tspan></text>
+        <rect class="node" x="270" y="20" width="250" height="82" rx="10"/><text x="286" y="47" class="node-title"><tspan x="286">Quantize + model</tspan></text><text x="286" y="75" class="node-copy"><tspan x="286">bar, pos, pitch, meter</tspan></text>
+        <rect class="node" x="550" y="20" width="250" height="82" rx="10"/><text x="566" y="47" class="node-title"><tspan x="566">1024-token windows</tspan></text><text x="566" y="75" class="node-copy"><tspan x="566">weighted valid-token mean</tspan></text>
+        <rect class="node external" x="830" y="20" width="125" height="82" rx="10"/><text x="846" y="47" class="node-title"><tspan x="846">Vector</tspan></text><text x="846" y="75" class="node-copy"><tspan x="846">valid / error</tspan></text>
+        <path class="edge" d="M240 61 H270"/><path class="edge" d="M520 61 H550"/><path class="edge" d="M800 61 H830"/>
+        <rect class="node" x="20" y="125" width="220" height="82" rx="10"/><text x="36" y="152" class="node-title"><tspan x="36">MIDI-GPT</tspan></text><text x="36" y="180" class="node-copy"><tspan x="36">score + bar windows</tspan></text>
+        <rect class="node" x="270" y="125" width="250" height="82" rx="10"/><text x="286" y="152" class="node-title"><tspan x="286">Normalize + tokenize</tspan></text><text x="286" y="180" class="node-copy"><tspan x="286">GCD / nearest meter fallback</tspan></text>
+        <rect class="node" x="550" y="125" width="250" height="82" rx="10"/><text x="566" y="152" class="node-title"><tspan x="566">Context chunks</tspan></text><text x="566" y="180" class="node-copy"><tspan x="566">final-layer weighted mean</tspan></text>
+        <rect class="node external" x="830" y="125" width="125" height="82" rx="10"/><text x="846" y="152" class="node-title"><tspan x="846">Vector</tspan></text><text x="846" y="180" class="node-copy"><tspan x="846">valid / error</tspan></text>
+        <path class="edge" d="M240 166 H270"/><path class="edge" d="M520 166 H550"/><path class="edge" d="M800 166 H830"/>
+        <rect class="node" x="20" y="230" width="220" height="82" rx="10"/><text x="36" y="257" class="node-title"><tspan x="36">CLaMP3 C2</tspan></text><text x="36" y="285" class="node-copy"><tspan x="36">MIDI → MTF text</tspan></text>
+        <rect class="node" x="270" y="230" width="250" height="82" rx="10"/><text x="286" y="257" class="node-title"><tspan x="286">64-character patches</tspan></text><text x="286" y="285" class="node-copy"><tspan x="286">special BOS/EOS patches</tspan></text>
+        <rect class="node" x="550" y="230" width="250" height="82" rx="10"/><text x="566" y="257" class="node-title"><tspan x="566">512-patch segments</tspan></text><text x="566" y="285" class="node-copy"><tspan x="566">weighted pooling</tspan><tspan x="566" dy="18">last segment overlaps</tspan></text>
+        <rect class="node external" x="830" y="230" width="125" height="82" rx="10"/><text x="846" y="257" class="node-title"><tspan x="846">Vector</tspan></text><text x="846" y="285" class="node-copy"><tspan x="846">768 or error</tspan></text>
+        <path class="edge" d="M240 271 H270"/><path class="edge" d="M520 271 H550"/><path class="edge" d="M800 271 H830"/>
+        <rect class="node" x="20" y="335" width="220" height="82" rx="10"/><text x="36" y="362" class="node-title"><tspan x="36">BEAT piano</tspan></text><text x="36" y="390" class="node-copy"><tspan x="36">official prep + tokenizer</tspan></text>
+        <rect class="node" x="270" y="335" width="250" height="82" rx="10"/><text x="286" y="362" class="node-title"><tspan x="286">Piano token sequence</tspan></text><text x="286" y="390" class="node-copy"><tspan x="286">cap 2048 · mask header</tspan><tspan x="286" dy="18">EOS / PAD</tspan></text>
+        <rect class="node" x="550" y="335" width="250" height="82" rx="10"/><text x="566" y="362" class="node-title"><tspan x="566">Non-overlap windows</tspan></text><text x="566" y="390" class="node-copy"><tspan x="566">weighted content-token mean</tspan></text>
+        <rect class="node external" x="830" y="335" width="125" height="82" rx="10"/><text x="846" y="362" class="node-title"><tspan x="846">Vector</tspan></text><text x="846" y="390" class="node-copy"><tspan x="846">valid / error</tspan></text>
+        <path class="edge" d="M240 376 H270"/><path class="edge" d="M520 376 H550"/><path class="edge" d="M800 376 H830"/>
+      </svg>
+    </div></div>
+  </section>
+  <section aria-labelledby="analysis-title">
+    <h2 id="analysis-title">6. Regression and sentiment analysis paths</h2>
+    <p>The axis runner saves the feature matrix and retained rows, searches configured pipelines with seeded KFold/Spearman, selects the smallest anchor count within a score tolerance, then writes out-of-fold predictions and metrics. Sentiment does not enter this search branch: it runs its own CV regression and thresholds out-of-fold predictions for balanced classification summaries.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 360" width="100%" role="img" aria-labelledby="analysis-svg-title analysis-svg-desc">
+        <title id="analysis-svg-title">Axis regression and sentiment analysis branches</title>
+        <desc id="analysis-svg-desc">A validated feature matrix and target rows enter either the axis runner or sentiment runner. Axis search uses seeded KFold and Spearman, selects anchors, and writes out-of-fold predictions. Sentiment uses a separate regression cross-validation, thresholds predictions at zero, and writes class metrics. Invalid or insufficient data fails rather than creating a complete result.</desc>
+        <rect class="node" x="25" y="130" width="190" height="100" rx="12"/><text x="45" y="162" class="node-title"><tspan x="45">Rows + matrix</tspan></text><text x="45" y="190" class="node-copy"><tspan x="45">target · groups</tspan><tspan x="45" dy="18">finite features</tspan></text>
+        <rect class="node" x="285" y="45" width="250" height="125" rx="12"/><text x="305" y="77" class="node-title"><tspan x="305">Axis runner</tspan></text><text x="305" y="106" class="node-copy"><tspan x="305">GridSearchCV · Spearman</tspan><tspan x="305" dy="18">seeded KFold · IQR filtering</tspan><tspan x="305" dy="18">select anchor count</tspan></text>
+        <rect class="node" x="285" y="210" width="250" height="125" rx="12"/><text x="305" y="242" class="node-title"><tspan x="305">Sentiment runner</tspan></text><text x="305" y="271" class="node-copy"><tspan x="305">out-of-fold regression</tspan><tspan x="305" dy="18">threshold prediction at 0</tspan><tspan x="305" dy="18">accuracy + balanced accuracy</tspan></text>
+        <path class="edge" d="M215 165 C245 165 250 110 285 110"/><path class="edge" d="M215 195 C245 195 250 270 285 270"/>
+        <text x="225" y="129" class="edge-label">axis</text><text x="226" y="234" class="edge-label">sentiment</text>
+        <rect class="node" x="620" y="45" width="300" height="125" rx="12"/><text x="640" y="77" class="node-title"><tspan x="640">Axis run artifacts</tspan></text><text x="640" y="106" class="node-copy"><tspan x="640">embeddings.npy · rows.tsv</tspan><tspan x="640" dy="18">grid results · metrics</tspan><tspan x="640" dy="18">predictions · plots</tspan></text>
+        <rect class="node" x="620" y="210" width="300" height="125" rx="12"/><text x="640" y="242" class="node-title"><tspan x="640">Sentiment artifacts</tspan></text><text x="640" y="271" class="node-copy"><tspan x="640">OOF predictions · class metrics</tspan><tspan x="640" dy="18">confusion + prediction tables</tspan><tspan x="640" dy="18">different metric contract</tspan></text>
+        <path class="edge" d="M535 108 H620"/><path class="edge" d="M535 273 H620"/>
+        <rect class="node external" x="25" y="270" width="190" height="65" rx="10"/><text x="45" y="297" class="node-title"><tspan x="45">Fail closed</tspan></text><text x="45" y="320" class="node-copy"><tspan x="45">too few or invalid</tspan></text>
+      </svg>
+    </div></div>
+  </section>
+  <section aria-labelledby="report-title">
+    <h2 id="report-title">7. Complete-run comparison reports</h2>
+    <p>The report CLI reads existing backend-specific runs; it does not re-encode MIDI or rerun experiments. The generator chooses the latest matching config/metrics directory, extracts Spearman for axes or required accuracy metrics for sentiment, refuses if any requested experiment/backend pair is missing or malformed, and stages TSV/PNG outputs before atomically renaming the completed report directory.</p>
+    <div class="diagram focused"><div class="diagram-scroll">
+      <svg viewBox="0 0 960 360" width="100%" role="img" aria-labelledby="report-svg-title report-svg-desc">
+        <title id="report-svg-title">Report completeness and publication flow</title>
+        <desc id="report-svg-desc">The report CLI validates backend and experiment names, finds latest matching run directories and reads metrics. Missing runs or required metrics block report generation. Complete results are rendered as TSV and plots in a temporary staging directory, then atomically renamed.</desc>
+        <rect class="node" x="25" y="80" width="200" height="105" rx="12"/><text x="45" y="112" class="node-title"><tspan x="45">Report CLI</tspan></text><text x="45" y="141" class="node-copy"><tspan x="45">backend / experiment</tspan><tspan x="45" dy="18">existing runs only</tspan></text>
+        <rect class="node" x="280" y="80" width="230" height="105" rx="12"/><text x="300" y="112" class="node-title"><tspan x="300">Find latest run</tspan></text><text x="300" y="141" class="node-copy"><tspan x="300">matching config + metrics</tspan><tspan x="300" dy="18">extract metric contract</tspan></text>
+        <rect class="node" x="575" y="35" width="330" height="95" rx="12"/><text x="595" y="67" class="node-title"><tspan x="595">Missing / invalid input</tspan></text><text x="595" y="96" class="node-copy"><tspan x="595">FileNotFoundError; no complete report</tspan></text>
+        <rect class="node" x="575" y="165" width="330" height="95" rx="12"/><text x="595" y="197" class="node-title"><tspan x="595">Staged report</tspan></text><text x="595" y="226" class="node-copy"><tspan x="595">TSV + PNG per experiment</tspan></text>
+        <path class="edge" d="M225 132 H280"/><path class="edge" d="M510 115 C540 115 540 212 575 212"/><path class="edge-soft" d="M510 150 C540 150 540 82 575 82"/>
+        <text x="520" y="205" class="edge-label">complete</text><text x="520" y="100" class="edge-label">incomplete</text>
+        <rect class="node" x="575" y="280" width="330" height="55" rx="10"/><text x="595" y="314" class="node-copy"><tspan x="595">atomic rename → final snapshot</tspan></text>
+        <path class="edge" d="M740 260 V280"/>
+      </svg>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="interpret-title">
+    <h2 id="interpret-title">Interpretation and evidence limits</h2>
+    <div class="callout"><strong>Observed implementation:</strong> Five embedding backends share matrix validation, but their tokenization, model loading and pooling conventions differ. Current tests assert selected deterministic mechanics with fakes; they are software-boundary checks, not evaluations of pretrained models.</div>
+    <div class="callout warning"><strong>Not established:</strong> The source and tests do not establish that vectors from different backends are directly comparable, that benchmark scores represent musical similarity, or that the preprocessing is invariant to rendering choices. No real-checkpoint benchmark was run as part of this tour.</div>
+    <p>Axis metrics depend on target, retained rows, group labels, fold construction and search grid. Sentiment metrics are post-hoc threshold metrics over out-of-fold regression predictions. Report completeness means requested artifacts exist and satisfy expected columns; it does not establish statistical power or scientific validity. The BEAT retry depends on an upstream error-string match and trades PPQ precision for a bounded tick count. CLaMP3's strict load checks tensor-key compatibility but not checkpoint provenance beyond the configured repository/file.</p>
+  </section>
+
+  <section aria-labelledby="coverage-title">
+    <h2 id="coverage-title">coverage stimato</h2>
+    <p>Parser-backed estimate derived from the generated tour anchors with <code>coverage.py</code>; it is not test coverage and does not prove that code is explained, correct, complete, or scientifically valid. The source inventory was refreshed and reconciled without dropping the earlier baseline, then synchronized from this tour. Per the script's rule, a Python anchor on line 1 counts the whole file; this is file-level estimated coverage, not a claim that every line is explained.</p>
+    <div class="stats">
+      <div class="stat"><strong>18 / 26,319 files · 0.1%</strong><span>Visited / inventory files; exact ratio ≈ 0.0684%, rounded to one decimal by the stats command.</span></div>
+      <div class="stat"><strong>2,836 / 10,211,490 lines · 0.0%</strong><span>Visited / inventory lines; exact ratio ≈ 0.0278%, rounded to one decimal by the stats command.</span></div>
+      <div class="stat"><strong>.tours/tour_state.json</strong><span>Reconciled baseline: current repository source extensions, preserved earlier inventory, and tour-anchored README, manifest, lockfile, and ignore rules.</span></div>
+    </div>
+    <div class="scope"><strong>Intentionally skipped:</strong> full source internals of ARIA, all datasets and their provenance, deeper model architectures, the repository's unrelated scripts/packages, real external model/code checkouts and weights, cache contents, and empirical benchmark result interpretation. File inventory includes the reconciled prior baseline and current repository sources; line coverage for Python anchors follows the coverage script's enclosing-syntax-range estimate.</div>
+  </section>
+
+  <footer>
+    Tour companion: <code>.tours/new-joiner-embedding-benchmark.tour</code>. Claims were traced to the README, manifest/lock, CLI, settings, shared runner, adapters, current CLaMP3 source and license, BEAT adapter, tests, sentiment runner and comparison-report implementation.
+  </footer>
+</body>
+</html>

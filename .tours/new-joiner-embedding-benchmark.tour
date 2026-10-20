@@ -1,0 +1,115 @@
+{
+  "title": "New joiner: embedding benchmark suite and worktree changes",
+  "description": "Trace commit 5d49e7e763c19811e262b51176510311e9470099 from matrix selection through feature extraction, regression and sentiment outputs, report completeness, then inspect the current worktree additions: BEAT piano inference and a standalone CLaMP3 symbolic implementation.",
+  "ref": "master",
+  "steps": [
+    {
+      "title": "Start with the current benchmark contract",
+      "description": "The current README describes the shared experiment flow and the added adapters. The committed feature set includes Adversarial-MidiBERT, MIDI-GPT and CLaMP3 C2; the current worktree additionally documents BEAT, whose official converter/tokenizer path, PPQ guard workaround and external checkout/checkpoint are separate runtime prerequisites.",
+      "file": "README.md",
+      "line": 67
+    },
+    {
+      "title": "Optional dependencies are separated",
+      "description": "The manifest adds a `beat` extra for `pretty-midi` and keeps pretrained-model dependencies in the `models` extra. This distinction matters: the BEAT checkout and checkpoint are external, while the Python package and lockfile describe only its declared dependencies.",
+      "file": "pyproject.toml",
+      "line": 29
+    },
+    {
+      "title": "Lockfile records dependency resolution",
+      "description": "The lockfile lists the optional extras and BEAT dependency marker. It establishes package-resolution state, not availability of upstream source repositories or model weights.",
+      "file": "uv.lock",
+      "line": 1562
+    },
+    {
+      "title": "Choose the backend × experiment matrix",
+      "description": "`main()` defaults to every embedding backend and configured experiment. Nested dispatch sends ordinary axis experiments to `run_experiment()` and sentiment to its distinct runner; failures are collected per pair and raised at the end, so partial output is not reported as a complete matrix.",
+      "file": "scripts/run_embedding_benchmark.py",
+      "line": 1
+    },
+    {
+      "title": "Keep generated model state out of version control",
+      "description": "The tracked ignore change excludes BEAT checkpoint archives and the shared `checkpoints/` directory. Generated `outputs/` and embedding caches were already ignored. This makes the external-weight boundary explicit in the worktree but does not package or install the weights.",
+      "file": ".gitignore",
+      "line": 24
+    },
+    {
+      "title": "Run an axis experiment",
+      "description": "`run_experiment()` consumes the experiment specifications in `experiments/settings.py`, validates experiment/backend, creates an isolated timestamped output directory, prepares rows and MIDI, applies pitch filtering and target outlier removal, then materializes embeddings. The configured pipeline/grid uses shuffled seeded KFold and Spearman scoring; selected anchor counts feed out-of-fold predictions and result artifacts. MIDI preparation errors may skip individual rows, but matrix failures abort the experiment.",
+      "file": "experiments/common/runner.py",
+      "line": 1
+    },
+    {
+      "title": "Prepare and align rows with MIDI",
+      "description": "`prepare_rows_and_midi()` reads TSV rows, filters if configured, resolves source MIDI or converts MusicXML/Kern, and can synthesize pitch-note MIDI. It normalizes non-meta messages to channel 0 and program 0. Per-row preparation exceptions are logged and the corresponding row is removed alongside its MIDI mapping; this is a data inclusion boundary for later analysis.",
+      "file": "experiments/common/runner_data.py",
+      "line": 1
+    },
+    {
+      "title": "Route features and persist cache vectors",
+      "description": "`feature_backend.py` maps names to lazy encoder imports, supports Musif separately, and stores embeddings under backend/dataset/query ID. Matrix construction loads cache hits or calls `encode_midi`, validates finite nonempty vectors and consistent dimensions, then stacks in input order. Cache identity omits checkpoint/content hashes, so changes to a model or preprocessing do not invalidate old vectors automatically.",
+      "file": "experiments/common/feature_backend.py",
+      "line": 1
+    },
+    {
+      "title": "Inspect Adversarial-MidiBERT representation",
+      "description": "The adapter converts MIDI note events and metadata into quantized eight-field Octuple events, including bar/position, instrument, pitch, duration, velocity, time signature and tempo. It pools final hidden states across 1024-token windows weighted by valid-token count. Its documented mid-bar time-signature compatibility behavior and 256-bar limit are implementation constraints, not evaluated scientific invariances.",
+      "file": "experiments/common/embed_adversarial_midibert.py",
+      "line": 1
+    },
+    {
+      "title": "Inspect MIDI-GPT score windows",
+      "description": "MIDI-GPT parses a score, normalizes unsupported time signatures, pads short bar windows, tokenizes and chunks within the model context. A hook captures final hidden states; token-count-weighted window pooling produces the vector. Unsupported signatures, empty tokens, invalid context and missing hidden states fail rather than returning a substitute embedding.",
+      "file": "experiments/common/embed_midigpt.py",
+      "line": 1
+    },
+    {
+      "title": "CLaMP3 C2 adapter and current replacement",
+      "description": "The current worktree adapter downloads the C2 checkpoint from Hugging Face, selects `CLAMP3_DEVICE` or CUDA/CPU, and delegates to the local `clamp3_source` module. This differs from the committed adapter path: it removes runtime dependence on Aria as a submodule and expects a strict symbolic-checkpoint load.",
+      "file": "experiments/common/embed_clamp3.py",
+      "line": 1
+    },
+    {
+      "title": "Trace local CLaMP3 symbolic inference",
+      "description": "`M3Patchilizer` converts MTF text into 64-character patches with special tokens. `get_midi_embedding()` builds MTF from MIDI events, segments patches at 512, pads and masks the final segment, then weights segment means by patch count. The loader selects `symbolic_model.` checkpoint keys and requires strict state-dict compatibility. The adjacent `LICENSE-CLaMP3.txt` records provenance and redistribution terms for the adapted source; neither strict loading nor the license establishes real-checkpoint evaluation.",
+      "file": "experiments/common/clamp3_source.py",
+      "line": 1
+    },
+    {
+      "title": "Follow the uncommitted BEAT adapter path",
+      "description": "`embed_beat.py` lazily validates a BEAT-code checkout and piano checkpoint, calls upstream conversion and tokenization, and retries only the specific oversized-tick error through a temporary lower-PPQ MIDI copy. Non-overlapping inference windows exclude the three-token header, EOS and PAD, then pool final states weighted by content count. Missing dependencies, malformed output, invalid hidden-state shapes and non-finite vectors fail closed.",
+      "file": "experiments/common/embed_beat.py",
+      "line": 1
+    },
+    {
+      "title": "Separate sentiment analysis",
+      "description": "`run_sentiment_prediction()` filters numeric valence targets and requires enough rows for CV. It trains out-of-fold regression, maps predictions to a `y >= 0` class, then reports accuracy and balanced accuracy with confusion/prediction outputs. This downstream classification is a distinct analysis of regression predictions, not a direct classifier trained on sentiment labels.",
+      "file": "experiments/sentiment_prediction/run_all.py",
+      "line": 1
+    },
+    {
+      "title": "Require complete comparison inputs",
+      "description": "The comparison generator locates the latest matching run for each requested experiment/backend, extracts Spearman or required sentiment metrics, and accumulates missing/invalid combinations. It refuses to publish if any are absent; successful reports are staged before an atomic directory rename. Report completeness is an artifact contract, not a quality threshold.",
+      "file": "experiments/common/comparison_report.py",
+      "line": 1
+    },
+    {
+      "title": "Check regression and BEAT mechanics",
+      "description": "The benchmark tests exercise adapter contracts with fake model/converter/tokenizer components, including BEAT's token selection, weighted windows and high-PPQ retry. They do not run real checkpoint weights or establish cross-backend comparability; cache and runner behavior should be interpreted separately from those unit-level mechanics.",
+      "file": "tests/test_embedding_benchmark.py",
+      "line": 1
+    },
+    {
+      "title": "Check the standalone CLaMP3 boundary",
+      "description": "The worktree's focused tests pin MIDI-to-MTF serialization, special patch construction, no-Aria import, long-input overlapping segments and strict symbolic key mapping. The segment test confirms a particular synthetic pooling result; it is not a benchmark result or scientific validation of the representation.",
+      "file": "tests/test_clamp3_source.py",
+      "line": 1
+    },
+    {
+      "title": "Continue to the report CLI",
+      "description": "The CLI passes selected experiments and backends to comparison generation. Next inspect how output roots, latest-run selection and report artifacts are consumed by downstream analysis; generated PNG/TSV reports summarize existing runs and do not regenerate embeddings.",
+      "file": "scripts/report_embedding_benchmark.py",
+      "line": 1
+    }
+  ]
+}

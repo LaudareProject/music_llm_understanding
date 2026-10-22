@@ -15,6 +15,12 @@ uv sync
 
 ## Musif feature extraction
 
+Musif is a separate submodule and its dependencies are not installed by `uv sync`. After initializing the submodule, install its declared dependencies into the project environment:
+
+```bash
+uv pip install -e ./musif
+```
+
 Musif features are stored under `data/musif/<dataset>/features.csv` so that every experiment can reuse the same CSV per dataset. To regenerate them:
 
 ```bash

@@ -10,12 +10,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from experiments.common.tsv import read_tsv
 from experiments.common.feature_backend import (
-    MUSIF_IGNORE_COLUMNS,
     musif_features_csv_path,
     musif_cache_dir,
     musif_sources_dir,
     run_musif_extraction,
 )
+from experiments.common.musif_filter import MUSIF_IGNORE_COLUMNS
 from experiments.common.humdrum import kern_to_midi, musicxml_to_midi
 
 

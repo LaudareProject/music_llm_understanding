@@ -1,6 +1,4 @@
 backend	metric	value	ci95	folds	support	output_dir
+musif	spearman	0.9999306375	0.0000341786	5	2200	/home/ecuser/music_llm_understanding/outputs/baseline_features/pitch_axis/run_embedding_benchmark_20261021_111117
 aria	spearman	0.9642561106	0.0077873310	5	2200	/home/ecuser/music_llm_understanding/outputs/aria_embeddings/pitch_axis/run_embedding_benchmark_20261023_103947
-beat	spearman	0.9521267681	0.0124265307	5	2200	/home/ecuser/music_llm_understanding/outputs/beat_embeddings/pitch_axis/run_embedding_benchmark_20261023_112625
 clamp3_c2	spearman	0.9398125788	0.0084954921	5	2200	/home/ecuser/music_llm_understanding/outputs/clamp3_c2_embeddings/pitch_axis/run_embedding_benchmark_20261023_124032
-adversarial_midibert	spearman	0.4443668280	0.0619823809	5	2200	/home/ecuser/music_llm_understanding/outputs/adversarial_midibert_embeddings/pitch_axis/run_embedding_benchmark_20261023_134401
-midigpt	spearman	0.9754343227	0.0106689089	5	2200	/home/ecuser/music_llm_understanding/outputs/midigpt_embeddings/pitch_axis/run_embedding_benchmark_20261023_144846

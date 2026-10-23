@@ -47,7 +47,27 @@ PROJECTION_MODE_LABELS = {
     "0": "direction-based",
     "1": "regression hyper-plane",
 }
+COMPACT_ANCHOR_LABELS = {
+    "first_vs_last": "Det. extremes",
+    "random_sample_first_last": "Random sample",
+    "random_median": "Median rand.",
+    "percentile_medians": "Percentile med.",
+}
 GRID_SCORE_TOLERANCE = 1e-6
+
+
+def _bar_annotation(params) -> str | None:
+    if not params:
+        return None
+    method = params.get("anchor__method")
+    if not method:
+        return None
+    label = COMPACT_ANCHOR_LABELS.get(str(method), anchor_method_label(method))
+    regression = str(params.get("projection__regression", "False")).lower() in {
+        "true",
+        "1",
+    }
+    return f"{label}\n{'w/ reg' if regression else 'no reg'}"
 
 
 def _latest_run(repo_root: Path, experiment: str, backend: str) -> Path | None:
@@ -449,7 +469,9 @@ def _write_selection_sweep(path: Path, experiment: str, sweeps):
     return True
 
 
-def _write_aggregate_spearman(output_dir: Path, report_rows, experiments, backends):
+def _write_aggregate_spearman(
+    output_dir: Path, report_rows, experiments, backends, selected_params=None
+):
     import matplotlib
 
     matplotlib.use("Agg")
@@ -483,15 +505,35 @@ def _write_aggregate_spearman(output_dir: Path, report_rows, experiments, backen
 
     width = 0.8 / len(present)
     colors = plt.get_cmap("tab10").colors
+    selected_params = selected_params or {}
     for index, (backend, values) in enumerate(present):
         offset = (index - (len(present) - 1) / 2) * width
-        ax.bar(
+        bar_container = ax.bar(
             positions + offset,
             values,
             width,
             label=backend,
             color=colors[index % len(colors)],
         )
+        for bar, experiment in zip(bar_container, experiments):
+            annotation = _bar_annotation(
+                selected_params.get(experiment, {}).get(backend)
+            )
+            height = float(bar.get_height())
+            if annotation is None or height <= 0:
+                continue
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height / 2.0,
+                annotation,
+                ha="center",
+                va="center",
+                rotation=90,
+                fontsize=5.5,
+                color="white",
+                linespacing=0.9,
+                clip_on=True,
+            )
     ax.set_xticks(positions)
     ax.set_xticklabels(experiments, rotation=25, ha="right")
     ax.set_ylabel("Spearman correlation")
@@ -521,6 +563,7 @@ def generate_comparison_reports(
 
     report_rows = {}
     plot_run_dirs = {}
+    selected_params = {}
     coverage_rows = []
     missing = []
     for experiment in experiments:
@@ -591,13 +634,14 @@ def generate_comparison_reports(
                     for row in rows
                     if row["metric"] == "spearman"
                 }
-                configs = {
-                    backend: _config_summary(
-                        experiment,
-                        *_selected_grid_params(run_dir, metrics[backend][0]),
+                configs = {}
+                selected_params[experiment] = {}
+                for backend, run_dir in plot_runs.items():
+                    params, grid_size = _selected_grid_params(
+                        run_dir, metrics[backend][0]
                     )
-                    for backend, run_dir in plot_runs.items()
-                }
+                    configs[backend] = _config_summary(experiment, params, grid_size)
+                    selected_params[experiment][backend] = params
                 _write_predicted_comparison(
                     staged_dir / f"{experiment}_predicted_vs_real.png",
                     experiment,
@@ -614,7 +658,9 @@ def generate_comparison_reports(
                     },
                 )
 
-        _write_aggregate_spearman(staged_dir, report_rows, experiments, backends)
+        _write_aggregate_spearman(
+            staged_dir, report_rows, experiments, backends, selected_params
+        )
         write_tsv(
             staged_dir / "plot_coverage.tsv",
             coverage_rows,

@@ -1,0 +1,6 @@
+backend	metric	value	ci95	folds	support	output_dir
+aria	spearman	0.8785954166	0.0348858751	5	57	/home/ecuser/music_llm_understanding/outputs/aria_embeddings/composer_axis_music21/run_embedding_benchmark_20261023_103723
+beat	spearman	0.7893537402	0.0732439656	5	57	/home/ecuser/music_llm_understanding/outputs/beat_embeddings/composer_axis_music21/run_embedding_benchmark_20261023_112336
+clamp3_c2	spearman	0.8034172844	0.0956434268	5	57	/home/ecuser/music_llm_understanding/outputs/clamp3_c2_embeddings/composer_axis_music21/run_embedding_benchmark_20261023_123436
+adversarial_midibert	spearman	0.6078097654	0.1243644471	5	57	/home/ecuser/music_llm_understanding/outputs/adversarial_midibert_embeddings/composer_axis_music21/run_embedding_benchmark_20261023_134134
+midigpt	spearman	0.8080343324	0.1121167566	5	57	/home/ecuser/music_llm_understanding/outputs/midigpt_embeddings/composer_axis_music21/run_embedding_benchmark_20261023_144600

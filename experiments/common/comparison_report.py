@@ -422,6 +422,7 @@ def _write_selection_sweep(path: Path, experiment: str, sweeps):
             ax.tick_params(axis="x", labelsize=8)
             if row_index == len(modes) - 1:
                 ax.set_xlabel("n")
+            ax.set_ylim(0.0, 1.0)
             if col_index == 0:
                 ax.set_ylabel("Spearman")
 

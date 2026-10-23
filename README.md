@@ -125,7 +125,7 @@ After a complete matrix has finished, generate per-experiment metric reports and
 uv run python scripts/report_embedding_benchmark.py
 ```
 
-Use `--backend aria beat clamp3_c2 adversarial_midibert midigpt musif` to include Musif when its runs cover the requested experiments. Each task report includes an overlay of out-of-fold predictions versus real values, with the selected anchor count and grid configuration in the figure notes, plus an n-sweep comparison split by selection algorithm and projection mode. `plot_coverage.tsv` records missing per-run prediction/grid/sweep artifacts; only runs with those artifacts appear in the corresponding plots.
+Use `--backend aria beat clamp3_c2 adversarial_midibert midigpt musif` to include Musif when its runs cover the requested experiments. Each task report includes an overlay of out-of-fold predictions versus real values, with the selected anchor count and grid configuration in the figure notes, plus an n-sweep comparison split by selection algorithm and projection mode; sweep plots use a fixed 0-1 Spearman axis. `plot_coverage.tsv` records missing per-run prediction/grid/sweep artifacts; only runs with those artifacts appear in the corresponding plots.
 
 For a Musif comparison on song-level tasks:
 

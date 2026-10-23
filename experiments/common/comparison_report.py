@@ -458,11 +458,11 @@ def _write_aggregate_spearman(output_dir: Path, report_rows, experiments, backen
     experiments = [experiment for experiment in experiments if report_rows.get(experiment)]
     if not experiments:
         return
-    fig, ax = plt.subplots(figsize=(max(9, len(experiments) * 1.4), 5.5))
+    fig, ax = plt.subplots(figsize=(max(9, len(experiments) * 1.6), 5.5))
     positions = np.arange(len(experiments), dtype=float)
+    present = []
     for backend in backends:
         values = []
-        errors = []
         for experiment in experiments:
             row = next(
                 (
@@ -475,20 +475,26 @@ def _write_aggregate_spearman(output_dir: Path, report_rows, experiments, backen
             if row is None:
                 break
             values.append(float(row["value"]))
-            errors.append(float(row["ci95"] or 0.0))
         else:
-            ax.errorbar(
-                positions,
-                values,
-                yerr=errors,
-                marker="o",
-                linewidth=1.4,
-                capsize=3,
-                label=backend,
-            )
+            present.append((backend, values))
+    if not present:
+        plt.close(fig)
+        return
+
+    width = 0.8 / len(present)
+    colors = plt.get_cmap("tab10").colors
+    for index, (backend, values) in enumerate(present):
+        offset = (index - (len(present) - 1) / 2) * width
+        ax.bar(
+            positions + offset,
+            values,
+            width,
+            label=backend,
+            color=colors[index % len(colors)],
+        )
     ax.set_xticks(positions)
     ax.set_xticklabels(experiments, rotation=25, ha="right")
-    ax.set_ylabel("Spearman correlation (mean ± 95% CI)")
+    ax.set_ylabel("Spearman correlation")
     ax.axhline(0.0, color="#777777", linewidth=0.8)
     ax.set_title("Backend comparison across correlation tasks")
     ax.grid(axis="y", alpha=0.2)
